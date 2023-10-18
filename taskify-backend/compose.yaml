@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: 'postgres:13'
+    ports:
+      - '5434:5432'
+    volumes:
+      - taskify_db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: taskify
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+volumes:
+    taskify_db_data:
+      external: true
+
