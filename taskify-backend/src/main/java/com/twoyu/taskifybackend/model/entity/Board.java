@@ -2,9 +2,9 @@ package com.twoyu.taskifybackend.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.cglib.core.Local;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -13,8 +13,8 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "workspace")
-public class Workspace implements Serializable {
+@Table(name = "board")
+public class Board implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,17 +29,19 @@ public class Workspace implements Serializable {
     @Column(name = "description")
     private String description;
 
+    /**
+     * 建立日期
+     */
     @Column(name = "created_at", nullable = false, updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
+    /**
+     * 修改日期
+     */
     @Column(name = "modified_at", insertable = false)
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt;
-
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
-
 }

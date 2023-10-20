@@ -23,8 +23,8 @@ public class Labels implements Serializable {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "workspace_id")
-    private UUID workspaceId;
+    @Column(name = "board_id")
+    private UUID boardId;
 
     @Column(name = "name", nullable = false)
     private String ame;
