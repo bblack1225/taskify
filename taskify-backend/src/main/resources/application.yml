@@ -1,8 +1,13 @@
 server:
   port: 8088
+  servlet:
+    context-path: /api
 spring:
   datasource:
     username: bblack1225
     password: black12345
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://taskify-db-instance.ctgopnxcugom.ap-southeast-2.rds.amazonaws.com:5432/taskifydb
+  jpa:
+    hibernate:
+      ddl-auto: validate
