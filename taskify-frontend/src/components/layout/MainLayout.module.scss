@@ -1,4 +1,6 @@
 .main {
   display: flex;
   padding-left: 17em; 
+  // 神奇的height設定，讓scroll bar出現
+  height: 100px;
 }
