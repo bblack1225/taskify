@@ -45,8 +45,11 @@ public class StatusColumn implements Serializable {
     /**
      * 狀態欄排序
      */
-    @Column(name = "order", nullable = false)
-    private Integer order;
+    @Column(name = "data_index", nullable = false)
+    private Integer dataIndex;
+
+    @Column(name = "board_id", nullable = false)
+    private UUID boardId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
@@ -57,6 +60,7 @@ public class StatusColumn implements Serializable {
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt;
+
 
     @Override
     public boolean equals(Object o) {
