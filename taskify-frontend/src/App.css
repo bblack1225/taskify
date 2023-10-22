@@ -1,3 +1,19 @@
 * {
   overflow: hidden;
 }
+
+::-webkit-scrollbar {
+  /* 透明背景 */
+  background-color: transparent;
+  /* y軸scroll的寬度  */
+  width: 10px;
+  /* x軸scroll的高度  */
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  /* 滾動條的背景色 */
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+
+}
