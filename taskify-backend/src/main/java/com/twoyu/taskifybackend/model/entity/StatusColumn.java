@@ -1,28 +1,23 @@
 package com.twoyu.taskifybackend.model.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Objects;
+import java.util.Date;
 import java.util.UUID;
 
 /**
  * 狀態欄
  */
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
+@Data
 @Entity
 @Table(name = "status_column")
 public class StatusColumn implements Serializable {
 
-    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -45,11 +40,8 @@ public class StatusColumn implements Serializable {
     /**
      * 狀態欄排序
      */
-    @Column(name = "data_index", nullable = false)
-    private Integer dataIndex;
-
-    @Column(name = "board_id", nullable = false)
-    private UUID boardId;
+    @Column(name = "order", nullable = false)
+    private Integer order;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
@@ -61,17 +53,4 @@ public class StatusColumn implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt;
 
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StatusColumn that = (StatusColumn) o;
-        return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
 }
