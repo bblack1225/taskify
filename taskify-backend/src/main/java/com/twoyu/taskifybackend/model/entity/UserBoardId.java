@@ -13,10 +13,10 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskLabelsId implements Serializable {
-    @Column(name = "task_id", nullable = false)
-    private UUID taskId;
+public class UserBoardId implements Serializable {
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
 
-    @Column(name = "label_id", nullable = false)
-    private UUID labelId;
+    @Column(name = "board_id", nullable = false)
+    private UUID boardId;
 }

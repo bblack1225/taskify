@@ -73,20 +73,17 @@ comment on column users.modified_at is '修改日期';
 alter table users
     owner to "user";
 
-create table workspace
+create table board
 (
     id          uuid                                not null
         primary key,
     name        varchar(100)                        not null,
     description text,
     created_at  timestamp default CURRENT_TIMESTAMP not null,
-    modified_at timestamp,
-    user_id     uuid                                not null
-        constraint workspace___user_fk
-            references users
+    modified_at timestamp
 );
 
-alter table workspace
+alter table board
     owner to "user";
 
 create table labels
@@ -94,8 +91,8 @@ create table labels
     id           uuid        not null
         constraint tags_pkey
             primary key,
-    workspace_id uuid
-        constraint tags_workspace_id_fkey
+    board_id uuid
+        constraint labels_board_fk
             references workspace,
     tag_name     varchar(50) not null,
     color        varchar(7)  not null,
@@ -118,3 +115,11 @@ create table tasks_labels
 alter table tasks_labels
     owner to "user";
 
+create table user_board
+(
+    user_id uuid not null
+        references users,
+    board_id uuid not null
+        references board,
+    primary key (user_id, board_id)
+);
