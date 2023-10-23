@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Input, Stack } from "@mantine/core";
+import { Box, Button, Flex, Stack, TextInput } from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
 import TaskCard from "./TaskCard";
 import NewCardModal from "./NewCardModal";
@@ -168,7 +168,10 @@ function TaskColumn() {
         <Flex style={{ flexShrink: 0 }} key={column.id}>
           <Box>
             <Stack className={style.columnContainer}>
-              <Input className={style.taskTitle} defaultValue={column.title} />
+              <TextInput
+                className={style.taskTitle}
+                defaultValue={column.title}
+              />
               <Stack className={style.taskContainer}>
                 {column.tasks.map((task) => (
                   <TaskCard key={task.id} task={task} />

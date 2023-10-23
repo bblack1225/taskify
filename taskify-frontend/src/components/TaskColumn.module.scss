@@ -17,6 +17,19 @@
 .taskTitle {
   margin: 0 14px 0 4px;
   padding: 10px 4px 20px;
+  background: transparent;
+  input {
+    background-color: #4592af;
+    border: none;
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+    &:focus {
+      color: gray;
+      border: 3px solid #a6e4e7;
+      background-color: #f9f5f0;
+    }
+  }
 }
 
 .taskContainer {
