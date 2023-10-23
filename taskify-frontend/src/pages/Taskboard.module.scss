@@ -1,0 +1,27 @@
+.container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex: 1;
+  gap: 10px;
+  .columnContainer {
+    width: 300px;
+    background: #4592af;
+    padding: 12px 2px 12px 5px;
+    border-radius: 10px;
+    max-height: calc(100% - 5px)
+  }
+}
+
+.taskTitle {
+  margin: 0px 14px 0px 4px;
+  padding: 10px 4px 20px;
+}
+
+.taskContainer {
+  overflow-x: hidden;
+  overflow-y: auto;
+  margin: 4px;
+  padding: 2px 4px;
+  gap: 8px;
+}
