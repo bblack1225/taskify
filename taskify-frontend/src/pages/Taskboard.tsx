@@ -1,5 +1,5 @@
-import { Flex, Stack } from "@mantine/core"
-import TaskColumn from "../components/TaskColumn"
+import { Flex, Stack } from "@mantine/core";
+import TaskColumn from "@/components/TaskColumn";
 
 function TaskBoard() {
   return (
@@ -9,7 +9,7 @@ function TaskBoard() {
       </Flex>
       <TaskColumn />
     </Stack>
-  )
+  );
 }
 
-export default TaskBoard
+export default TaskBoard;

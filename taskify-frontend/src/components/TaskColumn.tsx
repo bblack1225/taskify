@@ -1,8 +1,8 @@
-import { Box, Button, Flex, Input, Stack } from "@mantine/core"
-import style from "@/src/components/TaskColumn.module.scss"
-import TaskCard from "./TaskCard"
-import NewCardModal from "./NewCardModal"
-import { useState } from "react"
+import { Box, Button, Flex, Input, Stack } from "@mantine/core";
+import style from "@/components/TaskColumn.module.scss";
+import TaskCard from "./TaskCard";
+import NewCardModal from "./NewCardModal";
+import { useState } from "react";
 
 const COLUMN_DATA = [
   {
@@ -144,24 +144,24 @@ const COLUMN_DATA = [
       },
     ],
   },
-]
+];
 
 function TaskColumn() {
-  const [isModalOpen, setModalOpen] = useState(false)
-  const [cards, setCards] = useState(COLUMN_DATA)
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [cards, setCards] = useState(COLUMN_DATA);
 
   const handleAddCard = (cardText: string) => {
     const newCard = {
       id: cards[0].tasks.length + 1,
       title: cardText,
       description: "",
-    }
+    };
 
-    const updatedCards = [...cards]
-    updatedCards[0].tasks.push(newCard)
+    const updatedCards = [...cards];
+    updatedCards[0].tasks.push(newCard);
 
-    setCards(updatedCards)
-  }
+    setCards(updatedCards);
+  };
   return (
     <Flex className={style.container}>
       {COLUMN_DATA.map((column) => (
@@ -192,7 +192,7 @@ function TaskColumn() {
         onAddCard={handleAddCard}
       />
     </Flex>
-  )
+  );
 }
 
-export default TaskColumn
+export default TaskColumn;
