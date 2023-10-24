@@ -7,16 +7,14 @@
 
   .columnContainer {
     width: 300px;
-    background: #4592af;
+    background-color: #4592af;
     padding: 12px 2px 12px 5px;
     border-radius: 10px;
-    max-height: calc(100% - 5px)
+    max-height: calc(100% - 20px)
   }
 }
 
 .taskTitle {
-  margin: 0 14px 0 4px;
-  padding: 10px 4px 20px;
   background: transparent;
   input {
     background-color: #4592af;

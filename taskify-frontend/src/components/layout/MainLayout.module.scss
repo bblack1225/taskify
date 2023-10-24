@@ -2,5 +2,17 @@
   display: flex;
   padding-left: 17em; 
   // 神奇的height設定，讓scroll bar出現
-  height: 100px;
+  height: 1px;
+}
+
+.navbar {
+  width: 250px;
+  background-color: #e4f1fe;
+}
+
+.header {
+  padding: 20px;
+  color: white;
+  font-weight: bold;
+  background-color: #4592af;
 }
