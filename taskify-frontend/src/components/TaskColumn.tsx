@@ -1,7 +1,8 @@
-import { Box, Button, Flex, Stack, TextInput } from "@mantine/core";
+import { ActionIcon, Box, Button, Flex, Stack, TextInput } from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
 import TaskCard from "./TaskCard";
 import NewCardModal from "./NewCardModal";
+import { IconDotsVertical } from "@tabler/icons-react";
 import { useState } from "react";
 
 const COLUMN_DATA = [
@@ -167,24 +168,36 @@ function TaskColumn() {
       {COLUMN_DATA.map((column) => (
         <Flex style={{ flexShrink: 0 }} key={column.id}>
           <Box>
-            <Stack className={style.columnContainer}>
-              <TextInput
-                className={style.taskTitle}
-                defaultValue={column.title}
-              />
+            <Stack className={style.columnContainer} gap={"sm"}>
+              <Flex className={style.taskTitleContainer}>
+                <TextInput
+                  className={style.taskTitle}
+                  defaultValue={column.title}
+                />
+                <ActionIcon
+                  className={style.actionIcon}
+                  variant="transparent"
+                  color="white"
+                  size={"lg"}
+                >
+                  <IconDotsVertical size="1.125rem" />
+                </ActionIcon>
+              </Flex>
               <Stack className={style.taskContainer}>
                 {column.tasks.map((task) => (
                   <TaskCard key={task.id} task={task} />
                 ))}
               </Stack>
-              <Stack
-                // 為了因應tasks區塊的scroll bar空隙，所以margin要調整，後續可以重構
-                style={{ marginLeft: 4, marginRight: 14, padding: "2px 4px" }}
-              >
-                <Button color="#4592af" onClick={() => setModalOpen(true)}>
+              <Flex className={style.addButtonContainer}>
+                <Button
+                  w={"100%"}
+                  justify="flex-start"
+                  color="#4592af"
+                  onClick={() => setModalOpen(true)}
+                >
                   + 新增卡片
                 </Button>
-              </Stack>
+              </Flex>
             </Stack>
           </Box>
         </Flex>
