@@ -1,7 +1,7 @@
 package com.twoyu.taskifybackend.controller;
 
 import com.twoyu.taskifybackend.model.vo.request.AddColumnRequest;
-import com.twoyu.taskifybackend.model.vo.response.AddColumnRes;
+import com.twoyu.taskifybackend.model.vo.response.AddColumnResponse;
 import com.twoyu.taskifybackend.service.IStatusColumnService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class StatusColumnController {
     private final IStatusColumnService statusColumnService;
 
     @PostMapping
-    public AddColumnRes addColumn(@Valid @RequestBody AddColumnRequest request){
+    public AddColumnResponse addColumn(@Valid @RequestBody AddColumnRequest request){
         return statusColumnService.addColumn(request);
     }
 

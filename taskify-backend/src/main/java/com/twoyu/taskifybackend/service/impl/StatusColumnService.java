@@ -2,7 +2,7 @@ package com.twoyu.taskifybackend.service.impl;
 
 import com.twoyu.taskifybackend.model.entity.StatusColumn;
 import com.twoyu.taskifybackend.model.vo.request.AddColumnRequest;
-import com.twoyu.taskifybackend.model.vo.response.AddColumnRes;
+import com.twoyu.taskifybackend.model.vo.response.AddColumnResponse;
 import com.twoyu.taskifybackend.repository.StatusColumnRepository;
 import com.twoyu.taskifybackend.service.IStatusColumnService;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +17,13 @@ public class StatusColumnService implements IStatusColumnService {
     private final StatusColumnRepository statusColumnRepository;
 
     @Override
-    public AddColumnRes addColumn(AddColumnRequest addColumnRequest) {
+    public AddColumnResponse addColumn(AddColumnRequest addColumnRequest) {
         StatusColumn statusColumn = new StatusColumn();
         statusColumn.setTitle(addColumnRequest.getTitle());
         statusColumn.setDataIndex(addColumnRequest.getDataIndex());
         statusColumn.setBoardId(addColumnRequest.getBoardId());
         statusColumn = statusColumnRepository.save(statusColumn);
-        return new AddColumnRes(
+        return new AddColumnResponse(
                 statusColumn.getId(),
                 statusColumn.getBoardId(),
                 statusColumn.getTitle(),

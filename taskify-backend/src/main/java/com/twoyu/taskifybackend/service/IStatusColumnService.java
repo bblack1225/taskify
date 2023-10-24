@@ -1,8 +1,8 @@
 package com.twoyu.taskifybackend.service;
 
 import com.twoyu.taskifybackend.model.vo.request.AddColumnRequest;
-import com.twoyu.taskifybackend.model.vo.response.AddColumnRes;
+import com.twoyu.taskifybackend.model.vo.response.AddColumnResponse;
 
 public interface IStatusColumnService {
- AddColumnRes addColumn(AddColumnRequest addColumnRequest);
+ AddColumnResponse addColumn(AddColumnRequest addColumnRequest);
 }

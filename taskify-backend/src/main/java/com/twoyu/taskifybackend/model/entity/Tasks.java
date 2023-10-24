@@ -36,8 +36,8 @@ public class Tasks implements Serializable {
     /**
      * 任務在欄中的排序
      */
-    @Column(name = "order", nullable = false)
-    private Integer order;
+    @Column(name = "data_index", nullable = false)
+    private Integer dataIndex;
 
     /**
      * 任務描述

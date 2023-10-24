@@ -31,13 +31,12 @@ public class Labels implements Serializable {
     private UUID boardId;
 
     @Column(name = "name", nullable = false)
-    private String ame;
+    private String name;
 
     @Column(name = "color", nullable = false)
     private String color;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp
     private LocalDateTime createdAt;
 
