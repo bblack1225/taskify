@@ -1,8 +1,9 @@
-import { Box, Button, Flex, Stack, TextInput } from "@mantine/core";
-import style from "@/components/TaskColumn.module.scss";
-import TaskCard from "./TaskCard";
-import NewCardModal from "./NewCardModal";
-import { useState } from "react";
+import { Box, Button, Flex, Stack, TextInput, ActionIcon } from "@mantine/core"
+import style from "@/components/TaskColumn.module.scss"
+import TaskCard from "./TaskCard"
+import NewCardModal from "./NewCardModal"
+import { useState } from "react"
+import { IconDotsVertical } from "@tabler/icons-react"
 
 const COLUMN_DATA = [
   {
@@ -144,42 +145,59 @@ const COLUMN_DATA = [
       },
     ],
   },
-];
+]
 
 function TaskColumn() {
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [cards, setCards] = useState(COLUMN_DATA);
+  const [isModalOpen, setModalOpen] = useState(false)
+  const [cards, setCards] = useState(COLUMN_DATA)
 
   const handleAddCard = (cardText: string) => {
     const newCard = {
       id: cards[0].tasks.length + 1,
       title: cardText,
       description: "",
-    };
+    }
 
-    const updatedCards = [...cards];
-    updatedCards[0].tasks.push(newCard);
+    const updatedCards = [...cards]
+    updatedCards[0].tasks.push(newCard)
 
-    setCards(updatedCards);
-  };
+    setCards(updatedCards)
+  }
   return (
     <Flex className={style.container}>
       {COLUMN_DATA.map((column) => (
         <Flex style={{ flexShrink: 0 }} key={column.id}>
           <Box>
             <Stack className={style.columnContainer}>
-              <TextInput
-                className={style.taskTitle}
-                defaultValue={column.title}
-              />
+              <Flex className={style.titleContainer}>
+                <TextInput
+                  className={style.taskTitle}
+                  defaultValue={column.title}
+                />
+                <ActionIcon
+                  className={style.actionIcon}
+                  variant="transparent"
+                  aria-label="Settings"
+                  color="white"
+                  size={"lg"}
+                >
+                  <IconDotsVertical size="1.125rem" />
+                </ActionIcon>
+              </Flex>
               <Stack className={style.taskContainer}>
                 {column.tasks.map((task) => (
                   <TaskCard key={task.id} task={task} />
                 ))}
               </Stack>
               <Stack
+                className={style.addButtonContainer}
                 // 為了因應tasks區塊的scroll bar空隙，所以margin要調整，後續可以重構
-                style={{ marginLeft: 4, marginRight: 14, padding: "2px 4px" }}
+                style={
+                  {
+                    // marginLeft: 4,
+                    // marginRight: 14,
+                  }
+                }
               >
                 <Button color="#4592af" onClick={() => setModalOpen(true)}>
                   + 新增卡片
@@ -195,7 +213,7 @@ function TaskColumn() {
         onAddCard={handleAddCard}
       />
     </Flex>
-  );
+  )
 }
 
-export default TaskColumn;
+export default TaskColumn
