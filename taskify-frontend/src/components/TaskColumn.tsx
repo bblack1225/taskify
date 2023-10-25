@@ -1,10 +1,11 @@
-import { Box, Button, Flex, Stack, TextInput, ActionIcon } from "@mantine/core"
-import style from "@/components/TaskColumn.module.scss"
-import TaskCard from "./TaskCard"
-import NewCardModal from "./NewCardModal"
-import { useState } from "react"
-import { IconDotsVertical } from "@tabler/icons-react"
-
+import { Box, Button, Flex, Stack, TextInput, ActionIcon } from "@mantine/core";
+import style from "@/components/TaskColumn.module.scss";
+import TaskCard from "./TaskCard";
+import NewCardModal from "./NewCardModal";
+import { useState } from "react";
+import { IconDotsVertical } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 const COLUMN_DATA = [
   {
     id: 1,
@@ -145,24 +146,33 @@ const COLUMN_DATA = [
       },
     ],
   },
-]
+];
 
 function TaskColumn() {
-  const [isModalOpen, setModalOpen] = useState(false)
-  const [cards, setCards] = useState(COLUMN_DATA)
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [cards, setCards] = useState(COLUMN_DATA);
+  const { isPending, data, error } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: () => axios.get("/api/board").then((res) => res.data),
+  });
+
+  if (isPending) return "Loading...";
+
+  if (error) return "An error has occurred: " + error.message;
+  console.log("data", data);
 
   const handleAddCard = (cardText: string) => {
     const newCard = {
       id: cards[0].tasks.length + 1,
       title: cardText,
       description: "",
-    }
+    };
 
-    const updatedCards = [...cards]
-    updatedCards[0].tasks.push(newCard)
+    const updatedCards = [...cards];
+    updatedCards[0].tasks.push(newCard);
 
-    setCards(updatedCards)
-  }
+    setCards(updatedCards);
+  };
   return (
     <Flex className={style.container}>
       {COLUMN_DATA.map((column) => (
@@ -213,7 +223,7 @@ function TaskColumn() {
         onAddCard={handleAddCard}
       />
     </Flex>
-  )
+  );
 }
 
-export default TaskColumn
+export default TaskColumn;

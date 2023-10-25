@@ -8,13 +8,13 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <MantineProvider>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <MantineProvider>
         <MainLayout>
           <TaskBoard />
         </MainLayout>
-      </QueryClientProvider>
-    </MantineProvider>
+      </MantineProvider>
+    </QueryClientProvider>
   );
 }
 
