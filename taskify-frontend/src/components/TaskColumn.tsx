@@ -1,4 +1,12 @@
-import { Box, Button, Flex, Stack, TextInput, ActionIcon } from "@mantine/core";
+import {
+  Box,
+  Button,
+  Flex,
+  Stack,
+  TextInput,
+  ActionIcon,
+  Loader,
+} from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
 import TaskCard from "./TaskCard";
 import NewCardModal from "./NewCardModal";
@@ -158,7 +166,12 @@ function TaskColumn() {
     queryFn: () => fetchBoardData("296a0423-d062-43d7-ad2c-b5be1012af96"),
   });
 
-  if (isPending) return "Loading...";
+  if (isPending)
+    return (
+      <div style={{ margin: "0 auto" }}>
+        <Loader color="#4592af" type="dots" />
+      </div>
+    );
 
   if (error) return "An error has occurred: " + error.message;
   console.log("data", data);

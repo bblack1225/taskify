@@ -4,7 +4,7 @@ import {
   IconAlignBoxBottomCenter,
   IconUsers,
   IconCalendarSearch,
-  IconArrowBadgeDown,
+  IconHeartDown,
 } from "@tabler/icons-react";
 function NavBoard() {
   return (
@@ -24,19 +24,19 @@ function NavBoard() {
       <Stack pt={10}>
         <Button color="#d55b3e">
           <IconAlignBoxBottomCenter />
-          看板
+          <Box p={5}>看板</Box>
         </Button>
         <Button color="#d55b3e">
           <IconUsers />
-          成員
+          <Box p={5}>成員</Box>
         </Button>
         <Button color="#d55b3e">
           <IconCalendarSearch />
-          行事曆
+          <Box p={5}>行事曆</Box>
         </Button>
         <Button color="#d55b3e">
-          <IconArrowBadgeDown />
-          你的看板
+          <IconHeartDown />
+          <Box p={5}>你的看板</Box>
         </Button>
       </Stack>
     </Box>
