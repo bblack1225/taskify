@@ -5,7 +5,8 @@ import NewCardModal from "./NewCardModal";
 import { useState } from "react";
 import { IconDotsVertical } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { fetchBoardData } from "@/api/fetchBoardData";
+import NewBoardModal from "./NewBoardModal";
 const COLUMN_DATA = [
   {
     id: 1,
@@ -149,11 +150,12 @@ const COLUMN_DATA = [
 ];
 
 function TaskColumn() {
-  const [isModalOpen, setModalOpen] = useState(false);
+  const [isCardModalOpen, setCardModalOpen] = useState(false);
+  const [isBoardModalOpen, setBoardModalOpen] = useState(false);
   const [cards, setCards] = useState(COLUMN_DATA);
   const { isPending, data, error } = useQuery({
     queryKey: ["tasks"],
-    queryFn: () => axios.get("/api/board").then((res) => res.data),
+    queryFn: () => fetchBoardData("296a0423-d062-43d7-ad2c-b5be1012af96"),
   });
 
   if (isPending) return "Loading...";
@@ -173,6 +175,20 @@ function TaskColumn() {
 
     setCards(updatedCards);
   };
+
+  const handleAddBoard = (cardText: string) => {
+    const newCard = {
+      id: cards[0].tasks.length + 1,
+      title: cardText,
+      description: "",
+    };
+
+    const updatedCards = [...cards];
+    updatedCards[0].tasks.push(newCard);
+
+    setCards(updatedCards);
+  };
+
   return (
     <Flex className={style.container}>
       {COLUMN_DATA.map((column) => (
@@ -199,17 +215,8 @@ function TaskColumn() {
                   <TaskCard key={task.id} task={task} />
                 ))}
               </Stack>
-              <Stack
-                className={style.addButtonContainer}
-                // 為了因應tasks區塊的scroll bar空隙，所以margin要調整，後續可以重構
-                style={
-                  {
-                    // marginLeft: 4,
-                    // marginRight: 14,
-                  }
-                }
-              >
-                <Button color="#4592af" onClick={() => setModalOpen(true)}>
+              <Stack className={style.addButtonContainer}>
+                <Button color="#4592af" onClick={() => setCardModalOpen(true)}>
                   + 新增卡片
                 </Button>
               </Stack>
@@ -217,10 +224,26 @@ function TaskColumn() {
           </Box>
         </Flex>
       ))}
+      <Flex style={{ flexShrink: 0 }}>
+        <Box>
+          <Stack className={style.columnContainer}>
+            <Stack className={style.addButtonContainer}>
+              <Button color="#4592af" onClick={() => setBoardModalOpen(true)}>
+                + 新增其他列表
+              </Button>
+            </Stack>
+          </Stack>
+        </Box>
+      </Flex>
       <NewCardModal
-        opened={isModalOpen}
-        close={() => setModalOpen(false)}
+        opened={isCardModalOpen}
+        close={() => setCardModalOpen(false)}
         onAddCard={handleAddCard}
+      />
+      <NewBoardModal
+        opened={isBoardModalOpen}
+        close={() => setBoardModalOpen(false)}
+        onAddBoard={handleAddBoard}
       />
     </Flex>
   );
