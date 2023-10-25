@@ -1,6 +1,7 @@
 package com.twoyu.taskifybackend.controller;
 
 import com.twoyu.taskifybackend.model.vo.request.AddColumnRequest;
+import com.twoyu.taskifybackend.model.vo.request.UpdateColumnTitleRequest;
 import com.twoyu.taskifybackend.model.vo.response.AddColumnResponse;
 import com.twoyu.taskifybackend.model.vo.response.QueryAllColumnResponse;
 import com.twoyu.taskifybackend.service.IStatusColumnService;
@@ -23,10 +24,11 @@ public class StatusColumnController {
         return statusColumnService.addColumn(request);
     }
 
-    @Operation(summary = "修改一個狀態看板")
-    @PutMapping
-    public AddColumnResponse update(@Valid @RequestBody AddColumnRequest request){
-        return statusColumnService.addColumn(request);
+    @Operation(summary = "修改看板的標題")
+    @PutMapping("/{id}")
+    // TODO 看需不需要回傳值
+    public void updateTitle(@PathVariable UUID id, @Valid @RequestBody UpdateColumnTitleRequest request){
+        statusColumnService.updateTitle(id, request);
     }
 
     @Operation(summary = "刪除一個狀態看板")

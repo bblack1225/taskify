@@ -6,6 +6,7 @@ import com.twoyu.taskifybackend.model.entity.Labels;
 import com.twoyu.taskifybackend.model.entity.StatusColumn;
 import com.twoyu.taskifybackend.model.entity.Tasks;
 import com.twoyu.taskifybackend.model.vo.request.AddColumnRequest;
+import com.twoyu.taskifybackend.model.vo.request.UpdateColumnTitleRequest;
 import com.twoyu.taskifybackend.model.vo.response.AddColumnResponse;
 import com.twoyu.taskifybackend.model.vo.response.QueryAllColumnResponse;
 import com.twoyu.taskifybackend.model.vo.response.shared.LabelsResponse;
@@ -83,5 +84,13 @@ public class StatusColumnService implements IStatusColumnService {
         }).toList();
         response.setColumns(taskColumnResList);
         return response;
+    }
+
+    @Override
+    public void updateTitle(UUID id, UpdateColumnTitleRequest request) {
+        StatusColumn statusColumn = statusColumnRepository
+                .findById(id).orElseThrow(() -> new ServiceException("StatusColumn id not found:" + id));
+        statusColumn.setTitle(request.getTitle());
+        statusColumnRepository.save(statusColumn);
     }
 }
