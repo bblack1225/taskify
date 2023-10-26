@@ -11,10 +11,11 @@ import style from "@/components/TaskColumn.module.scss";
 import TaskCard from "./TaskCard";
 import NewCardModal from "./NewCardModal";
 import { useState } from "react";
-import { IconDots } from "@tabler/icons-react";
+import { IconDots, IconX } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchBoardData } from "@/api/fetchBoardData";
 import NewBoardModal from "./NewBoardModal";
+import { useClickOutside } from "@mantine/hooks";
 const COLUMN_DATA = [
   {
     id: 1,
@@ -161,20 +162,23 @@ function TaskColumn() {
   const [isCardModalOpen, setCardModalOpen] = useState(false);
   const [isBoardModalOpen, setBoardModalOpen] = useState(false);
   const [cards, setCards] = useState(COLUMN_DATA);
-  const { isPending, data, error } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: () => fetchBoardData("296a0423-d062-43d7-ad2c-b5be1012af96"),
-  });
+  const [isAddingColumn, setIsAddingColumn] = useState(false);
+  const ref = useClickOutside(() => setIsAddingColumn(false));
 
-  if (isPending)
-    return (
-      <div style={{ margin: "0 auto" }}>
-        <Loader color="#4592af" type="dots" />
-      </div>
-    );
+  // const { isPending, data, error, isLoading } = useQuery({
+  //   queryKey: ["tasks"],
+  //   queryFn: () => fetchBoardData("296a0423-d062-43d7-ad2c-b5be1012af96"),
+  // });
 
-  if (error) return "An error has occurred: " + error.message;
-  console.log("data", data);
+  // if (isPending)
+  //   return (
+  //     <div style={{ margin: "0 auto" }}>
+  //       <Loader color="#4592af" type="dots" />
+  //     </div>
+  //   );
+
+  // if (error) return "An error has occurred: " + error.message;
+  // console.log("data", data);
 
   const handleAddCard = (cardText: string) => {
     const newCard = {
@@ -204,7 +208,7 @@ function TaskColumn() {
 
   return (
     <Flex className={style.container}>
-      {COLUMN_DATA.map((column) => (
+      {cards.map((column) => (
         <Flex style={{ flexShrink: 0 }} key={column.id}>
           <Box>
             <Stack className={style.columnContainer}>
@@ -238,17 +242,44 @@ function TaskColumn() {
           </Box>
         </Flex>
       ))}
-      <Flex style={{ flexShrink: 0 }}>
-        <Box>
-          <Stack className={style.columnContainer}>
-            <Stack className={style.addButtonContainer}>
-              <Button color="#4592af" onClick={() => setBoardModalOpen(true)}>
-                + 新增其他列表
-              </Button>
+      {isAddingColumn ? (
+        <Flex style={{ flexShrink: 0 }}>
+          <Box>
+            <Stack className={style.columnContainer} ref={ref}>
+              <Textarea
+                autoFocus
+                placeholder="為列表輸入標題"
+                autosize
+                style={{ margin: "0 4px" }}
+              />
+              <Flex style={{ padding: "0 4px" }}>
+                <Button>新增列表</Button>
+                <ActionIcon
+                  variant="transparent"
+                  color="white"
+                  aria-label="Close"
+                  size={"lg"}
+                  className={style.actionIcon}
+                >
+                  <IconX onClick={() => setIsAddingColumn(false)} />
+                </ActionIcon>
+              </Flex>
             </Stack>
-          </Stack>
-        </Box>
-      </Flex>
+          </Box>
+        </Flex>
+      ) : (
+        <Flex style={{ flexShrink: 0 }}>
+          <Box>
+            <Stack className={style.columnContainer}>
+              <Stack className={style.addButtonContainer}>
+                <Button color="#4592af" onClick={() => setIsAddingColumn(true)}>
+                  + 新增其他列表
+                </Button>
+              </Stack>
+            </Stack>
+          </Box>
+        </Flex>
+      )}
       <NewCardModal
         opened={isCardModalOpen}
         close={() => setCardModalOpen(false)}
