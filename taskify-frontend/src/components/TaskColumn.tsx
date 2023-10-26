@@ -3,15 +3,15 @@ import {
   Button,
   Flex,
   Stack,
-  TextInput,
   ActionIcon,
   Loader,
+  Textarea,
 } from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
 import TaskCard from "./TaskCard";
 import NewCardModal from "./NewCardModal";
 import { useState } from "react";
-import { IconDotsVertical } from "@tabler/icons-react";
+import { IconDots } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchBoardData } from "@/api/fetchBoardData";
 import NewBoardModal from "./NewBoardModal";
@@ -209,9 +209,10 @@ function TaskColumn() {
           <Box>
             <Stack className={style.columnContainer}>
               <Flex className={style.titleContainer}>
-                <TextInput
+                <Textarea
                   className={style.taskTitle}
                   defaultValue={column.title}
+                  autosize
                 />
                 <ActionIcon
                   className={style.actionIcon}
@@ -220,7 +221,7 @@ function TaskColumn() {
                   color="white"
                   size={"lg"}
                 >
-                  <IconDotsVertical size="1.125rem" />
+                  <IconDots size="1.125rem" />
                 </ActionIcon>
               </Flex>
               <Stack className={style.taskContainer}>
