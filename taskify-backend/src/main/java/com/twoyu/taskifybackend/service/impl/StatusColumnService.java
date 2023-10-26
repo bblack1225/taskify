@@ -78,7 +78,7 @@ public class StatusColumnService implements IStatusColumnService {
                             .labels(new ArrayList<>())
                             .build()
             ).toList();
-            taskColumnRes.setCards(tasksResponses);
+            taskColumnRes.setTasks(tasksResponses);
             // TODO labels
             return taskColumnRes;
         }).toList();

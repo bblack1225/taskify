@@ -45,8 +45,8 @@ public class TaskService implements ITaskService {
     }
 
     @Override
-    public UpdateTaskResponse updateTask(UpdateTaskRequest request) {
-        Tasks task = tasksRepository.findById(request.getId())
+    public UpdateTaskResponse updateTask(UUID id, UpdateTaskRequest request) {
+        Tasks task = tasksRepository.findById(id)
                 .orElseThrow(() -> new ServiceException("Task not found"));
         task.setName(request.getName());
         task.setDescription(request.getDescription());
