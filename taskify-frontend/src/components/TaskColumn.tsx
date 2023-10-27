@@ -11,17 +11,12 @@ import style from "@/components/TaskColumn.module.scss";
 import TaskCard from "./TaskCard";
 import NewCardModal from "./NewCardModal";
 import { useState } from "react";
-import { IconDots, IconX } from "@tabler/icons-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { IconDots } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
 import NewBoardModal from "./NewBoardModal";
-import { useClickOutside } from "@mantine/hooks";
-import { addColumns, getAllColumns } from "@/api/column";
-import {
-  AddColumnResponse,
-  AllDataResType,
-  ColumnResType,
-  TasksResType,
-} from "@/types/column";
+import { getAllColumns } from "@/api/column";
+import { ColumnResType, TasksResType } from "@/types/column";
+import AddColumn from "./AddColumn";
 const COLUMN_DATA = [
   {
     id: 1,
@@ -170,32 +165,10 @@ function TaskColumn() {
   const [isCardModalOpen, setCardModalOpen] = useState(false);
   const [isBoardModalOpen, setBoardModalOpen] = useState(false);
   const [cards, setCards] = useState(COLUMN_DATA);
-  const [isAddingColumn, setIsAddingColumn] = useState(false);
-  const [newColumnTitle, setNewColumnTitle] = useState("");
-  const ref = useClickOutside(() => setIsAddingColumn(false));
-
-  const queryClient = useQueryClient();
 
   const { isPending, data, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: () => getAllColumns(BOARD_ID),
-  });
-
-  const { mutate } = useMutation({
-    mutationFn: (newTask: {
-      boardId: string;
-      title: string;
-      dataIndex: number;
-    }) => addColumns(newTask),
-    onSuccess: (resData: AddColumnResponse) => {
-      const newData = { id: resData.id, title: resData.title, tasks: [] };
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
-        return {
-          ...oldData,
-          columns: [...oldData.columns, newData],
-        };
-      });
-    },
   });
 
   if (isPending)
@@ -231,16 +204,6 @@ function TaskColumn() {
     updatedCards[0].tasks.push(newCard);
 
     setCards(updatedCards);
-  };
-
-  const handleAddColumn = () => {
-    setIsAddingColumn(false);
-    setNewColumnTitle("");
-    mutate({
-      boardId: BOARD_ID,
-      title: newColumnTitle,
-      dataIndex: data.columns.length + 1,
-    });
   };
 
   return (
@@ -279,45 +242,8 @@ function TaskColumn() {
           </Box>
         </Flex>
       ))}
-      {isAddingColumn ? (
-        <Flex style={{ flexShrink: 0 }}>
-          <Box>
-            <Stack className={style.columnContainer} ref={ref}>
-              <Textarea
-                autoFocus
-                placeholder="為列表輸入標題"
-                autosize
-                onChange={(e) => setNewColumnTitle(e.target.value)}
-                style={{ margin: "0 4px" }}
-              />
-              <Flex style={{ padding: "0 4px" }}>
-                <Button onClick={handleAddColumn}>新增列表</Button>
-                <ActionIcon
-                  variant="transparent"
-                  color="white"
-                  aria-label="Close"
-                  size={"lg"}
-                  className={style.actionIcon}
-                >
-                  <IconX onClick={() => setIsAddingColumn(false)} />
-                </ActionIcon>
-              </Flex>
-            </Stack>
-          </Box>
-        </Flex>
-      ) : (
-        <Flex style={{ flexShrink: 0 }}>
-          <Box>
-            <Stack className={style.columnContainer}>
-              <Stack className={style.addButtonContainer}>
-                <Button color="#4592af" onClick={() => setIsAddingColumn(true)}>
-                  + 新增其他列表
-                </Button>
-              </Stack>
-            </Stack>
-          </Box>
-        </Flex>
-      )}
+      <AddColumn boardId={BOARD_ID} />
+
       <NewCardModal
         opened={isCardModalOpen}
         close={() => setCardModalOpen(false)}
