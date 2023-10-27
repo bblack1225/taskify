@@ -20,8 +20,8 @@ public class QueryAllColumnResponse {
     @Schema(description = "狀態列表")
     private List<TaskColumnRes> columns;
 
-    @JsonProperty("labels")
-    @Schema(description = "看板的標籤列表")
-    private List<LabelsResponse> labels;
+//    @JsonProperty("labels")
+//    @Schema(description = "看板的標籤列表")
+//    private List<LabelsResponse> labels;
 
 }

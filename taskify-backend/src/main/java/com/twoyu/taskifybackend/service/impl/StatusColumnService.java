@@ -57,9 +57,9 @@ public class StatusColumnService implements IStatusColumnService {
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new ServiceException("Board id not found:" + boardId));
         response.setBoardId(boardId);
         response.setBoardName(board.getName());
-        List<Labels> labels = labelsRepository.findAllByBoardId(boardId);
-        List<LabelsResponse> labelsResponses = LabelsResponse.from(labels);
-        response.setLabels(labelsResponses);
+//        List<Labels> labels = labelsRepository.findAllByBoardId(boardId);
+//        List<LabelsResponse> labelsResponses = LabelsResponse.from(labels);
+//        response.setLabels(labelsResponses);
 
         List<StatusColumn> statusColumns = statusColumnRepository.findAllByBoardId(boardId);
         List<TaskColumnRes> taskColumnResList = statusColumns.stream().map(statusColumn -> {

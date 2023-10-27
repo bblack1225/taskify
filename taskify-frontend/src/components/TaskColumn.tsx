@@ -12,10 +12,16 @@ import TaskCard from "./TaskCard";
 import NewCardModal from "./NewCardModal";
 import { useState } from "react";
 import { IconDots, IconX } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
-import { fetchBoardData } from "@/api/fetchBoardData";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import NewBoardModal from "./NewBoardModal";
 import { useClickOutside } from "@mantine/hooks";
+import { addColumns, getAllColumns } from "@/api/column";
+import {
+  AddColumnResponse,
+  AllDataResType,
+  ColumnResType,
+  TasksResType,
+} from "@/types/column";
 const COLUMN_DATA = [
   {
     id: 1,
@@ -158,27 +164,48 @@ const COLUMN_DATA = [
   },
 ];
 
+// 先寫死
+const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
 function TaskColumn() {
   const [isCardModalOpen, setCardModalOpen] = useState(false);
   const [isBoardModalOpen, setBoardModalOpen] = useState(false);
   const [cards, setCards] = useState(COLUMN_DATA);
   const [isAddingColumn, setIsAddingColumn] = useState(false);
+  const [newColumnTitle, setNewColumnTitle] = useState("");
   const ref = useClickOutside(() => setIsAddingColumn(false));
 
-  // const { isPending, data, error, isLoading } = useQuery({
-  //   queryKey: ["tasks"],
-  //   queryFn: () => fetchBoardData("296a0423-d062-43d7-ad2c-b5be1012af96"),
-  // });
+  const queryClient = useQueryClient();
 
-  // if (isPending)
-  //   return (
-  //     <div style={{ margin: "0 auto" }}>
-  //       <Loader color="#4592af" type="dots" />
-  //     </div>
-  //   );
+  const { isPending, data, error } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: () => getAllColumns(BOARD_ID),
+  });
 
-  // if (error) return "An error has occurred: " + error.message;
-  // console.log("data", data);
+  const { mutate } = useMutation({
+    mutationFn: (newTask: {
+      boardId: string;
+      title: string;
+      dataIndex: number;
+    }) => addColumns(newTask),
+    onSuccess: (resData: AddColumnResponse) => {
+      const newData = { id: resData.id, title: resData.title, tasks: [] };
+      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+        return {
+          ...oldData,
+          columns: [...oldData.columns, newData],
+        };
+      });
+    },
+  });
+
+  if (isPending)
+    return (
+      <div style={{ margin: "0 auto" }}>
+        <Loader color="#4592af" type="dots" />
+      </div>
+    );
+
+  if (error) return "An error has occurred: " + error.message;
 
   const handleAddCard = (cardText: string) => {
     const newCard = {
@@ -206,16 +233,26 @@ function TaskColumn() {
     setCards(updatedCards);
   };
 
+  const handleAddColumn = () => {
+    setIsAddingColumn(false);
+    setNewColumnTitle("");
+    mutate({
+      boardId: BOARD_ID,
+      title: newColumnTitle,
+      dataIndex: data.columns.length + 1,
+    });
+  };
+
   return (
     <Flex className={style.container}>
-      {cards.map((column) => (
+      {data.columns.map((column: ColumnResType) => (
         <Flex style={{ flexShrink: 0 }} key={column.id}>
           <Box>
             <Stack className={style.columnContainer}>
               <Flex className={style.titleContainer}>
                 <Textarea
                   className={style.taskTitle}
-                  defaultValue={column.title}
+                  value={column.title}
                   autosize
                 />
                 <ActionIcon
@@ -229,7 +266,7 @@ function TaskColumn() {
                 </ActionIcon>
               </Flex>
               <Stack className={style.taskContainer}>
-                {column.tasks.map((task) => (
+                {column.tasks.map((task: TasksResType) => (
                   <TaskCard key={task.id} task={task} />
                 ))}
               </Stack>
@@ -250,10 +287,11 @@ function TaskColumn() {
                 autoFocus
                 placeholder="為列表輸入標題"
                 autosize
+                onChange={(e) => setNewColumnTitle(e.target.value)}
                 style={{ margin: "0 4px" }}
               />
               <Flex style={{ padding: "0 4px" }}>
-                <Button>新增列表</Button>
+                <Button onClick={handleAddColumn}>新增列表</Button>
                 <ActionIcon
                   variant="transparent"
                   color="white"
