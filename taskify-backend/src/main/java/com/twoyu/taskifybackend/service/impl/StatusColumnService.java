@@ -8,7 +8,9 @@ import com.twoyu.taskifybackend.model.entity.Tasks;
 import com.twoyu.taskifybackend.model.vo.request.AddColumnRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateColumnTitleRequest;
 import com.twoyu.taskifybackend.model.vo.response.AddColumnResponse;
+import com.twoyu.taskifybackend.model.vo.response.DeleteColumnResponse;
 import com.twoyu.taskifybackend.model.vo.response.QueryAllColumnResponse;
+import com.twoyu.taskifybackend.model.vo.response.UpdateColumnTitleResponse;
 import com.twoyu.taskifybackend.model.vo.response.shared.LabelsResponse;
 import com.twoyu.taskifybackend.model.vo.response.shared.TaskColumnRes;
 import com.twoyu.taskifybackend.model.vo.response.shared.TasksResponse;
@@ -18,6 +20,7 @@ import com.twoyu.taskifybackend.repository.StatusColumnRepository;
 import com.twoyu.taskifybackend.repository.TasksRepository;
 import com.twoyu.taskifybackend.service.IStatusColumnService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.type.SerializationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class StatusColumnService implements IStatusColumnService {
 
     private final StatusColumnRepository statusColumnRepository;
@@ -87,10 +91,26 @@ public class StatusColumnService implements IStatusColumnService {
     }
 
     @Override
-    public void updateTitle(UUID id, UpdateColumnTitleRequest request) {
+    public UpdateColumnTitleResponse updateTitle(UUID id, UpdateColumnTitleRequest request) {
         StatusColumn statusColumn = statusColumnRepository
                 .findById(id).orElseThrow(() -> new ServiceException("StatusColumn id not found:" + id));
         statusColumn.setTitle(request.getTitle());
-        statusColumnRepository.save(statusColumn);
+        statusColumn = statusColumnRepository.save(statusColumn);
+        return new UpdateColumnTitleResponse(
+                statusColumn.getId(),
+                statusColumn.getBoardId(),
+                statusColumn.getTitle(),
+                statusColumn.getDataIndex());
+    }
+
+    @Override
+    public DeleteColumnResponse delete(UUID id) {
+        List<Tasks> updatedTasks = tasksRepository
+                .findAllByStatusId(id)
+                .stream().peek(task -> task.setDelete(true)).toList();
+        tasksRepository.saveAll(updatedTasks);
+        statusColumnRepository.deleteById(id);
+        log.info("Delete status column id success:{}", id);
+        return new DeleteColumnResponse(id);
     }
 }
