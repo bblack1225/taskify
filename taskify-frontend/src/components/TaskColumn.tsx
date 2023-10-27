@@ -6,17 +6,22 @@ import {
   ActionIcon,
   Loader,
   Textarea,
-} from "@mantine/core"
-import style from "@/components/TaskColumn.module.scss"
-import TaskCard from "./TaskCard"
-import NewCardModal from "./NewCardModal"
-import { useState } from "react"
-import { IconDots, IconX } from "@tabler/icons-react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { fetchBoardData } from "@/api/fetchBoardData"
-import NewBoardModal from "./NewBoardModal"
-import { useClickOutside } from "@mantine/hooks"
-import { addColumns } from "@/api/column"
+} from "@mantine/core";
+import style from "@/components/TaskColumn.module.scss";
+import TaskCard from "./TaskCard";
+import NewCardModal from "./NewCardModal";
+import { useState } from "react";
+import { IconDots, IconX } from "@tabler/icons-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import NewBoardModal from "./NewBoardModal";
+import { useClickOutside } from "@mantine/hooks";
+import { addColumns, getAllColumns } from "@/api/column";
+import {
+  AddColumnResponse,
+  AllDataResType,
+  ColumnResType,
+  TasksResType,
+} from "@/types/column";
 const COLUMN_DATA = [
   {
     id: 1,
@@ -157,107 +162,86 @@ const COLUMN_DATA = [
       },
     ],
   },
-]
-const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96"
-export type AllDataResType = {
-  boardId: string
-  title: string
-  columns: ColumnResType[]
-}
+];
 
-type ColumnResType = {
-  id: string
-  title: string
-  color: string
-  dataIndex: number
-  tasks: TasksResType[]
-}
-
-type TasksResType = {
-  id: string
-  name: string
-  dataIndex: number
-  description: string
-  labels: string[]
-}
+// 先寫死
+const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
 function TaskColumn() {
-  const [isCardModalOpen, setCardModalOpen] = useState(false)
-  const [isBoardModalOpen, setBoardModalOpen] = useState(false)
-  const [cards, setCards] = useState(COLUMN_DATA)
-  const [isAddingColumn, setIsAddingColumn] = useState(false)
-  const [newColumnTitle, setNewColumnTitle] = useState("")
-  const queryClient = useQueryClient()
-  const ref = useClickOutside(() => setIsAddingColumn(false))
+  const [isCardModalOpen, setCardModalOpen] = useState(false);
+  const [isBoardModalOpen, setBoardModalOpen] = useState(false);
+  const [cards, setCards] = useState(COLUMN_DATA);
+  const [isAddingColumn, setIsAddingColumn] = useState(false);
+  const [newColumnTitle, setNewColumnTitle] = useState("");
+  const ref = useClickOutside(() => setIsAddingColumn(false));
+
+  const queryClient = useQueryClient();
 
   const { isPending, data, error } = useQuery({
     queryKey: ["tasks"],
-    queryFn: () => fetchBoardData("296a0423-d062-43d7-ad2c-b5be1012af96"),
-  })
+    queryFn: () => getAllColumns(BOARD_ID),
+  });
 
   const { mutate } = useMutation({
-    mutationFn: async (newTask: {
-      boardId: string
-      title: string
-      dataIndex: number
-    }) => {
-      const { data } = await addColumns(newTask)
-      return data
-    },
-    onSuccess: (resData) => {
-      const newData = { id: resData.id, title: resData.title, tasks: [] }
+    mutationFn: (newTask: {
+      boardId: string;
+      title: string;
+      dataIndex: number;
+    }) => addColumns(newTask),
+    onSuccess: (resData: AddColumnResponse) => {
+      const newData = { id: resData.id, title: resData.title, tasks: [] };
       queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
         return {
           ...oldData,
           columns: [...oldData.columns, newData],
-        }
-      })
+        };
+      });
     },
-  })
+  });
 
   if (isPending)
     return (
       <div style={{ margin: "0 auto" }}>
         <Loader color="#4592af" type="dots" />
       </div>
-    )
+    );
 
-  if (error) return "An error has occurred: " + error.message
+  if (error) return "An error has occurred: " + error.message;
 
   const handleAddCard = (cardText: string) => {
     const newCard = {
       id: cards[0].tasks.length + 1,
       title: cardText,
       description: "",
-    }
+    };
 
-    const updatedCards = [...cards]
-    updatedCards[0].tasks.push(newCard)
+    const updatedCards = [...cards];
+    updatedCards[0].tasks.push(newCard);
 
-    setCards(updatedCards)
-  }
+    setCards(updatedCards);
+  };
 
   const handleAddBoard = (cardText: string) => {
     const newCard = {
       id: cards[0].tasks.length + 1,
       title: cardText,
       description: "",
-    }
+    };
 
-    const updatedCards = [...cards]
-    updatedCards[0].tasks.push(newCard)
+    const updatedCards = [...cards];
+    updatedCards[0].tasks.push(newCard);
 
-    setCards(updatedCards)
-  }
+    setCards(updatedCards);
+  };
 
   const handleAddColumn = () => {
-    setIsAddingColumn(false)
-    setNewColumnTitle("")
+    setIsAddingColumn(false);
+    setNewColumnTitle("");
     mutate({
       boardId: BOARD_ID,
       title: newColumnTitle,
       dataIndex: data.columns.length + 1,
-    })
-  }
+    });
+  };
 
   return (
     <Flex className={style.container}>
@@ -345,7 +329,7 @@ function TaskColumn() {
         onAddBoard={handleAddBoard}
       />
     </Flex>
-  )
+  );
 }
 
-export default TaskColumn
+export default TaskColumn;
