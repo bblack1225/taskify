@@ -13,10 +13,10 @@ import NewCardModal from "./NewCardModal";
 import { useState } from "react";
 import { IconDots } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import NewBoardModal from "./NewBoardModal";
 import { getAllColumns } from "@/api/column";
 import { ColumnResType, TasksResType } from "@/types/column";
 import AddColumn from "./AddColumn";
+
 const COLUMN_DATA = [
   {
     id: 1,
@@ -163,7 +163,6 @@ const COLUMN_DATA = [
 const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
 function TaskColumn() {
   const [isCardModalOpen, setCardModalOpen] = useState(false);
-  const [isBoardModalOpen, setBoardModalOpen] = useState(false);
   const [cards, setCards] = useState(COLUMN_DATA);
 
   const { isPending, data, error } = useQuery({
@@ -181,19 +180,6 @@ function TaskColumn() {
   if (error) return "An error has occurred: " + error.message;
 
   const handleAddCard = (cardText: string) => {
-    const newCard = {
-      id: cards[0].tasks.length + 1,
-      title: cardText,
-      description: "",
-    };
-
-    const updatedCards = [...cards];
-    updatedCards[0].tasks.push(newCard);
-
-    setCards(updatedCards);
-  };
-
-  const handleAddBoard = (cardText: string) => {
     const newCard = {
       id: cards[0].tasks.length + 1,
       title: cardText,
@@ -248,11 +234,6 @@ function TaskColumn() {
         opened={isCardModalOpen}
         close={() => setCardModalOpen(false)}
         onAddCard={handleAddCard}
-      />
-      <NewBoardModal
-        opened={isBoardModalOpen}
-        close={() => setBoardModalOpen(false)}
-        onAddBoard={handleAddBoard}
       />
     </Flex>
   );
