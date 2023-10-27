@@ -11,4 +11,6 @@ public interface TasksRepository extends JpaRepository<Tasks, UUID>, JpaSpecific
 
 
     List<Tasks> findAllByStatusId(UUID statusId);
+
+    void deleteAllByStatusId(UUID statusId);
 }

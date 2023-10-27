@@ -68,6 +68,9 @@ public class Tasks implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt;
 
+    @Column(name = "is_delete")
+    private boolean isDelete;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
