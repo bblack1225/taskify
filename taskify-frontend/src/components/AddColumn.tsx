@@ -1,48 +1,49 @@
-import { useState } from "react";
-import { ActionIcon, Box, Button, Flex, Stack, Textarea } from "@mantine/core";
-import { useClickOutside } from "@mantine/hooks";
-import { IconX } from "@tabler/icons-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addColumns } from "@/api/column";
-import { AddColumnResponse, AllDataResType } from "@/types/column";
-import style from "./TaskColumn.module.scss";
+import { useState } from "react"
+import { ActionIcon, Box, Button, Flex, Stack, Textarea } from "@mantine/core"
+import { useClickOutside } from "@mantine/hooks"
+import { IconX } from "@tabler/icons-react"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { addColumns } from "@/api/column"
+import { AddColumnResponse, AllDataResType } from "@/types/column"
+import style from "./TaskColumn.module.scss"
 
 type Props = {
-  boardId: string;
-};
+  boardId: string
+}
 // TODO style 是共用的，尚未拆分
+// test
 function AddColumn({ boardId }: Props) {
-  const [isAddingColumn, setIsAddingColumn] = useState(false);
-  const [newColumnTitle, setNewColumnTitle] = useState("");
-  const ref = useClickOutside(() => setIsAddingColumn(false));
+  const [isAddingColumn, setIsAddingColumn] = useState(false)
+  const [newColumnTitle, setNewColumnTitle] = useState("")
+  const ref = useClickOutside(() => setIsAddingColumn(false))
 
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
   const { mutate } = useMutation({
     mutationFn: (newTask: {
-      boardId: string;
-      title: string;
-      dataIndex: number;
+      boardId: string
+      title: string
+      dataIndex: number
     }) => addColumns(newTask),
     onSuccess: (resData: AddColumnResponse) => {
-      const newData = { id: resData.id, title: resData.title, tasks: [] };
+      const newData = { id: resData.id, title: resData.title, tasks: [] }
       queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
         return {
           ...oldData,
           columns: [...oldData.columns, newData],
-        };
-      });
+        }
+      })
     },
-  });
+  })
 
   const handleAddColumn = () => {
-    setIsAddingColumn(false);
-    setNewColumnTitle("");
+    setIsAddingColumn(false)
+    setNewColumnTitle("")
     mutate({
       boardId: boardId,
       title: newColumnTitle,
       dataIndex: 0,
-    });
-  };
+    })
+  }
   return (
     <Flex style={{ flexShrink: 0 }}>
       <Box>
@@ -81,7 +82,7 @@ function AddColumn({ boardId }: Props) {
         )}
       </Box>
     </Flex>
-  );
+  )
 }
 
-export default AddColumn;
+export default AddColumn
