@@ -4,7 +4,7 @@ import { useClickOutside } from "@mantine/hooks";
 import { IconX } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addColumns } from "@/api/column";
-import { AddColumnResponse, AllDataResType } from "@/types/column";
+import { ColumnMutateRes, AllDataResType } from "@/types/column";
 import style from "./TaskColumn.module.scss";
 
 type Props = {
@@ -23,7 +23,7 @@ function AddColumn({ boardId }: Props) {
       title: string;
       dataIndex: number;
     }) => addColumns(newTask),
-    onSuccess: (resData: AddColumnResponse) => {
+    onSuccess: (resData: ColumnMutateRes) => {
       const newData = { id: resData.id, title: resData.title, tasks: [] };
       queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
         return {
