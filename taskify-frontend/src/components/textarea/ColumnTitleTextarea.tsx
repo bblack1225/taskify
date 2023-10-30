@@ -14,6 +14,10 @@ const ColumnTitleTextarea = ({ id, title, onSave, ...props }: Props) => {
 
   const handleBlur = () => {
     const trimmedTitle = editTitle.trim();
+    if (!trimmedTitle) {
+      setEditTitle(title);
+      return;
+    }
     setEditTitle(trimmedTitle);
     if (title !== trimmedTitle) {
       onSave(id, trimmedTitle);

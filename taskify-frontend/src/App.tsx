@@ -12,7 +12,10 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider>
-        <Notifications style={{ bottom: "50px" }} zIndex={1000} />
+        <Notifications
+          style={{ bottom: "40px", width: "15rem" }}
+          zIndex={1000}
+        />
         <MainLayout>
           <TaskBoard />
         </MainLayout>

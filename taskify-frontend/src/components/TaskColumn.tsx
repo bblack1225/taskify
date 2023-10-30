@@ -200,6 +200,7 @@ function TaskColumn() {
     );
 
   if (error) return "An error has occurred: " + error.message;
+
   // find the last column's dataIndex
   const currentColDataIndex =
     data.columns[data.columns.length - 1]?.dataIndex || 0;
@@ -218,18 +219,16 @@ function TaskColumn() {
   };
 
   const handleEditTitle = (id: string, title: string) => {
-      mutate({
-        id: id,
-        title: editTitle,
-      });
-      notifications.show({
-        icon: <IconMoodCheck />,
-        message: "更新成功",
-        autoClose: 1500,
-      });
-    }
+    mutate({
+      id,
+      title,
+    });
+    notifications.show({
+      icon: <IconMoodCheck />,
+      message: "更新成功",
+      autoClose: 2000,
+    });
   };
-
 
   return (
     <Flex className={style.container}>
@@ -268,6 +267,7 @@ function TaskColumn() {
         </Flex>
       ))}
       <AddColumn boardId={BOARD_ID} currentColDataIndex={currentColDataIndex} />
+
       <NewCardModal
         opened={isCardModalOpen}
         close={() => setCardModalOpen(false)}

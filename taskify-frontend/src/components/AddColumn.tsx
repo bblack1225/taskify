@@ -48,7 +48,7 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
     notifications.show({
       icon: <IconMoodCheck />,
       message: "新增看板成功",
-      autoClose: 1500,
+      autoClose: 2000,
     });
   };
   return (
