@@ -4,7 +4,7 @@ import style from "@/pages/Taskboard.module.scss";
 
 function TaskBoard() {
   return (
-    <Stack>
+    <Stack style={{ overflow: "auto hidden" }}>
       <Flex className={style.container}>
         <Flex>Taskify</Flex>
       </Flex>

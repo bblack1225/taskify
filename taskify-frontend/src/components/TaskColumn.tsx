@@ -3,7 +3,7 @@ import style from "@/components/TaskColumn.module.scss";
 import TaskCard from "./TaskCard";
 import NewCardModal from "./NewCardModal";
 import { useState } from "react";
-import { IconDots } from "@tabler/icons-react";
+import { IconDots, IconMoodCheck } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { editColumns, getAllColumns } from "@/api/column";
 import {
@@ -13,6 +13,7 @@ import {
   TasksResType,
 } from "@/types/column";
 import AddColumn from "./AddColumn";
+import { notifications } from "@mantine/notifications";
 import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
 
 const COLUMN_DATA = [
@@ -199,6 +200,7 @@ function TaskColumn() {
     );
 
   if (error) return "An error has occurred: " + error.message;
+
   // find the last column's dataIndex
   const currentColDataIndex =
     data.columns[data.columns.length - 1]?.dataIndex || 0;
@@ -220,6 +222,11 @@ function TaskColumn() {
     mutate({
       id,
       title,
+    });
+    notifications.show({
+      icon: <IconMoodCheck />,
+      message: "更新成功",
+      autoClose: 2000,
     });
   };
 
@@ -260,6 +267,7 @@ function TaskColumn() {
         </Flex>
       ))}
       <AddColumn boardId={BOARD_ID} currentColDataIndex={currentColDataIndex} />
+
       <NewCardModal
         opened={isCardModalOpen}
         close={() => setCardModalOpen(false)}
