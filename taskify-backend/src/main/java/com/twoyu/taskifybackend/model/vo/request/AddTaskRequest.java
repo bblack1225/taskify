@@ -21,7 +21,7 @@ public class AddTaskRequest {
     @Schema(description = "任務在看板中的排序", example = "0")
     private Integer dataIndex;
 
-    @NotBlank
+    @NotNull
     @Schema(description = "任務所屬的看板ID")
     private UUID statusColumnId;
 

@@ -12,7 +12,7 @@ import java.util.UUID;
 @Data
 public class AddColumnRequest {
 
-    @NotBlank
+    @NotNull
     @Schema(description = "整個Board的ID", example = "296a0423-d062-43d7-ad2c-b5be1012af96")
     private UUID boardId;
 
