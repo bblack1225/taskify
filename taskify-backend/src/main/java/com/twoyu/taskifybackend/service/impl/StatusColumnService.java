@@ -65,7 +65,7 @@ public class StatusColumnService implements IStatusColumnService {
 //        List<LabelsResponse> labelsResponses = LabelsResponse.from(labels);
 //        response.setLabels(labelsResponses);
 
-        List<StatusColumn> statusColumns = statusColumnRepository.findAllByBoardId(boardId);
+        List<StatusColumn> statusColumns = statusColumnRepository.findAllByBoardIdOrderByDataIndex(boardId);
         List<TaskColumnRes> taskColumnResList = statusColumns.stream().map(statusColumn -> {
             TaskColumnRes taskColumnRes = new TaskColumnRes();
             taskColumnRes.setId(statusColumn.getId());

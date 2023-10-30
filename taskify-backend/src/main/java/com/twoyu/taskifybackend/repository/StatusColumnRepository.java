@@ -8,5 +8,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface StatusColumnRepository extends JpaRepository<StatusColumn, UUID>, JpaSpecificationExecutor<StatusColumn> {
-    List<StatusColumn> findAllByBoardId(UUID boardId);
+    List<StatusColumn> findAllByBoardIdOrderByDataIndex(UUID boardId);
 }

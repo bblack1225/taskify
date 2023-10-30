@@ -199,6 +199,9 @@ function TaskColumn() {
     );
 
   if (error) return "An error has occurred: " + error.message;
+  // find the last column's dataIndex
+  const currentColDataIndex =
+    data.columns[data.columns.length - 1]?.dataIndex || 0;
 
   const handleAddCard = (cardText: string) => {
     const newCard = {
@@ -256,8 +259,7 @@ function TaskColumn() {
           </Box>
         </Flex>
       ))}
-      <AddColumn boardId={BOARD_ID} />
-
+      <AddColumn boardId={BOARD_ID} currentColDataIndex={currentColDataIndex} />
       <NewCardModal
         opened={isCardModalOpen}
         close={() => setCardModalOpen(false)}

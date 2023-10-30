@@ -9,9 +9,11 @@ import style from "./TaskColumn.module.scss";
 
 type Props = {
   boardId: string;
+  currentColDataIndex: number;
 };
+const BASE_DATA_INDEX = 65536;
 // TODO style 是共用的，尚未拆分
-function AddColumn({ boardId }: Props) {
+function AddColumn({ boardId, currentColDataIndex }: Props) {
   const [isAddingColumn, setIsAddingColumn] = useState(false);
   const [newColumnTitle, setNewColumnTitle] = useState("");
   const ref = useClickOutside(() => setIsAddingColumn(false));
@@ -40,7 +42,7 @@ function AddColumn({ boardId }: Props) {
     mutate({
       boardId: boardId,
       title: newColumnTitle,
-      dataIndex: 0,
+      dataIndex: currentColDataIndex + BASE_DATA_INDEX,
     });
   };
   return (
