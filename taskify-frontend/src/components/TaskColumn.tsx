@@ -11,7 +11,7 @@ import style from "@/components/TaskColumn.module.scss";
 import TaskCard from "./TaskCard";
 import NewCardModal from "./NewCardModal";
 import { useState } from "react";
-import { IconDots } from "@tabler/icons-react";
+import { IconDots, IconMoodCheck } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { editColumns, getAllColumns } from "@/api/column";
 import {
@@ -21,6 +21,7 @@ import {
   TasksResType,
 } from "@/types/column";
 import AddColumn from "./AddColumn";
+import { notifications } from "@mantine/notifications";
 
 const COLUMN_DATA = [
   {
@@ -223,11 +224,22 @@ function TaskColumn() {
   };
 
   const handleEditTitle = (id: string, title: string) => {
-    if (title === editTitle) return;
-    mutate({
-      id: id,
-      title: editTitle,
-    });
+    console.log("title", title);
+    console.log("editTitle", editTitle);
+    if (editTitle === "") {
+      setEditTitle(title);
+    }
+    if (title !== editTitle) {
+      mutate({
+        id: id,
+        title: editTitle,
+      });
+      notifications.show({
+        icon: <IconMoodCheck />,
+        message: "更新成功",
+        autoClose: 1500,
+      });
+    }
   };
 
   const handleKeyDown = (
@@ -237,7 +249,9 @@ function TaskColumn() {
     if (e.key === "Enter" && !isComposing) {
       e.preventDefault();
       e.currentTarget.blur();
-      if (title === editTitle) return;
+      if (editTitle === "") {
+        setEditTitle(title);
+      }
     }
   };
 
@@ -256,8 +270,6 @@ function TaskColumn() {
                   onBlur={() => handleEditTitle(column.id, column.title)}
                   onFocus={() => setEditTitle(column.title)}
                   onChange={(e) => {
-                    console.log("editTitle", editTitle);
-
                     setEditTitle(e.target.value);
                   }}
                   onCompositionStart={() => setIsComposing(true)}

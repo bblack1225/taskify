@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { ActionIcon, Box, Button, Flex, Stack, Textarea } from "@mantine/core";
 import { useClickOutside } from "@mantine/hooks";
-import { IconX } from "@tabler/icons-react";
+import { IconMoodCheck, IconX } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addColumns } from "@/api/column";
 import { ColumnMutateRes, AllDataResType } from "@/types/column";
 import style from "./TaskColumn.module.scss";
+import { notifications } from "@mantine/notifications";
 
 type Props = {
   boardId: string;
@@ -41,6 +42,11 @@ function AddColumn({ boardId }: Props) {
       boardId: boardId,
       title: newColumnTitle,
       dataIndex: 0,
+    });
+    notifications.show({
+      icon: <IconMoodCheck />,
+      message: "新增看板成功",
+      autoClose: 1500,
     });
   };
   return (
