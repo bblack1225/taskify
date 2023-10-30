@@ -12,9 +12,14 @@ import TaskCard from "./TaskCard";
 import NewCardModal from "./NewCardModal";
 import { useState } from "react";
 import { IconDots } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
-import { getAllColumns } from "@/api/column";
-import { ColumnResType, TasksResType } from "@/types/column";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { editColumns, getAllColumns } from "@/api/column";
+import {
+  AllDataResType,
+  ColumnMutateRes,
+  ColumnResType,
+  TasksResType,
+} from "@/types/column";
 import AddColumn from "./AddColumn";
 
 const COLUMN_DATA = [
@@ -164,10 +169,35 @@ const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
 function TaskColumn() {
   const [isCardModalOpen, setCardModalOpen] = useState(false);
   const [cards, setCards] = useState(COLUMN_DATA);
+  const [editTitle, setEditTitle] = useState("");
+  const [isComposing, setIsComposing] = useState(false);
 
   const { isPending, data, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: () => getAllColumns(BOARD_ID),
+  });
+
+  const queryClient = useQueryClient();
+  const { mutate } = useMutation({
+    mutationFn: (editTitle: { id: string; title: string }) =>
+      editColumns(editTitle),
+    onSuccess: (resData: ColumnMutateRes) => {
+      queryClient.setQueryData(["task"], (oldData: AllDataResType) => {
+        return {
+          ...oldData,
+          columns: oldData.columns.map((column) => {
+            if (column.id !== resData.id) {
+              return column;
+            } else {
+              return {
+                ...column,
+                title: resData.title,
+              };
+            }
+          }),
+        };
+      });
+    },
   });
 
   if (isPending)
@@ -192,6 +222,25 @@ function TaskColumn() {
     setCards(updatedCards);
   };
 
+  const handleEditTitle = (id: string, title: string) => {
+    if (title === editTitle) return;
+    mutate({
+      id: id,
+      title: editTitle,
+    });
+  };
+
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLTextAreaElement>,
+    title: string
+  ) => {
+    if (e.key === "Enter" && !isComposing) {
+      e.preventDefault();
+      e.currentTarget.blur();
+      if (title === editTitle) return;
+    }
+  };
+
   return (
     <Flex className={style.container}>
       {data.columns.map((column: ColumnResType) => (
@@ -201,8 +250,18 @@ function TaskColumn() {
               <Flex className={style.titleContainer}>
                 <Textarea
                   className={style.taskTitle}
-                  value={column.title}
+                  defaultValue={column.title}
                   autosize
+                  onKeyDown={(e) => handleKeyDown(e, column.title)}
+                  onBlur={() => handleEditTitle(column.id, column.title)}
+                  onFocus={() => setEditTitle(column.title)}
+                  onChange={(e) => {
+                    console.log("editTitle", editTitle);
+
+                    setEditTitle(e.target.value);
+                  }}
+                  onCompositionStart={() => setIsComposing(true)}
+                  onCompositionEnd={() => setIsComposing(false)}
                 />
                 <ActionIcon
                   className={style.actionIcon}

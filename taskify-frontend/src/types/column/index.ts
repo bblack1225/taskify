@@ -1,4 +1,4 @@
-export type AddColumnResponse = {
+export type ColumnMutateRes = {
   id: string;
   boardId: string;
   title: string;
