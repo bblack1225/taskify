@@ -1,12 +1,4 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Stack,
-  ActionIcon,
-  Loader,
-  Textarea,
-} from "@mantine/core";
+import { Box, Button, Flex, Stack, ActionIcon, Loader } from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
 import TaskCard from "./TaskCard";
 import NewCardModal from "./NewCardModal";
@@ -21,6 +13,7 @@ import {
   TasksResType,
 } from "@/types/column";
 import AddColumn from "./AddColumn";
+import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
 
 const COLUMN_DATA = [
   {
@@ -169,8 +162,6 @@ const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
 function TaskColumn() {
   const [isCardModalOpen, setCardModalOpen] = useState(false);
   const [cards, setCards] = useState(COLUMN_DATA);
-  const [editTitle, setEditTitle] = useState("");
-  const [isComposing, setIsComposing] = useState(false);
 
   const { isPending, data, error } = useQuery({
     queryKey: ["tasks"],
@@ -182,7 +173,7 @@ function TaskColumn() {
     mutationFn: (editTitle: { id: string; title: string }) =>
       editColumns(editTitle),
     onSuccess: (resData: ColumnMutateRes) => {
-      queryClient.setQueryData(["task"], (oldData: AllDataResType) => {
+      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
         return {
           ...oldData,
           columns: oldData.columns.map((column) => {
@@ -223,22 +214,10 @@ function TaskColumn() {
   };
 
   const handleEditTitle = (id: string, title: string) => {
-    if (title === editTitle) return;
     mutate({
-      id: id,
-      title: editTitle,
+      id,
+      title,
     });
-  };
-
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLTextAreaElement>,
-    title: string
-  ) => {
-    if (e.key === "Enter" && !isComposing) {
-      e.preventDefault();
-      e.currentTarget.blur();
-      if (title === editTitle) return;
-    }
   };
 
   return (
@@ -248,20 +227,10 @@ function TaskColumn() {
           <Box>
             <Stack className={style.columnContainer}>
               <Flex className={style.titleContainer}>
-                <Textarea
-                  className={style.taskTitle}
-                  defaultValue={column.title}
-                  autosize
-                  onKeyDown={(e) => handleKeyDown(e, column.title)}
-                  onBlur={() => handleEditTitle(column.id, column.title)}
-                  onFocus={() => setEditTitle(column.title)}
-                  onChange={(e) => {
-                    console.log("editTitle", editTitle);
-
-                    setEditTitle(e.target.value);
-                  }}
-                  onCompositionStart={() => setIsComposing(true)}
-                  onCompositionEnd={() => setIsComposing(false)}
+                <ColumnTitleTextarea
+                  id={column.id}
+                  title={column.title}
+                  onSave={handleEditTitle}
                 />
                 <ActionIcon
                   className={style.actionIcon}

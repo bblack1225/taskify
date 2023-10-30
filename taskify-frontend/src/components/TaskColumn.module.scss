@@ -26,26 +26,6 @@
   }
 }
 
-.taskTitle {
-  flex: 2;
-  margin: 0 4px;
-  background: transparent;
-  textarea {
-    background-color: #4592af;
-    border: none;
-    color: #fff;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    border-radius: 8px;
-    &:focus {
-      color: gray;
-      box-shadow: inset 0 0 0 3px #75e4ea;
-      background-color: #f9f5f0;
-    }
-  }
-}
-
 .taskContainer {
   overflow-x: hidden;
   overflow-y: auto;
