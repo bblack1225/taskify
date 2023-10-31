@@ -175,6 +175,7 @@ function TaskColumn() {
   const [isCardModalOpen, setCardModalOpen] = useState(false);
   const [cards, setCards] = useState(COLUMN_DATA);
   const [opened, { open, close }] = useDisclosure(false);
+  const [currentDelId, setCurrentDelId] = useState("");
 
   const { isPending, data, error } = useQuery({
     queryKey: ["tasks"],
@@ -186,6 +187,8 @@ function TaskColumn() {
     mutationFn: (editTitle: { id: string; title: string }) =>
       editColumns(editTitle),
     onSuccess: (resData: ColumnMutateRes) => {
+      console.log("data", data);
+
       notifications.show({
         icon: <IconMoodCheck />,
         message: "更新成功",
@@ -266,6 +269,7 @@ function TaskColumn() {
 
   const handleDelColumn = (id: string) => {
     deleteMutation.mutate(id);
+    setCurrentDelId("");
   };
 
   return (
@@ -298,30 +302,15 @@ function TaskColumn() {
                     <Menu.Item
                       color="red"
                       leftSection={<IconTrash />}
-                      onClick={open}
+                      onClick={() => {
+                        open();
+                        setCurrentDelId(column.id);
+                      }}
                     >
                       刪除列表
                     </Menu.Item>
                   </Menu.Dropdown>
                 </Menu>
-                <Modal
-                  opened={opened}
-                  onClose={close}
-                  radius={10}
-                  size="xs"
-                  title="請問確定要刪除此列表嗎？"
-                  overlayProps={{
-                    backgroundOpacity: 0.1,
-                    blur: 2,
-                  }}
-                >
-                  <Button
-                    color="red"
-                    onClick={() => handleDelColumn(column.id)}
-                  >
-                    確定刪除
-                  </Button>
-                </Modal>
               </Flex>
               <Stack className={style.taskContainer}>
                 {column.tasks.map((task: TasksResType) => (
@@ -338,12 +327,26 @@ function TaskColumn() {
         </Flex>
       ))}
       <AddColumn boardId={BOARD_ID} currentColDataIndex={currentColDataIndex} />
-
       <NewCardModal
         opened={isCardModalOpen}
         close={() => setCardModalOpen(false)}
         onAddCard={handleAddCard}
       />
+      <Modal
+        opened={opened}
+        onClose={close}
+        radius={10}
+        size="xs"
+        title="請問確定要刪除此列表嗎？"
+        overlayProps={{
+          backgroundOpacity: 0.1,
+          blur: 2,
+        }}
+      >
+        <Button color="red" onClick={() => handleDelColumn(currentDelId)}>
+          確定刪除
+        </Button>
+      </Modal>
     </Flex>
   );
 }
