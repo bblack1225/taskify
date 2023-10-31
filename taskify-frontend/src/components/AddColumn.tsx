@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ActionIcon, Box, Button, Flex, Stack, Textarea } from "@mantine/core";
 import { useClickOutside } from "@mantine/hooks";
 import { IconMoodCheck, IconX } from "@tabler/icons-react";
@@ -16,8 +16,12 @@ const BASE_DATA_INDEX = 65536;
 // TODO style 是共用的，尚未拆分
 function AddColumn({ boardId, currentColDataIndex }: Props) {
   const [isAddingColumn, setIsAddingColumn] = useState(false);
-  const [newColumnTitle, setNewColumnTitle] = useState("");
-  const ref = useClickOutside(() => setIsAddingColumn(false));
+  const [newTitle, setNewTitle] = useState("");
+  const ref = useClickOutside(() => {
+    setNewTitle((prev) => prev.trim());
+    setIsAddingColumn(false);
+  });
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
@@ -34,23 +38,45 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
           columns: [...oldData.columns, newData],
         };
       });
+      notifications.show({
+        icon: <IconMoodCheck />,
+        message: "新增看板成功",
+        autoClose: 2000,
+      });
+      setNewTitle("");
     },
   });
 
+  const [isComposing, setIsComposing] = useState(false);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !isComposing) {
+      e.preventDefault();
+      handleAddColumn();
+    }
+  };
+
   const handleAddColumn = () => {
     setIsAddingColumn(false);
-    setNewColumnTitle("");
+    const trimTitle = newTitle.trim();
+    if (!trimTitle) {
+      setNewTitle("");
+      return;
+    }
     mutate({
-      boardId: boardId,
-      title: newColumnTitle,
+      boardId,
+      title: trimTitle,
       dataIndex: currentColDataIndex + BASE_DATA_INDEX,
     });
-    notifications.show({
-      icon: <IconMoodCheck />,
-      message: "新增看板成功",
-      autoClose: 2000,
-    });
   };
+
+  useEffect(() => {
+    if (isAddingColumn && textareaRef.current) {
+      const len = textareaRef.current.value.length;
+      textareaRef.current.focus();
+      textareaRef.current.selectionStart = len;
+    }
+  }, [isAddingColumn]);
   return (
     <Flex style={{ flexShrink: 0 }}>
       <Box>
@@ -58,11 +84,14 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
           <>
             <Stack className={style.columnContainer} ref={ref}>
               <Textarea
-                autoFocus
-                placeholder="為列表輸入標題"
+                ref={textareaRef}
+                className={style.taskTitle}
+                value={newTitle}
                 autosize
-                onChange={(e) => setNewColumnTitle(e.target.value)}
-                style={{ margin: "0 4px" }}
+                onKeyDown={(e) => handleKeyDown(e)}
+                onChange={(e) => setNewTitle(e.target.value)}
+                onCompositionStart={() => setIsComposing(true)}
+                onCompositionEnd={() => setIsComposing(false)}
               />
               <Flex style={{ padding: "0 4px" }}>
                 <Button onClick={handleAddColumn}>新增列表</Button>
@@ -73,7 +102,12 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
                   size={"lg"}
                   className={style.actionIcon}
                 >
-                  <IconX onClick={() => setIsAddingColumn(false)} />
+                  <IconX
+                    onClick={() => {
+                      setNewTitle("");
+                      setIsAddingColumn(false);
+                    }}
+                  />
                 </ActionIcon>
               </Flex>
             </Stack>
@@ -81,7 +115,12 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
         ) : (
           <Stack className={style.columnContainer}>
             <Stack className={style.addButtonContainer}>
-              <Button color="#4592af" onClick={() => setIsAddingColumn(true)}>
+              <Button
+                color="#4592af"
+                onClick={() => {
+                  setIsAddingColumn(true);
+                }}
+              >
                 + 新增其他列表
               </Button>
             </Stack>
