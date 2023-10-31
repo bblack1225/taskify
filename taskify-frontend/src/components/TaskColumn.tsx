@@ -17,6 +17,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { delColumns, editColumns, getAllColumns } from "@/api/column";
 import {
   AllDataResType,
+  ColumnDeleteRes,
   ColumnMutateRes,
   ColumnResType,
   TasksResType,
@@ -181,10 +182,15 @@ function TaskColumn() {
   });
 
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const updateMutation = useMutation({
     mutationFn: (editTitle: { id: string; title: string }) =>
       editColumns(editTitle),
     onSuccess: (resData: ColumnMutateRes) => {
+      notifications.show({
+        icon: <IconMoodCheck />,
+        message: "更新成功",
+        autoClose: 2000,
+      });
       queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
         return {
           ...oldData,
@@ -198,6 +204,28 @@ function TaskColumn() {
               };
             }
           }),
+        };
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => {
+      close();
+      return delColumns(id);
+    },
+    onSuccess: (resData: ColumnDeleteRes) => {
+      notifications.show({
+        icon: <IconMoodCheck />,
+        message: "刪除看板成功",
+        autoClose: 2000,
+      });
+      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+        return {
+          ...oldData,
+          columns: oldData.columns.filter(
+            (column) => column.id !== resData.deleteColId
+          ),
         };
       });
     },
@@ -230,31 +258,14 @@ function TaskColumn() {
   };
 
   const handleEditTitle = (id: string, title: string) => {
-    mutate({
+    updateMutation.mutate({
       id,
       title,
-    });
-    notifications.show({
-      icon: <IconMoodCheck />,
-      message: "更新成功",
-      autoClose: 2000,
     });
   };
 
   const handleDelColumn = (id: string) => {
-    delColumns({ id })
-      .then(() => {
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
-        notifications.show({
-          icon: <IconMoodCheck />,
-          message: "刪除看板成功",
-          autoClose: 2000,
-        });
-        close();
-      })
-      .catch((error) => {
-        console.error("刪除失敗:", error);
-      });
+    deleteMutation.mutate(id);
   };
 
   return (
@@ -294,12 +305,15 @@ function TaskColumn() {
                   </Menu.Dropdown>
                 </Menu>
                 <Modal
-                  withOverlay={false}
                   opened={opened}
                   onClose={close}
                   radius={10}
                   size="xs"
                   title="請問確定要刪除此列表嗎？"
+                  overlayProps={{
+                    backgroundOpacity: 0.1,
+                    blur: 2,
+                  }}
                 >
                   <Button
                     color="red"

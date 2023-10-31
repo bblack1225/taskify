@@ -5,6 +5,10 @@ export type ColumnMutateRes = {
   dataIndex: number;
 };
 
+export type ColumnDeleteRes = {
+  deleteColId: string;
+}
+
 export type AllDataResType = {
   boardId: string;
   title: string;
