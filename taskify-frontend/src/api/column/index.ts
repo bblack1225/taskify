@@ -16,3 +16,7 @@ export const addColumns = (requestData: {
 export const editColumns = (editColumns:{id: string, title: string}): Promise<ColumnMutateRes> => {
   return axiosClient.put(`/statusCol/${editColumns.id}`,{title: editColumns.title})
 }
+
+export const delColumns = (delColumns:{id:string}):Promise<ColumnMutateRes> => {
+  return axiosClient.delete(`/statusCol/${delColumns.id}`)
+}

@@ -1,11 +1,20 @@
-import { Box, Button, Flex, Stack, ActionIcon, Loader } from "@mantine/core";
+import {
+  Box,
+  Button,
+  Flex,
+  Stack,
+  ActionIcon,
+  Loader,
+  Menu,
+  Modal,
+} from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
 import TaskCard from "./TaskCard";
 import NewCardModal from "./NewCardModal";
 import { useState } from "react";
-import { IconDots, IconMoodCheck } from "@tabler/icons-react";
+import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { editColumns, getAllColumns } from "@/api/column";
+import { delColumns, editColumns, getAllColumns } from "@/api/column";
 import {
   AllDataResType,
   ColumnMutateRes,
@@ -15,6 +24,7 @@ import {
 import AddColumn from "./AddColumn";
 import { notifications } from "@mantine/notifications";
 import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
+import { useDisclosure } from "@mantine/hooks";
 
 const COLUMN_DATA = [
   {
@@ -163,6 +173,7 @@ const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
 function TaskColumn() {
   const [isCardModalOpen, setCardModalOpen] = useState(false);
   const [cards, setCards] = useState(COLUMN_DATA);
+  const [opened, { open, close }] = useDisclosure(false);
 
   const { isPending, data, error } = useQuery({
     queryKey: ["tasks"],
@@ -230,6 +241,22 @@ function TaskColumn() {
     });
   };
 
+  const handleDelColumn = (id: string) => {
+    delColumns({ id })
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ["tasks"] });
+        notifications.show({
+          icon: <IconMoodCheck />,
+          message: "刪除看板成功",
+          autoClose: 2000,
+        });
+        close();
+      })
+      .catch((error) => {
+        console.error("刪除失敗:", error);
+      });
+  };
+
   return (
     <Flex className={style.container}>
       {data.columns.map((column: ColumnResType) => (
@@ -242,15 +269,45 @@ function TaskColumn() {
                   title={column.title}
                   onSave={handleEditTitle}
                 />
-                <ActionIcon
-                  className={style.actionIcon}
-                  variant="transparent"
-                  aria-label="Settings"
-                  color="white"
-                  size={"lg"}
+                <Menu shadow="md" width={200}>
+                  <Menu.Target>
+                    <ActionIcon
+                      className={style.actionIcon}
+                      variant="transparent"
+                      aria-label="Settings"
+                      color="white"
+                      size={"lg"}
+                    >
+                      <IconDots size="1.125rem" />
+                    </ActionIcon>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Label>列表動作</Menu.Label>
+                    <Menu.Divider />
+                    <Menu.Item
+                      color="red"
+                      leftSection={<IconTrash />}
+                      onClick={open}
+                    >
+                      刪除列表
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+                <Modal
+                  withOverlay={false}
+                  opened={opened}
+                  onClose={close}
+                  radius={10}
+                  size="xs"
+                  title="請問確定要刪除此列表嗎？"
                 >
-                  <IconDots size="1.125rem" />
-                </ActionIcon>
+                  <Button
+                    color="red"
+                    onClick={() => handleDelColumn(column.id)}
+                  >
+                    確定刪除
+                  </Button>
+                </Modal>
               </Flex>
               <Stack className={style.taskContainer}>
                 {column.tasks.map((task: TasksResType) => (
