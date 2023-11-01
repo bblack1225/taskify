@@ -1,5 +1,5 @@
 import { Box, Button, Stack } from "@mantine/core";
-import Avatar from "/public/trick-or-treat.png";
+import Avatar from "/public/lazy.png";
 import {
   IconAlignBoxBottomCenter,
   IconUsers,
@@ -12,17 +12,20 @@ function NavBoard() {
       <Box>
         <div
           style={{
-            color: "#d55b3e",
+            color: "#FFF",
+            backgroundColor: "#be3144",
+            textAlign: "center",
             padding: "5px",
             marginBottom: "10px",
+            borderRadius: " 5px",
           }}
         >
-          Keely Lin
+          TwoYu
         </div>
         <img src={Avatar} alt="萬聖節快樂" width={"200px"} />
       </Box>
       <Stack pt={10}>
-        <Button color="#d55b3e">
+        <Button color="#be3144">
           <IconAlignBoxBottomCenter />
           <Box p={5}>看板</Box>
         </Button>
@@ -30,7 +33,7 @@ function NavBoard() {
           <IconUsers />
           <Box p={5}>成員</Box>
         </Button>
-        <Button color="#d55b3e">
+        <Button color="#be3144">
           <IconCalendarSearch />
           <Box p={5}>行事曆</Box>
         </Button>

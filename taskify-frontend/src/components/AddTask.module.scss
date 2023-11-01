@@ -1,0 +1,12 @@
+.addTaskTextarea {
+  textarea {
+    background-color: #f9f5f0;
+    border-radius: 10px;
+  }
+} 
+
+.actionIcon {
+  &:hover {
+    background: #40819b;
+  }
+}

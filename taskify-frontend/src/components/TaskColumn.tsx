@@ -10,7 +10,7 @@ import {
 } from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
 import TaskCard from "./TaskCard";
-import NewCardModal from "./NewCardModal";
+// import NewCardModal from "./NewCardModal";
 import { useState } from "react";
 import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -26,157 +26,157 @@ import AddColumn from "./AddColumn";
 import { notifications } from "@mantine/notifications";
 import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
 import { useDisclosure } from "@mantine/hooks";
+import AddTask from "./AddTask";
 
-const COLUMN_DATA = [
-  {
-    id: 1,
-    title: "To Do",
-    tasks: [
-      {
-        id: 1,
-        title: "Task 1",
-        description: "This is a test task",
-      },
-      {
-        id: 2,
-        title: "Task 2",
-        description: "This is another test task",
-      },
-      {
-        id: 3,
-        title: "Task 3",
-        description: "This is yet another test task",
-      },
-      {
-        id: 4,
-        title: "Task 4",
-        description: "This is yet another test task",
-      },
-      {
-        id: 5,
-        title: "Task 5",
-        description: "This is yet another test task",
-      },
-      {
-        id: 6,
-        title: "Task 6",
-        description: "This is yet another test task",
-      },
-      {
-        id: 7,
-        title: "Task 7",
-        description: "This is yet another test task",
-      },
-      {
-        id: 8,
-        title: "Task 8",
-        description: "This is yet another test task",
-      },
-      {
-        id: 9,
-        title: "Task 9",
-        description: "This is yet another test task",
-      },
-      {
-        id: 10,
-        title: "Task 10",
-        description: "This is yet another test task",
-      },
-      {
-        id: 11,
-        title: "Task 11",
-        description: "This is yet another test task",
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: "In Progress",
-    tasks: [
-      {
-        id: 1,
-        title: "Task 1",
-        description: "This is a test task",
-      },
-      {
-        id: 2,
-        title: "Task 2",
-        description: "This is another test task",
-      },
-      {
-        id: 3,
-        title: "Task 3",
-        description: "This is yet another test task",
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: "Done",
-    tasks: [
-      {
-        id: 1,
-        title: "Task 1",
-        description: "This is a test task",
-      },
-      {
-        id: 2,
-        title: "Task 2",
-        description: "This is another test task",
-      },
-      {
-        id: 3,
-        title: "Task 3",
-        description: "This is yet another test task",
-      },
-      {
-        id: 4,
-        title: "Task 4",
-        description: "This is yet another test task",
-      },
-      {
-        id: 5,
-        title: "Task 5",
-        description: "This is yet another test task",
-      },
-      {
-        id: 6,
-        title: "Task 6",
-        description: "This is yet another test task",
-      },
-      {
-        id: 7,
-        title: "Task 7 ",
-        description: "This is yet another test task",
-      },
-    ],
-  },
-  {
-    id: 4,
-    title: "Testing",
-    tasks: [
-      {
-        id: 1,
-        title: "Task 1",
-        description: "This is a test task",
-      },
-      {
-        id: 2,
-        title: "Task 2",
-        description: "This is another test task",
-      },
-    ],
-  },
-];
+// const COLUMN_DATA = [
+//   {
+//     id: 1,
+//     title: "To Do",
+//     tasks: [
+//       {
+//         id: 1,
+//         title: "Task 1",
+//         description: "This is a test task",
+//       },
+//       {
+//         id: 2,
+//         title: "Task 2",
+//         description: "This is another test task",
+//       },
+//       {
+//         id: 3,
+//         title: "Task 3",
+//         description: "This is yet another test task",
+//       },
+//       {
+//         id: 4,
+//         title: "Task 4",
+//         description: "This is yet another test task",
+//       },
+//       {
+//         id: 5,
+//         title: "Task 5",
+//         description: "This is yet another test task",
+//       },
+//       {
+//         id: 6,
+//         title: "Task 6",
+//         description: "This is yet another test task",
+//       },
+//       {
+//         id: 7,
+//         title: "Task 7",
+//         description: "This is yet another test task",
+//       },
+//       {
+//         id: 8,
+//         title: "Task 8",
+//         description: "This is yet another test task",
+//       },
+//       {
+//         id: 9,
+//         title: "Task 9",
+//         description: "This is yet another test task",
+//       },
+//       {
+//         id: 10,
+//         title: "Task 10",
+//         description: "This is yet another test task",
+//       },
+//       {
+//         id: 11,
+//         title: "Task 11",
+//         description: "This is yet another test task",
+//       },
+//     ],
+//   },
+//   {
+//     id: 2,
+//     title: "In Progress",
+//     tasks: [
+//       {
+//         id: 1,
+//         title: "Task 1",
+//         description: "This is a test task",
+//       },
+//       {
+//         id: 2,
+//         title: "Task 2",
+//         description: "This is another test task",
+//       },
+//       {
+//         id: 3,
+//         title: "Task 3",
+//         description: "This is yet another test task",
+//       },
+//     ],
+//   },
+//   {
+//     id: 3,
+//     title: "Done",
+//     tasks: [
+//       {
+//         id: 1,
+//         title: "Task 1",
+//         description: "This is a test task",
+//       },
+//       {
+//         id: 2,
+//         title: "Task 2",
+//         description: "This is another test task",
+//       },
+//       {
+//         id: 3,
+//         title: "Task 3",
+//         description: "This is yet another test task",
+//       },
+//       {
+//         id: 4,
+//         title: "Task 4",
+//         description: "This is yet another test task",
+//       },
+//       {
+//         id: 5,
+//         title: "Task 5",
+//         description: "This is yet another test task",
+//       },
+//       {
+//         id: 6,
+//         title: "Task 6",
+//         description: "This is yet another test task",
+//       },
+//       {
+//         id: 7,
+//         title: "Task 7 ",
+//         description: "This is yet another test task",
+//       },
+//     ],
+//   },
+//   {
+//     id: 4,
+//     title: "Testing",
+//     tasks: [
+//       {
+//         id: 1,
+//         title: "Task 1",
+//         description: "This is a test task",
+//       },
+//       {
+//         id: 2,
+//         title: "Task 2",
+//         description: "This is another test task",
+//       },
+//     ],
+//   },
+// ];
 
 // 先寫死
 const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
 function TaskColumn() {
-  const [isCardModalOpen, setCardModalOpen] = useState(false);
-  const [cards, setCards] = useState(COLUMN_DATA);
+  // const [isCardModalOpen, setCardModalOpen] = useState(false);
+  // const [cards, setCards] = useState(COLUMN_DATA);
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
-
   const { isPending, data, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: () => getAllColumns(BOARD_ID),
@@ -247,18 +247,18 @@ function TaskColumn() {
   const currentColDataIndex =
     data.columns[data.columns.length - 1]?.dataIndex || 0;
 
-  const handleAddCard = (cardText: string) => {
-    const newCard = {
-      id: cards[0].tasks.length + 1,
-      title: cardText,
-      description: "",
-    };
+  // const handleAddCard = (cardText: string) => {
+  //   const newCard = {
+  //     id: cards[0].tasks.length + 1,
+  //     title: cardText,
+  //     description: "",
+  //   };
 
-    const updatedCards = [...cards];
-    updatedCards[0].tasks.push(newCard);
+  //   const updatedCards = [...cards];
+  //   updatedCards[0].tasks.push(newCard);
 
-    setCards(updatedCards);
-  };
+  //   setCards(updatedCards);
+  // };
 
   const handleEditTitle = (id: string, title: string) => {
     updateMutation.mutate({
@@ -317,21 +317,17 @@ function TaskColumn() {
                   <TaskCard key={task.id} task={task} />
                 ))}
               </Stack>
-              <Stack className={style.addButtonContainer}>
-                <Button color="#4592af" onClick={() => setCardModalOpen(true)}>
-                  + 新增卡片
-                </Button>
-              </Stack>
+              <AddTask />
             </Stack>
           </Box>
         </Flex>
       ))}
       <AddColumn boardId={BOARD_ID} currentColDataIndex={currentColDataIndex} />
-      <NewCardModal
+      {/* 先保留 */}
+      {/* <NewCardModal
         opened={isCardModalOpen}
         close={() => setCardModalOpen(false)}
-        onAddCard={handleAddCard}
-      />
+      /> */}
       <Modal
         opened={opened}
         onClose={close}
