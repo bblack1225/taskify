@@ -9,7 +9,6 @@ import {
   Modal,
 } from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
-import TaskCard from "./TaskCard";
 // import NewCardModal from "./NewCardModal";
 import { useState } from "react";
 import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
@@ -20,166 +19,108 @@ import {
   ColumnDeleteRes,
   ColumnMutateRes,
   ColumnResType,
-  TasksResType,
 } from "@/types/column";
 import AddColumn from "./AddColumn";
 import { notifications } from "@mantine/notifications";
 import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
 import { useDisclosure } from "@mantine/hooks";
-import AddTask from "./AddTask";
-
-// const COLUMN_DATA = [
-//   {
-//     id: 1,
-//     title: "To Do",
-//     tasks: [
-//       {
-//         id: 1,
-//         title: "Task 1",
-//         description: "This is a test task",
-//       },
-//       {
-//         id: 2,
-//         title: "Task 2",
-//         description: "This is another test task",
-//       },
-//       {
-//         id: 3,
-//         title: "Task 3",
-//         description: "This is yet another test task",
-//       },
-//       {
-//         id: 4,
-//         title: "Task 4",
-//         description: "This is yet another test task",
-//       },
-//       {
-//         id: 5,
-//         title: "Task 5",
-//         description: "This is yet another test task",
-//       },
-//       {
-//         id: 6,
-//         title: "Task 6",
-//         description: "This is yet another test task",
-//       },
-//       {
-//         id: 7,
-//         title: "Task 7",
-//         description: "This is yet another test task",
-//       },
-//       {
-//         id: 8,
-//         title: "Task 8",
-//         description: "This is yet another test task",
-//       },
-//       {
-//         id: 9,
-//         title: "Task 9",
-//         description: "This is yet another test task",
-//       },
-//       {
-//         id: 10,
-//         title: "Task 10",
-//         description: "This is yet another test task",
-//       },
-//       {
-//         id: 11,
-//         title: "Task 11",
-//         description: "This is yet another test task",
-//       },
-//     ],
-//   },
-//   {
-//     id: 2,
-//     title: "In Progress",
-//     tasks: [
-//       {
-//         id: 1,
-//         title: "Task 1",
-//         description: "This is a test task",
-//       },
-//       {
-//         id: 2,
-//         title: "Task 2",
-//         description: "This is another test task",
-//       },
-//       {
-//         id: 3,
-//         title: "Task 3",
-//         description: "This is yet another test task",
-//       },
-//     ],
-//   },
-//   {
-//     id: 3,
-//     title: "Done",
-//     tasks: [
-//       {
-//         id: 1,
-//         title: "Task 1",
-//         description: "This is a test task",
-//       },
-//       {
-//         id: 2,
-//         title: "Task 2",
-//         description: "This is another test task",
-//       },
-//       {
-//         id: 3,
-//         title: "Task 3",
-//         description: "This is yet another test task",
-//       },
-//       {
-//         id: 4,
-//         title: "Task 4",
-//         description: "This is yet another test task",
-//       },
-//       {
-//         id: 5,
-//         title: "Task 5",
-//         description: "This is yet another test task",
-//       },
-//       {
-//         id: 6,
-//         title: "Task 6",
-//         description: "This is yet another test task",
-//       },
-//       {
-//         id: 7,
-//         title: "Task 7 ",
-//         description: "This is yet another test task",
-//       },
-//     ],
-//   },
-//   {
-//     id: 4,
-//     title: "Testing",
-//     tasks: [
-//       {
-//         id: 1,
-//         title: "Task 1",
-//         description: "This is a test task",
-//       },
-//       {
-//         id: 2,
-//         title: "Task 2",
-//         description: "This is another test task",
-//       },
-//     ],
-//   },
-// ];
+import TaskCardList from "./TaskCardList";
 
 // 先寫死
 const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
+const sampleData: AllDataResType = {
+  boardId: "1",
+  title: "示例標題",
+  columns: [
+    {
+      id: "1",
+      title: "列1",
+      color: "紅色",
+      dataIndex: 0,
+      tasks: [
+        {
+          id: "1",
+          name: "任務1",
+          dataIndex: 0,
+          description: "這是任務1的描述",
+          labels: ["標籤1", "標籤2"],
+        },
+        {
+          id: "2",
+          name: "任務2",
+          dataIndex: 1,
+          description: "這是任務2的描述",
+          labels: ["標籤3"],
+        },
+        {
+          id: "3",
+          name: "任務2",
+          dataIndex: 1,
+          description: "這是任務2的描述",
+          labels: ["標籤3"],
+        },
+        {
+          id: "4",
+          name: "任務2",
+          dataIndex: 1,
+          description: "這是任務2的描述",
+          labels: ["標籤3"],
+        },
+        {
+          id: "5",
+          name: "任務2",
+          dataIndex: 1,
+          description: "這是任務2的描述",
+          labels: ["標籤3"],
+        },
+        {
+          id: "6",
+          name: "任務2",
+          dataIndex: 1,
+          description: "這是任務2的描述",
+          labels: ["標籤3"],
+        },
+      ],
+    },
+    {
+      id: "2",
+      title: "列2",
+      color: "藍色",
+      dataIndex: 1,
+      tasks: [
+        {
+          id: "3",
+          name: "任務3",
+          dataIndex: 0,
+          description: "這是任務3的描述",
+          labels: ["標籤4"],
+        },
+      ],
+    },
+    {
+      id: "3",
+      title: "列2",
+      color: "藍色",
+      dataIndex: 1,
+      tasks: [],
+    },
+  ],
+};
+
+console.log(sampleData);
+
 function TaskColumn() {
   // const [isCardModalOpen, setCardModalOpen] = useState(false);
   // const [cards, setCards] = useState(COLUMN_DATA);
+
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
   const { isPending, data, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: () => getAllColumns(BOARD_ID),
+    // queryFn: () => {
+    //   return sampleData;
+    // },
   });
 
   const queryClient = useQueryClient();
@@ -312,12 +253,7 @@ function TaskColumn() {
                   </Menu.Dropdown>
                 </Menu>
               </Flex>
-              <Stack className={style.taskContainer}>
-                {column.tasks.map((task: TasksResType) => (
-                  <TaskCard key={task.id} task={task} />
-                ))}
-              </Stack>
-              <AddTask />
+              <TaskCardList column={column} />
             </Stack>
           </Box>
         </Flex>

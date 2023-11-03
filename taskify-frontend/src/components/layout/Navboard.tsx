@@ -6,22 +6,13 @@ import {
   IconCalendarSearch,
   IconHeartDown,
 } from "@tabler/icons-react";
+import style from "./NavBoard.module.scss";
+
 function NavBoard() {
   return (
     <Box p={20}>
       <Box>
-        <div
-          style={{
-            color: "#FFF",
-            backgroundColor: "#be3144",
-            textAlign: "center",
-            padding: "5px",
-            marginBottom: "10px",
-            borderRadius: " 5px",
-          }}
-        >
-          TwoYu
-        </div>
+        <div className={style.navTitle}>TwoYu</div>
         <img src={Avatar} alt="萬聖節快樂" width={"200px"} />
       </Box>
       <Stack pt={10}>

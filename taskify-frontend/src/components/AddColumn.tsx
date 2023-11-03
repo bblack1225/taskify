@@ -5,7 +5,7 @@ import { IconMoodCheck, IconX } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addColumns } from "@/api/column";
 import { ColumnMutateRes, AllDataResType } from "@/types/column";
-import style from "./TaskColumn.module.scss";
+import style from "./AddColumn.module.scss";
 import { notifications } from "@mantine/notifications";
 
 type Props = {
@@ -94,7 +94,12 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
                 onCompositionEnd={() => setIsComposing(false)}
               />
               <Flex style={{ padding: "0 4px" }}>
-                <Button onClick={handleAddColumn}>新增列表</Button>
+                <Button
+                  className={style.addNewCardButton}
+                  onClick={handleAddColumn}
+                >
+                  新增列表
+                </Button>
                 <ActionIcon
                   variant="transparent"
                   color="white"

@@ -1,12 +1,25 @@
-.addTaskTextarea {
-  textarea {
-    background-color: #f9f5f0;
-    border-radius: 10px;
-  }
-} 
+@import '/src/themes/theme.scss';
 
-.actionIcon {
-  &:hover {
-    background: #40819b;
-  }
+.addButtonContainer {
+  overflow: visible;
+  .addTaskTextarea {
+      textarea {
+        background-color: $gray--light;
+        border-radius: 10px;
+        height: auto;
+      }
+    }
+    .addNewCardButton {
+      color: $gray-dark;
+      background-color: $primary--light;
+      border-radius: 5px;
+    }
+    .actionIcon {
+      margin-left: 5px;
+      &:hover {
+        background: $primary--dark;
+      }
+    }
 }
+
+
