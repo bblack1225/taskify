@@ -18,6 +18,7 @@ const TaskCardList = ({ column }: Props) => {
           <TaskCard key={task.id} task={task} />
         ))}
         <AddTask
+          column={column}
           isAddingTask={isAddingTask}
           toggleAddingTask={(val) => setIsAddingTask(val)}
         />
