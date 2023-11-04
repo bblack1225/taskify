@@ -1,6 +1,6 @@
 import { AppShell } from "@mantine/core";
 import style from "./MainLayout.module.scss";
-import NavBoard from "./Navboard";
+import NavBoard from "./NavBoard";
 
 type Props = {
   children: React.ReactNode;

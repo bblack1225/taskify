@@ -1,3 +1,5 @@
+@import '/src/themes/theme.scss';
+
 .main {
   display: flex;
   padding-left: 17em; 
@@ -7,12 +9,12 @@
 
 .navbar {
   width: 250px;
-  background-color: #e4f1fe;
+  background-color: $primary--light;
 }
 
 .header {
   padding: 20px;
-  color: white;
+  color: $white;
   font-weight: bold;
-  background-color: #4592af;
+  background-color: $primary;
 }

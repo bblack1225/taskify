@@ -1,5 +1,7 @@
+@import '/src/themes/theme.scss';
+
 .container {
-  background-color: #e4f1fe;
+  background-color: $primary--light;
   border-radius: 1em;
   padding: 0.5em;
 }

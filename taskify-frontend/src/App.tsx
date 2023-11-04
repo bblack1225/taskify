@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import MainLayout from "./components/layout/MainLayout";
 import TaskBoard from "./pages/Taskboard";
 import { Notifications } from "@mantine/notifications";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ function App() {
           <TaskBoard />
         </MainLayout>
       </MantineProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

@@ -1,179 +1,140 @@
-import { Box, Button, Flex, Stack, ActionIcon, Loader } from "@mantine/core";
+import {
+  Box,
+  Button,
+  Flex,
+  Stack,
+  ActionIcon,
+  Loader,
+  Menu,
+  Modal,
+} from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
-import TaskCard from "./TaskCard";
-import NewCardModal from "./NewCardModal";
+// import NewCardModal from "./NewCardModal";
 import { useState } from "react";
-import { IconDots, IconMoodCheck } from "@tabler/icons-react";
+import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { editColumns, getAllColumns } from "@/api/column";
+import { delColumns, editColumns, getAllColumns } from "@/api/column";
 import {
   AllDataResType,
+  ColumnDeleteRes,
   ColumnMutateRes,
   ColumnResType,
-  TasksResType,
 } from "@/types/column";
 import AddColumn from "./AddColumn";
 import { notifications } from "@mantine/notifications";
 import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
-
-const COLUMN_DATA = [
-  {
-    id: 1,
-    title: "To Do",
-    tasks: [
-      {
-        id: 1,
-        title: "Task 1",
-        description: "This is a test task",
-      },
-      {
-        id: 2,
-        title: "Task 2",
-        description: "This is another test task",
-      },
-      {
-        id: 3,
-        title: "Task 3",
-        description: "This is yet another test task",
-      },
-      {
-        id: 4,
-        title: "Task 4",
-        description: "This is yet another test task",
-      },
-      {
-        id: 5,
-        title: "Task 5",
-        description: "This is yet another test task",
-      },
-      {
-        id: 6,
-        title: "Task 6",
-        description: "This is yet another test task",
-      },
-      {
-        id: 7,
-        title: "Task 7",
-        description: "This is yet another test task",
-      },
-      {
-        id: 8,
-        title: "Task 8",
-        description: "This is yet another test task",
-      },
-      {
-        id: 9,
-        title: "Task 9",
-        description: "This is yet another test task",
-      },
-      {
-        id: 10,
-        title: "Task 10",
-        description: "This is yet another test task",
-      },
-      {
-        id: 11,
-        title: "Task 11",
-        description: "This is yet another test task",
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: "In Progress",
-    tasks: [
-      {
-        id: 1,
-        title: "Task 1",
-        description: "This is a test task",
-      },
-      {
-        id: 2,
-        title: "Task 2",
-        description: "This is another test task",
-      },
-      {
-        id: 3,
-        title: "Task 3",
-        description: "This is yet another test task",
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: "Done",
-    tasks: [
-      {
-        id: 1,
-        title: "Task 1",
-        description: "This is a test task",
-      },
-      {
-        id: 2,
-        title: "Task 2",
-        description: "This is another test task",
-      },
-      {
-        id: 3,
-        title: "Task 3",
-        description: "This is yet another test task",
-      },
-      {
-        id: 4,
-        title: "Task 4",
-        description: "This is yet another test task",
-      },
-      {
-        id: 5,
-        title: "Task 5",
-        description: "This is yet another test task",
-      },
-      {
-        id: 6,
-        title: "Task 6",
-        description: "This is yet another test task",
-      },
-      {
-        id: 7,
-        title: "Task 7 ",
-        description: "This is yet another test task",
-      },
-    ],
-  },
-  {
-    id: 4,
-    title: "Testing",
-    tasks: [
-      {
-        id: 1,
-        title: "Task 1",
-        description: "This is a test task",
-      },
-      {
-        id: 2,
-        title: "Task 2",
-        description: "This is another test task",
-      },
-    ],
-  },
-];
+import { useDisclosure } from "@mantine/hooks";
+import TaskCardList from "./TaskCardList";
 
 // 先寫死
 const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
-function TaskColumn() {
-  const [isCardModalOpen, setCardModalOpen] = useState(false);
-  const [cards, setCards] = useState(COLUMN_DATA);
+const sampleData: AllDataResType = {
+  boardId: "1",
+  title: "示例標題",
+  columns: [
+    {
+      id: "1",
+      title: "列1",
+      color: "紅色",
+      dataIndex: 0,
+      tasks: [
+        {
+          id: "1",
+          name: "任務1",
+          dataIndex: 0,
+          description: "這是任務1的描述",
+          labels: ["標籤1", "標籤2"],
+        },
+        {
+          id: "2",
+          name: "任務2",
+          dataIndex: 1,
+          description: "這是任務2的描述",
+          labels: ["標籤3"],
+        },
+        {
+          id: "3",
+          name: "任務2",
+          dataIndex: 1,
+          description: "這是任務2的描述",
+          labels: ["標籤3"],
+        },
+        {
+          id: "4",
+          name: "任務2",
+          dataIndex: 1,
+          description: "這是任務2的描述",
+          labels: ["標籤3"],
+        },
+        {
+          id: "5",
+          name: "任務2",
+          dataIndex: 1,
+          description: "這是任務2的描述",
+          labels: ["標籤3"],
+        },
+        {
+          id: "6",
+          name: "任務2",
+          dataIndex: 1,
+          description: "這是任務2的描述",
+          labels: ["標籤3"],
+        },
+      ],
+    },
+    {
+      id: "2",
+      title: "列2",
+      color: "藍色",
+      dataIndex: 1,
+      tasks: [
+        {
+          id: "3",
+          name: "任務3",
+          dataIndex: 0,
+          description: "這是任務3的描述",
+          labels: ["標籤4"],
+        },
+      ],
+    },
+    {
+      id: "3",
+      title: "列2",
+      color: "藍色",
+      dataIndex: 1,
+      tasks: [],
+    },
+  ],
+};
 
+console.log(sampleData);
+
+function TaskColumn() {
+  // const [isCardModalOpen, setCardModalOpen] = useState(false);
+  // const [cards, setCards] = useState(COLUMN_DATA);
+
+  const [opened, { open, close }] = useDisclosure(false);
+  const [currentDelId, setCurrentDelId] = useState("");
   const { isPending, data, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: () => getAllColumns(BOARD_ID),
+    // queryFn: () => {
+    //   return sampleData;
+    // },
   });
 
   const queryClient = useQueryClient();
-  const { mutate } = useMutation({
+  const updateMutation = useMutation({
     mutationFn: (editTitle: { id: string; title: string }) =>
       editColumns(editTitle),
     onSuccess: (resData: ColumnMutateRes) => {
+      console.log("data", data);
+
+      notifications.show({
+        icon: <IconMoodCheck />,
+        message: "更新成功",
+        autoClose: 2000,
+      });
       queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
         return {
           ...oldData,
@@ -192,6 +153,28 @@ function TaskColumn() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => {
+      close();
+      return delColumns(id);
+    },
+    onSuccess: (resData: ColumnDeleteRes) => {
+      notifications.show({
+        icon: <IconMoodCheck />,
+        message: "刪除看板成功",
+        autoClose: 2000,
+      });
+      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+        return {
+          ...oldData,
+          columns: oldData.columns.filter(
+            (column) => column.id !== resData.deleteColId
+          ),
+        };
+      });
+    },
+  });
+
   if (isPending)
     return (
       <div style={{ margin: "0 auto" }}>
@@ -205,29 +188,29 @@ function TaskColumn() {
   const currentColDataIndex =
     data.columns[data.columns.length - 1]?.dataIndex || 0;
 
-  const handleAddCard = (cardText: string) => {
-    const newCard = {
-      id: cards[0].tasks.length + 1,
-      title: cardText,
-      description: "",
-    };
+  // const handleAddCard = (cardText: string) => {
+  //   const newCard = {
+  //     id: cards[0].tasks.length + 1,
+  //     title: cardText,
+  //     description: "",
+  //   };
 
-    const updatedCards = [...cards];
-    updatedCards[0].tasks.push(newCard);
+  //   const updatedCards = [...cards];
+  //   updatedCards[0].tasks.push(newCard);
 
-    setCards(updatedCards);
-  };
+  //   setCards(updatedCards);
+  // };
 
   const handleEditTitle = (id: string, title: string) => {
-    mutate({
+    updateMutation.mutate({
       id,
       title,
     });
-    notifications.show({
-      icon: <IconMoodCheck />,
-      message: "更新成功",
-      autoClose: 2000,
-    });
+  };
+
+  const handleDelColumn = (id: string) => {
+    deleteMutation.mutate(id);
+    setCurrentDelId("");
   };
 
   return (
@@ -242,37 +225,60 @@ function TaskColumn() {
                   title={column.title}
                   onSave={handleEditTitle}
                 />
-                <ActionIcon
-                  className={style.actionIcon}
-                  variant="transparent"
-                  aria-label="Settings"
-                  color="white"
-                  size={"lg"}
-                >
-                  <IconDots size="1.125rem" />
-                </ActionIcon>
+                <Menu shadow="md" width={200}>
+                  <Menu.Target>
+                    <ActionIcon
+                      className={style.actionIcon}
+                      variant="transparent"
+                      aria-label="Settings"
+                      color="white"
+                      size={"lg"}
+                    >
+                      <IconDots size="1.125rem" />
+                    </ActionIcon>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Label>列表動作</Menu.Label>
+                    <Menu.Divider />
+                    <Menu.Item
+                      color="red"
+                      leftSection={<IconTrash />}
+                      onClick={() => {
+                        open();
+                        setCurrentDelId(column.id);
+                      }}
+                    >
+                      刪除列表
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
               </Flex>
-              <Stack className={style.taskContainer}>
-                {column.tasks.map((task: TasksResType) => (
-                  <TaskCard key={task.id} task={task} />
-                ))}
-              </Stack>
-              <Stack className={style.addButtonContainer}>
-                <Button color="#4592af" onClick={() => setCardModalOpen(true)}>
-                  + 新增卡片
-                </Button>
-              </Stack>
+              <TaskCardList column={column} />
             </Stack>
           </Box>
         </Flex>
       ))}
       <AddColumn boardId={BOARD_ID} currentColDataIndex={currentColDataIndex} />
-
-      <NewCardModal
+      {/* 先保留 */}
+      {/* <NewCardModal
         opened={isCardModalOpen}
         close={() => setCardModalOpen(false)}
-        onAddCard={handleAddCard}
-      />
+      /> */}
+      <Modal
+        opened={opened}
+        onClose={close}
+        radius={10}
+        size="xs"
+        title="請問確定要刪除此列表嗎？"
+        overlayProps={{
+          backgroundOpacity: 0.1,
+          blur: 2,
+        }}
+      >
+        <Button color="red" onClick={() => handleDelColumn(currentDelId)}>
+          確定刪除
+        </Button>
+      </Modal>
     </Flex>
   );
 }

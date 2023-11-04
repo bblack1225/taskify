@@ -1,4 +1,4 @@
-import { AllDataResType, ColumnMutateRes } from "@/types/column";
+import { AllDataResType, ColumnDeleteRes, ColumnMutateRes } from "@/types/column";
 import axiosClient from "../axiosClient";
 
 export const getAllColumns = (id: string): Promise<AllDataResType> => {
@@ -15,4 +15,8 @@ export const addColumns = (requestData: {
 
 export const editColumns = (editColumns:{id: string, title: string}): Promise<ColumnMutateRes> => {
   return axiosClient.put(`/statusCol/${editColumns.id}`,{title: editColumns.title})
+}
+
+export const delColumns = (id:string):Promise<ColumnDeleteRes> => {
+  return axiosClient.delete(`/statusCol/${id}`)
 }

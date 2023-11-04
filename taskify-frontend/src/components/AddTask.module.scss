@@ -1,0 +1,25 @@
+@import '/src/themes/theme.scss';
+
+.addButtonContainer {
+  overflow: visible;
+  .addTaskTextarea {
+      textarea {
+        background-color: $gray--light;
+        border-radius: 10px;
+        height: auto;
+      }
+    }
+    .addNewCardButton {
+      color: $gray-dark;
+      background-color: $primary--light;
+      border-radius: 5px;
+    }
+    .actionIcon {
+      margin-left: 5px;
+      &:hover {
+        background: $primary--dark;
+      }
+    }
+}
+
+
