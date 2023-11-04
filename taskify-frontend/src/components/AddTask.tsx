@@ -44,18 +44,16 @@ function AddTask({
           dataIndex: resData.dataIndex,
           labels: [],
         };
-        const column = oldData.columns.find(
-          (col) => col.id === resData.statusColumnId
-        );
-        column?.tasks.push(newData);
-
         return {
           ...oldData,
           columns: oldData.columns.map((oldColumn) => {
-            if (oldColumn.id !== column?.id) {
+            if (oldColumn.id !== column.id) {
               return oldColumn;
             } else {
-              return column;
+              return {
+                ...oldColumn,
+                tasks: [...oldColumn.tasks, newData],
+              };
             }
           }),
         };
