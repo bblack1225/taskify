@@ -12,7 +12,6 @@ type Props = {
   boardId: string;
   currentColDataIndex: number;
 };
-export const BASE_DATA_INDEX = 65536;
 // TODO style 是共用的，尚未拆分
 function AddColumn({ boardId, currentColDataIndex }: Props) {
   const [isAddingColumn, setIsAddingColumn] = useState(false);
@@ -31,7 +30,7 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
       dataIndex: number;
     }) => addColumns(newColumn),
     onSuccess: (resData: ColumnMutateRes) => {
-      const newData = { id: resData.id, title: resData.title, tasks: [] };
+      const newData = { id: resData.id, title: resData.title, tasks: [], dataIndex: resData.dataIndex};
       queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
         return {
           ...oldData,
@@ -66,7 +65,7 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
     mutate({
       boardId,
       title: trimTitle,
-      dataIndex: currentColDataIndex + BASE_DATA_INDEX,
+      dataIndex: currentColDataIndex,
     });
   };
 
