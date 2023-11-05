@@ -19,6 +19,7 @@ function AddTask({
   column: ColumnResType;
 }) {
   const [newTask, setNewTask] = useState("");
+  const [isComposing, setIsComposing] = useState(false);
 
   const queryClient = useQueryClient();
   const updateTask = useMutation({
@@ -75,8 +76,25 @@ function AddTask({
     }
   };
 
-  const handleBlur = () => {
+  const handleBlur = (name: string, statusColumnId: string) => {
     if (!newTask) {
+      toggleAddingTask(false);
+    } else {
+      updateTask.mutate({
+        name,
+        dataIndex: BASE_DATA_INDEX,
+        description: "",
+        statusColumnId,
+      });
+      setNewTask("");
+      toggleAddingTask(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !isComposing) {
+      e.preventDefault();
+      e.currentTarget.blur();
       toggleAddingTask(false);
     }
   };
@@ -89,7 +107,10 @@ function AddTask({
             className={style.addTaskTextarea}
             placeholder="為這張卡片輸入標題..."
             onChange={(e) => setNewTask(e.target.value)}
-            onBlur={handleBlur}
+            onBlur={() => handleBlur(newTask, column.id)}
+            onKeyDown={(e) => handleKeyDown(e)}
+            onCompositionStart={() => setIsComposing(true)}
+            onCompositionEnd={() => setIsComposing(false)}
           />
           <Flex style={{ marginTop: "-4px" }}>
             <Button
