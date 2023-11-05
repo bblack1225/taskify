@@ -7,7 +7,7 @@ import { addTask } from "@/api/tasks";
 import { TaskMutateRes } from "@/types/task";
 import { notifications } from "@mantine/notifications";
 import { AllDataResType, ColumnResType, TasksResType } from "@/types/column";
-import { BASE_DATA_INDEX } from "./AddColumn";
+import { calculateDataIndex } from "@/utils";
 
 function AddTask({
   isAddingTask,
@@ -21,6 +21,7 @@ function AddTask({
   const [newTask, setNewTask] = useState("");
   const [isComposing, setIsComposing] = useState(false);
 
+  const currentDataIndex = calculateDataIndex(column.tasks);
   const queryClient = useQueryClient();
   const updateTask = useMutation({
     mutationFn: (newTask: {
@@ -69,7 +70,7 @@ function AddTask({
       toggleAddingTask(false);
       updateTask.mutate({
         name,
-        dataIndex: BASE_DATA_INDEX,
+        dataIndex: currentDataIndex,
         description: "",
         statusColumnId,
       });
@@ -82,7 +83,7 @@ function AddTask({
     } else {
       updateTask.mutate({
         name,
-        dataIndex: BASE_DATA_INDEX,
+        dataIndex: currentDataIndex,
         description: "",
         statusColumnId,
       });

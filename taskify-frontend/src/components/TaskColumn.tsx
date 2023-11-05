@@ -9,8 +9,7 @@ import {
   Modal,
 } from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
-// import NewCardModal from "./NewCardModal";
-import { useState } from "react";
+import {  useState } from "react";
 import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { delColumns, editColumns, getAllColumns } from "@/api/column";
@@ -25,9 +24,11 @@ import { notifications } from "@mantine/notifications";
 import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
 import { useDisclosure } from "@mantine/hooks";
 import TaskCardList from "./TaskCardList";
+import { calculateDataIndex } from "@/utils";
 
 // 先寫死
 const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
+// const BOARD_ID = "37d5162d-3aee-4e88-b9c4-4490a512031e";
 const sampleData: AllDataResType = {
   boardId: "1",
   title: "示例標題",
@@ -107,11 +108,8 @@ const sampleData: AllDataResType = {
   ],
 };
 
-console.log(sampleData);
 
 function TaskColumn() {
-  // const [isCardModalOpen, setCardModalOpen] = useState(false);
-  // const [cards, setCards] = useState(COLUMN_DATA);
 
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
@@ -165,12 +163,13 @@ function TaskColumn() {
         autoClose: 2000,
       });
       queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
-        return {
+        const newData =  {
           ...oldData,
           columns: oldData.columns.filter(
             (column) => column.id !== resData.deleteColId
           ),
         };
+        return newData;
       });
     },
   });
@@ -185,21 +184,8 @@ function TaskColumn() {
   if (error) return "An error has occurred: " + error.message;
 
   // find the last column's dataIndex
-  const currentColDataIndex =
-    data.columns[data.columns.length - 1]?.dataIndex || 0;
+  const currentColDataIndex = calculateDataIndex(data.columns);
 
-  // const handleAddCard = (cardText: string) => {
-  //   const newCard = {
-  //     id: cards[0].tasks.length + 1,
-  //     title: cardText,
-  //     description: "",
-  //   };
-
-  //   const updatedCards = [...cards];
-  //   updatedCards[0].tasks.push(newCard);
-
-  //   setCards(updatedCards);
-  // };
 
   const handleEditTitle = (id: string, title: string) => {
     updateMutation.mutate({
@@ -259,11 +245,6 @@ function TaskColumn() {
         </Flex>
       ))}
       <AddColumn boardId={BOARD_ID} currentColDataIndex={currentColDataIndex} />
-      {/* 先保留 */}
-      {/* <NewCardModal
-        opened={isCardModalOpen}
-        close={() => setCardModalOpen(false)}
-      /> */}
       <Modal
         opened={opened}
         onClose={close}
