@@ -15,7 +15,7 @@ const TaskCardList = ({ column }: Props) => {
     <>
       <Stack className={style.taskContainer}>
         {column.tasks.map((task: TasksResType) => (
-          <TaskCard key={task.id} task={task} />
+          <TaskCard key={task.id} task={task} column={column} />
         ))}
         <AddTask
           column={column}

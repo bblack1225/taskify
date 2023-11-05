@@ -9,7 +9,7 @@ import {
   Modal,
 } from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
-import {  useState } from "react";
+import { useState } from "react";
 import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { delColumns, editColumns, getAllColumns } from "@/api/column";
@@ -29,88 +29,87 @@ import { calculateDataIndex } from "@/utils";
 // 先寫死
 const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
 // const BOARD_ID = "37d5162d-3aee-4e88-b9c4-4490a512031e";
-const sampleData: AllDataResType = {
-  boardId: "1",
-  title: "示例標題",
-  columns: [
-    {
-      id: "1",
-      title: "列1",
-      color: "紅色",
-      dataIndex: 0,
-      tasks: [
-        {
-          id: "1",
-          name: "任務1",
-          dataIndex: 0,
-          description: "這是任務1的描述",
-          labels: ["標籤1", "標籤2"],
-        },
-        {
-          id: "2",
-          name: "任務2",
-          dataIndex: 1,
-          description: "這是任務2的描述",
-          labels: ["標籤3"],
-        },
-        {
-          id: "3",
-          name: "任務2",
-          dataIndex: 1,
-          description: "這是任務2的描述",
-          labels: ["標籤3"],
-        },
-        {
-          id: "4",
-          name: "任務2",
-          dataIndex: 1,
-          description: "這是任務2的描述",
-          labels: ["標籤3"],
-        },
-        {
-          id: "5",
-          name: "任務2",
-          dataIndex: 1,
-          description: "這是任務2的描述",
-          labels: ["標籤3"],
-        },
-        {
-          id: "6",
-          name: "任務2",
-          dataIndex: 1,
-          description: "這是任務2的描述",
-          labels: ["標籤3"],
-        },
-      ],
-    },
-    {
-      id: "2",
-      title: "列2",
-      color: "藍色",
-      dataIndex: 1,
-      tasks: [
-        {
-          id: "3",
-          name: "任務3",
-          dataIndex: 0,
-          description: "這是任務3的描述",
-          labels: ["標籤4"],
-        },
-      ],
-    },
-    {
-      id: "3",
-      title: "列2",
-      color: "藍色",
-      dataIndex: 1,
-      tasks: [],
-    },
-  ],
-};
-
+// 假資料
+// const sampleData: AllDataResType = {
+//   boardId: "1",
+//   title: "示例標題",
+//   columns: [
+//     {
+//       id: "1",
+//       title: "列1",
+//       color: "紅色",
+//       dataIndex: 0,
+//       tasks: [
+//         {
+//           id: "1",
+//           name: "任務1",
+//           dataIndex: 0,
+//           description: "這是任務1的描述",
+//           labels: ["標籤1", "標籤2"],
+//         },
+//         {
+//           id: "2",
+//           name: "任務2",
+//           dataIndex: 1,
+//           description: "這是任務2的描述",
+//           labels: ["標籤3"],
+//         },
+//         {
+//           id: "3",
+//           name: "任務2",
+//           dataIndex: 1,
+//           description: "這是任務2的描述",
+//           labels: ["標籤3"],
+//         },
+//         {
+//           id: "4",
+//           name: "任務2",
+//           dataIndex: 1,
+//           description: "這是任務2的描述",
+//           labels: ["標籤3"],
+//         },
+//         {
+//           id: "5",
+//           name: "任務2",
+//           dataIndex: 1,
+//           description: "這是任務2的描述",
+//           labels: ["標籤3"],
+//         },
+//         {
+//           id: "6",
+//           name: "任務2",
+//           dataIndex: 1,
+//           description: "這是任務2的描述",
+//           labels: ["標籤3"],
+//         },
+//       ],
+//     },
+//     {
+//       id: "2",
+//       title: "列2",
+//       color: "藍色",
+//       dataIndex: 1,
+//       tasks: [
+//         {
+//           id: "3",
+//           name: "任務3",
+//           dataIndex: 0,
+//           description: "這是任務3的描述",
+//           labels: ["標籤4"],
+//         },
+//       ],
+//     },
+//     {
+//       id: "3",
+//       title: "列2",
+//       color: "藍色",
+//       dataIndex: 1,
+//       tasks: [],
+//     },
+//   ],
+// };
 
 function TaskColumn() {
-
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
   const { isPending, data, error } = useQuery({
@@ -163,7 +162,7 @@ function TaskColumn() {
         autoClose: 2000,
       });
       queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
-        const newData =  {
+        const newData = {
           ...oldData,
           columns: oldData.columns.filter(
             (column) => column.id !== resData.deleteColId
@@ -185,7 +184,6 @@ function TaskColumn() {
 
   // find the last column's dataIndex
   const currentColDataIndex = calculateDataIndex(data.columns);
-
 
   const handleEditTitle = (id: string, title: string) => {
     updateMutation.mutate({
