@@ -16,7 +16,6 @@ import { delColumns, editColumns, getAllColumns } from "@/api/column";
 import {
   AllDataResType,
   ColumnDeleteRes,
-  ColumnMutateRes,
   ColumnResType,
 } from "@/types/column";
 import AddColumn from "./AddColumn";
@@ -27,86 +26,8 @@ import TaskCardList from "./TaskCardList";
 import { calculateDataIndex } from "@/utils";
 
 // 先寫死
-const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
-// const BOARD_ID = "37d5162d-3aee-4e88-b9c4-4490a512031e";
-const sampleData: AllDataResType = {
-  boardId: "1",
-  title: "示例標題",
-  columns: [
-    {
-      id: "1",
-      title: "列1",
-      color: "紅色",
-      dataIndex: 0,
-      tasks: [
-        {
-          id: "1",
-          name: "任務1",
-          dataIndex: 0,
-          description: "這是任務1的描述",
-          labels: ["標籤1", "標籤2"],
-        },
-        {
-          id: "2",
-          name: "任務2",
-          dataIndex: 1,
-          description: "這是任務2的描述",
-          labels: ["標籤3"],
-        },
-        {
-          id: "3",
-          name: "任務2",
-          dataIndex: 1,
-          description: "這是任務2的描述",
-          labels: ["標籤3"],
-        },
-        {
-          id: "4",
-          name: "任務2",
-          dataIndex: 1,
-          description: "這是任務2的描述",
-          labels: ["標籤3"],
-        },
-        {
-          id: "5",
-          name: "任務2",
-          dataIndex: 1,
-          description: "這是任務2的描述",
-          labels: ["標籤3"],
-        },
-        {
-          id: "6",
-          name: "任務2",
-          dataIndex: 1,
-          description: "這是任務2的描述",
-          labels: ["標籤3"],
-        },
-      ],
-    },
-    {
-      id: "2",
-      title: "列2",
-      color: "藍色",
-      dataIndex: 1,
-      tasks: [
-        {
-          id: "3",
-          name: "任務3",
-          dataIndex: 0,
-          description: "這是任務3的描述",
-          labels: ["標籤4"],
-        },
-      ],
-    },
-    {
-      id: "3",
-      title: "列2",
-      color: "藍色",
-      dataIndex: 1,
-      tasks: [],
-    },
-  ],
-};
+// const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
+const BOARD_ID = "37d5162d-3aee-4e88-b9c4-4490a512031e";
 
 
 function TaskColumn() {
@@ -116,39 +37,44 @@ function TaskColumn() {
   const { isPending, data, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: () => getAllColumns(BOARD_ID),
-    // queryFn: () => {
-    //   return sampleData;
-    // },
   });
 
   const queryClient = useQueryClient();
   const updateMutation = useMutation({
     mutationFn: (editTitle: { id: string; title: string }) =>
       editColumns(editTitle),
-    onSuccess: (resData: ColumnMutateRes) => {
-      console.log("data", data);
-
-      notifications.show({
-        icon: <IconMoodCheck />,
-        message: "更新成功",
-        autoClose: 2000,
-      });
+    onMutate: async (updatedTask) => {
+      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+      const previousTasks = queryClient.getQueryData(["tasks"]);
       queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
         return {
           ...oldData,
+
           columns: oldData.columns.map((column) => {
-            if (column.id !== resData.id) {
+            if (column.id !== updatedTask.id) {
               return column;
             } else {
               return {
                 ...column,
-                title: resData.title,
+                title: updatedTask.title,
               };
             }
           }),
         };
       });
+      return { previousTasks };
     },
+    onSuccess: () => {
+      notifications.show({
+        icon: <IconMoodCheck />,
+        message: "更新成功",
+        autoClose: 2000,
+      });
+    },
+    onError(error, variables, context) {
+      queryClient.setQueryData(["tasks"], context?.previousTasks);
+    },
+    
   });
 
   const deleteMutation = useMutation({
@@ -198,6 +124,7 @@ function TaskColumn() {
     deleteMutation.mutate(id);
     setCurrentDelId("");
   };
+  
 
   return (
     <Flex className={style.container}>
