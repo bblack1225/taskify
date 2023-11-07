@@ -11,7 +11,7 @@ import Editor from "./editor/Editor";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DelTaskRes } from "@/types/task";
 import { notifications } from "@mantine/notifications";
-import { AllDataResType, ColumnResType } from "@/types/column";
+import { AllDataResType } from "@/types/column";
 import { delTask } from "@/api/tasks";
 import { useState } from "react";
 
@@ -21,9 +21,10 @@ type Props = {
     name: string;
     description: string;
   };
+  columnId: string;
 };
 
-function TaskCard({ task }: Props) {
+function TaskCard({ task, columnId }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
   const [openDelModal, setOpenDelModal] = useState(false);
 
@@ -42,26 +43,20 @@ function TaskCard({ task }: Props) {
         const NewData = {
           ...oldData,
           columns: oldData.columns.map((column) => {
-            const delTask = column.tasks.filter((task) => {
-              return task.id !== resData.delTaskId;
-            });
-            return {
-              ...column,
-              tasks: delTask,
-            };
+            if (column.id !== columnId) {
+              return column;
+            } else {
+              return {
+                ...column,
+                tasks: column.tasks.filter(
+                  (oldTask) => oldTask.id !== resData.delTaskId
+                ),
+              };
+            }
           }),
         };
         return NewData;
       });
-      // queryClient.setQueryData(["tasks"], (oldData: ColumnResType) => {
-      //   const NewData = {
-      //     ...oldData,
-      //     tasks: oldData.tasks.filter((task) => {
-      //       task.id !== resData.delTaskId;
-      //     }),
-      //   };
-      //   return NewData;
-      // });
     },
   });
 
