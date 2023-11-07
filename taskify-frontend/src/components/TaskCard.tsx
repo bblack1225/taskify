@@ -13,6 +13,7 @@ import { DelTaskRes } from "@/types/task";
 import { notifications } from "@mantine/notifications";
 import { AllDataResType, ColumnResType } from "@/types/column";
 import { delTask } from "@/api/tasks";
+import { useState } from "react";
 
 type Props = {
   task: {
@@ -24,6 +25,7 @@ type Props = {
 
 function TaskCard({ task }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
+  const [openDelModal, setOpenDelModal] = useState(false);
 
   const queryClient = useQueryClient();
   const deleteTaskMutation = useMutation({
@@ -65,6 +67,7 @@ function TaskCard({ task }: Props) {
 
   const handleDelTask = (id: string) => {
     deleteTaskMutation.mutate(id);
+    setOpenDelModal(false);
     close();
   };
   return (
@@ -100,7 +103,7 @@ function TaskCard({ task }: Props) {
                 <Button
                   color="red"
                   leftSection={<IconAirBalloon />}
-                  onClick={() => handleDelTask(task.id)}
+                  onClick={() => setOpenDelModal(true)}
                 >
                   刪除任務
                 </Button>
@@ -109,6 +112,25 @@ function TaskCard({ task }: Props) {
           </Modal.Body>
         </Modal.Content>
       </Modal.Root>
+      <Modal
+        opened={openDelModal}
+        onClose={() => setOpenDelModal(false)}
+        radius={10}
+        size="xs"
+        title="請問確定要刪除此任務嗎？"
+        overlayProps={{
+          backgroundOpacity: 0.1,
+          blur: 2,
+        }}
+      >
+        <Button
+          color="red"
+          leftSection={<IconAirBalloon />}
+          onClick={() => handleDelTask(task.id)}
+        >
+          刪除任務
+        </Button>
+      </Modal>
     </>
   );
 }
