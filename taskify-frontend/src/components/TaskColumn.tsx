@@ -9,15 +9,11 @@ import {
   Modal,
 } from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
-import {  useState } from "react";
+import { useState } from "react";
 import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { delColumns, editColumns, getAllColumns } from "@/api/column";
-import {
-  AllDataResType,
-  ColumnDeleteRes,
-  ColumnResType,
-} from "@/types/column";
+import { AllDataResType, ColumnDeleteRes, ColumnResType } from "@/types/column";
 import AddColumn from "./AddColumn";
 import { notifications } from "@mantine/notifications";
 import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
@@ -26,12 +22,10 @@ import TaskCardList from "./TaskCardList";
 import { calculateDataIndex } from "@/utils";
 
 // 先寫死
-// const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
-const BOARD_ID = "37d5162d-3aee-4e88-b9c4-4490a512031e";
-
+const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
+// const BOARD_ID = "37d5162d-3aee-4e88-b9c4-4490a512031e";
 
 function TaskColumn() {
-
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
   const { isPending, data, error } = useQuery({
@@ -49,17 +43,14 @@ function TaskColumn() {
       queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
         return {
           ...oldData,
-
-          columns: oldData.columns.map((column) => {
-            if (column.id !== updatedTask.id) {
-              return column;
-            } else {
-              return {
-                ...column,
-                title: updatedTask.title,
-              };
-            }
-          }),
+          columns: oldData.columns.map((column) =>
+            column.id !== updatedTask.id
+              ? column
+              : {
+                  ...column,
+                  title: updatedTask.title,
+                }
+          ),
         };
       });
       return { previousTasks };
@@ -74,7 +65,6 @@ function TaskColumn() {
     onError(error, variables, context) {
       queryClient.setQueryData(["tasks"], context?.previousTasks);
     },
-    
   });
 
   const deleteMutation = useMutation({
@@ -83,19 +73,18 @@ function TaskColumn() {
       return delColumns(id);
     },
     onSuccess: (resData: ColumnDeleteRes) => {
-      notifications.show({
-        icon: <IconMoodCheck />,
-        message: "刪除看板成功",
-        autoClose: 2000,
-      });
       queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
-        const newData =  {
+        return {
           ...oldData,
           columns: oldData.columns.filter(
             (column) => column.id !== resData.deleteColId
           ),
         };
-        return newData;
+      });
+      notifications.show({
+        icon: <IconMoodCheck />,
+        message: "刪除看板成功",
+        autoClose: 2000,
       });
     },
   });
@@ -112,7 +101,6 @@ function TaskColumn() {
   // find the last column's dataIndex
   const currentColDataIndex = calculateDataIndex(data.columns);
 
-
   const handleEditTitle = (id: string, title: string) => {
     updateMutation.mutate({
       id,
@@ -124,7 +112,6 @@ function TaskColumn() {
     deleteMutation.mutate(id);
     setCurrentDelId("");
   };
-  
 
   return (
     <Flex className={style.container}>
