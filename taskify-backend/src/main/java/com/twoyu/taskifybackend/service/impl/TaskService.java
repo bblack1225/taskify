@@ -13,6 +13,7 @@ import com.twoyu.taskifybackend.repository.TasksLabelsRepository;
 import com.twoyu.taskifybackend.repository.TasksRepository;
 import com.twoyu.taskifybackend.service.ITaskService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import java.util.UUID;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class TaskService implements ITaskService {
 
     private final TasksRepository tasksRepository;
@@ -73,5 +75,13 @@ public class TaskService implements ITaskService {
                 task.getDataIndex(),
                 task.getStatusId(),
                 labelIdList);
+    }
+
+    @Override
+    public UUID deleteTask(UUID id) {
+        tasksLabelsRepository.deleteAllByIdTaskId(id);
+        tasksRepository.deleteById(id);
+        log.info("Task deleted: {}", id);
+        return id;
     }
 }

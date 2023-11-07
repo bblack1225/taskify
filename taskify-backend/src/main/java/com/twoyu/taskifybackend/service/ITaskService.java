@@ -11,4 +11,6 @@ public interface ITaskService {
     AddTaskResponse addTask(AddTaskRequest request);
 
     UpdateTaskResponse updateTask(UUID id, UpdateTaskRequest request);
+
+    UUID deleteTask(UUID id);
 }

@@ -32,4 +32,11 @@ public class TaskController {
     public UpdateTaskResponse updateTask(@PathVariable UUID id, @RequestBody @Valid UpdateTaskRequest request){
         return taskService.updateTask(id, request);
     }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "刪除一個任務")
+    public void deleteTask(@PathVariable UUID id){
+        taskService.deleteTask(id);
+    }
+
 }
