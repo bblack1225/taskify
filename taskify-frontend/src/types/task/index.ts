@@ -4,6 +4,7 @@ export type TaskMutateReq = {
   description: string;
   statusColumnId: string;
 };
+
 export type TaskMutateRes = {
   id: string;
   name: string;
@@ -11,3 +12,8 @@ export type TaskMutateRes = {
   description: string;
   statusColumnId: string;
 };
+
+export type DelTaskRes = {
+  delTaskId: string;
+}
+

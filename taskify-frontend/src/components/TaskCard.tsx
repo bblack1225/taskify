@@ -5,8 +5,14 @@ import {
   IconAirBalloon,
   IconAlignBoxLeftStretch,
   IconBallpen,
+  IconMoodCheck,
 } from "@tabler/icons-react";
 import Editor from "./editor/Editor";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { DelTaskRes } from "@/types/task";
+import { notifications } from "@mantine/notifications";
+import { AllDataResType, ColumnResType } from "@/types/column";
+import { delTask } from "@/api/tasks";
 
 type Props = {
   task: {
@@ -19,6 +25,48 @@ type Props = {
 function TaskCard({ task }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
 
+  const queryClient = useQueryClient();
+  const deleteTaskMutation = useMutation({
+    mutationFn: (id: string) => {
+      return delTask(id);
+    },
+    onSuccess: (resData: DelTaskRes) => {
+      notifications.show({
+        icon: <IconMoodCheck />,
+        message: "刪除任務成功",
+        autoClose: 2000,
+      });
+      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+        const NewData = {
+          ...oldData,
+          columns: oldData.columns.map((column) => {
+            const delTask = column.tasks.filter((task) => {
+              return task.id !== resData.delTaskId;
+            });
+            return {
+              ...column,
+              tasks: delTask,
+            };
+          }),
+        };
+        return NewData;
+      });
+      // queryClient.setQueryData(["tasks"], (oldData: ColumnResType) => {
+      //   const NewData = {
+      //     ...oldData,
+      //     tasks: oldData.tasks.filter((task) => {
+      //       task.id !== resData.delTaskId;
+      //     }),
+      //   };
+      //   return NewData;
+      // });
+    },
+  });
+
+  const handleDelTask = (id: string) => {
+    deleteTaskMutation.mutate(id);
+    close();
+  };
   return (
     <>
       <Box className={style.taskContainer}>
@@ -49,7 +97,11 @@ function TaskCard({ task }: Props) {
                 <Text size="sm" c={"gray.6"} fw={600}>
                   動作
                 </Text>
-                <Button color="red" leftSection={<IconAirBalloon />}>
+                <Button
+                  color="red"
+                  leftSection={<IconAirBalloon />}
+                  onClick={() => handleDelTask(task.id)}
+                >
                   刪除任務
                 </Button>
               </Flex>
