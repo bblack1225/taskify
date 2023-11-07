@@ -6,6 +6,7 @@ import com.twoyu.taskifybackend.model.entity.*;
 import com.twoyu.taskifybackend.model.vo.request.AddTaskRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateTaskRequest;
 import com.twoyu.taskifybackend.model.vo.response.AddTaskResponse;
+import com.twoyu.taskifybackend.model.vo.response.DeleteTaskResponse;
 import com.twoyu.taskifybackend.model.vo.response.UpdateTaskResponse;
 import com.twoyu.taskifybackend.repository.LabelsRepository;
 import com.twoyu.taskifybackend.repository.StatusColumnRepository;
@@ -78,10 +79,10 @@ public class TaskService implements ITaskService {
     }
 
     @Override
-    public UUID deleteTask(UUID id) {
+    public DeleteTaskResponse deleteTask(UUID id) {
         tasksLabelsRepository.deleteAllByIdTaskId(id);
         tasksRepository.deleteById(id);
         log.info("Task deleted: {}", id);
-        return id;
+        return new DeleteTaskResponse(id);
     }
 }

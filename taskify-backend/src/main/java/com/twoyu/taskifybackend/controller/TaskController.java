@@ -3,6 +3,7 @@ package com.twoyu.taskifybackend.controller;
 import com.twoyu.taskifybackend.model.vo.request.AddTaskRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateTaskRequest;
 import com.twoyu.taskifybackend.model.vo.response.AddTaskResponse;
+import com.twoyu.taskifybackend.model.vo.response.DeleteTaskResponse;
 import com.twoyu.taskifybackend.model.vo.response.UpdateTaskResponse;
 import com.twoyu.taskifybackend.service.ITaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,8 +36,8 @@ public class TaskController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "刪除一個任務")
-    public void deleteTask(@PathVariable UUID id){
-        taskService.deleteTask(id);
+    public DeleteTaskResponse deleteTask(@PathVariable UUID id){
+        return taskService.deleteTask(id);
     }
 
 }
