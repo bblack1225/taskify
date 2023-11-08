@@ -27,7 +27,6 @@ function AddTask({
     mutationFn: (newTask: {
       name: string;
       dataIndex: number;
-      description: string;
       statusColumnId: string;
     }) => addTask(newTask),
     onSuccess: (resData: TaskMutateRes) => {
@@ -37,14 +36,13 @@ function AddTask({
           message: "新增成功",
           autoClose: 2000,
         });
-        console.log("old", oldData);
 
         const newData: TasksResType = {
           id: resData.id,
           name: resData.name,
           description: resData.description,
           dataIndex: resData.dataIndex,
-          labels: [],
+          labels: resData.idLabels,
         };
         return {
           ...oldData,
@@ -71,7 +69,6 @@ function AddTask({
       updateTask.mutate({
         name,
         dataIndex: currentDataIndex,
-        description: "",
         statusColumnId,
       });
     }
@@ -84,7 +81,6 @@ function AddTask({
       updateTask.mutate({
         name,
         dataIndex: currentDataIndex,
-        description: "",
         statusColumnId,
       });
       setNewTask("");

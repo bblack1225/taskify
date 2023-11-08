@@ -9,10 +9,10 @@ import {
 } from "@tabler/icons-react";
 import Editor from "./editor/Editor";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { DelTaskRes } from "@/types/task";
+import { DelTaskRes, UpdateDescReq, UpdateDescRes } from "@/types/task";
 import { notifications } from "@mantine/notifications";
 import { AllDataResType } from "@/types/column";
-import { delTask } from "@/api/tasks";
+import { delTask, updateDesc } from "@/api/tasks";
 import { useState } from "react";
 
 type Props = {
@@ -60,10 +60,50 @@ function TaskCard({ task, columnId }: Props) {
     },
   });
 
+  const updateTaskDescMutation = useMutation({
+    mutationFn: (variavles: UpdateDescReq) => {
+      return updateDesc(variavles);
+    },
+    onSuccess: (resData: UpdateDescRes) => {
+      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+        const NewData = {
+          ...oldData,
+          columns: oldData.columns.map((column) => {
+            if (column.id !== columnId) {
+              return column;
+            } else {
+              return {
+                ...column,
+                tasks: column.tasks.map((oldTask) => {
+                  if (oldTask.id !== task.id) {
+                    return oldTask;
+                  } else {
+                    return {
+                      ...oldTask,
+                      description: resData.description,
+                    };
+                  }
+                }),
+              };
+            }
+          }),
+        };
+        return NewData;
+      });
+    },
+  });
+
   const handleDelTask = (id: string) => {
     deleteTaskMutation.mutate(id);
     setOpenDelModal(false);
     close();
+  };
+
+  const handleSaveDesc = (description: string) => {
+    updateTaskDescMutation.mutate({
+      id: task.id,
+      description,
+    });
   };
   return (
     <>
@@ -89,7 +129,10 @@ function TaskCard({ task, columnId }: Props) {
                   <IconAlignBoxLeftStretch />
                   <Text ml={10}>描述</Text>
                 </Flex>
-                <Editor />
+                <Editor
+                  description={task.description}
+                  onSave={handleSaveDesc}
+                />
               </Flex>
               <Flex direction={"column"} gap={5}>
                 <Text size="sm" c={"gray.6"} fw={600}>

@@ -5,12 +5,20 @@ import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import { Button } from "@mantine/core";
+import axios from "axios";
+import axiosClient from "@/api/axiosClient";
 // import Superscript from "@tiptap/extension-superscript";
 // import SubScript from "@tiptap/extension-subscript";
 
-const content = '<h2 style="text-align: center;">Welcome to Taskify</h2>';
+// const content = '<h2 style="text-align: center;">Welcome to Taskify</h2>';
+type Props = {
+  description: string;
+  onSave: (description: string) => void;
+};
 
-function Editor() {
+function Editor({ description, onSave }: Props) {
+  console.log("description", description);
+  // console.log("content!!", JSON.parse(description));
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -19,8 +27,14 @@ function Editor() {
       Highlight,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
-    content,
+    content: description ? JSON.parse(description) : "",
   });
+
+  const handleClick = async () => {
+    const json = editor?.getJSON();
+    const jsonContent = JSON.stringify(json);
+    onSave(jsonContent);
+  };
 
   return (
     <>
@@ -64,7 +78,7 @@ function Editor() {
 
         <RichTextEditor.Content />
       </RichTextEditor>
-      <Button w={100} mt={10} onClick={() => console.log(editor?.getHTML())}>
+      <Button w={100} mt={10} onClick={handleClick}>
         save
       </Button>
     </>
