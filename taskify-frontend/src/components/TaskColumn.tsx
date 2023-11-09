@@ -70,7 +70,7 @@ function TaskColumn() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => {
       close();
-      return delColumns(id);
+      return delColumn(id);
     },
     onSuccess: (resData: ColumnDeleteRes) => {
       queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
@@ -108,8 +108,8 @@ function TaskColumn() {
     });
   };
 
-  const handleDelColumn = (id: string) => {
-    deleteMutation.mutate(id);
+  const handleDelColumn = () => {
+    deleteMutation.mutate(currentDelId);
     setCurrentDelId("");
   };
 
@@ -170,7 +170,7 @@ function TaskColumn() {
           blur: 2,
         }}
       >
-        <Button color="red" onClick={() => handleDelColumn(currentDelId)}>
+        <Button color="red" onClick={handleDelColumn}>
           確定刪除
         </Button>
       </Modal>

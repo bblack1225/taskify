@@ -9,23 +9,21 @@ import { notifications } from "@mantine/notifications";
 import { AllDataResType, ColumnResType, TasksResType } from "@/types/column";
 import { calculateDataIndex } from "@/utils";
 
-function AddTask({
-  isAddingTask,
-  toggleAddingTask,
-  column,
-}: {
+type Props = {
   isAddingTask: boolean;
   toggleAddingTask: (isAdding: boolean) => void;
   column: ColumnResType;
-}) {
+};
+function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
   const [newTask, setNewTask] = useState("");
+  const [isComposing, setIsComposing] = useState(false);
+
   const currentDataIndex = calculateDataIndex(column.tasks);
   const queryClient = useQueryClient();
   const updateTask = useMutation({
     mutationFn: (newTask: {
       name: string;
       dataIndex: number;
-      description: string;
       statusColumnId: string;
     }) => addTask(newTask),
     onSuccess: (resData: TaskMutateRes) => {
@@ -35,14 +33,12 @@ function AddTask({
           message: "新增成功",
           autoClose: 2000,
         });
-        console.log("old", oldData);
-
         const newData: TasksResType = {
           id: resData.id,
           name: resData.name,
           description: resData.description,
           dataIndex: resData.dataIndex,
-          labels: [],
+          labels: resData.idLabels,
         };
         return {
           ...oldData,
@@ -69,14 +65,29 @@ function AddTask({
       updateTask.mutate({
         name,
         dataIndex: currentDataIndex,
-        description: "",
         statusColumnId,
       });
     }
   };
 
-  const handleBlur = () => {
+  const handleBlur = (name: string, statusColumnId: string) => {
     if (!newTask) {
+      toggleAddingTask(false);
+    } else {
+      updateTask.mutate({
+        name,
+        dataIndex: currentDataIndex,
+        statusColumnId,
+      });
+      setNewTask("");
+      toggleAddingTask(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !isComposing) {
+      e.preventDefault();
+      e.currentTarget.blur();
       toggleAddingTask(false);
     }
   };
@@ -85,11 +96,14 @@ function AddTask({
       {isAddingTask && (
         <Stack className={style.addButtonContainer}>
           <Textarea
-            autoFocus
+            // autoFocus
             className={style.addTaskTextarea}
             placeholder="為這張卡片輸入標題..."
             onChange={(e) => setNewTask(e.target.value)}
-            onBlur={handleBlur}
+            onBlur={() => handleBlur(newTask, column.id)}
+            onKeyDown={(e) => handleKeyDown(e)}
+            onCompositionStart={() => setIsComposing(true)}
+            onCompositionEnd={() => setIsComposing(false)}
           />
           <Flex style={{ marginTop: "-4px" }}>
             <Button

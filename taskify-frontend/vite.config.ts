@@ -15,8 +15,8 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        // target: "https://a800-219-80-117-88.ngrok-free.app",
-      target:" https://c1dc-114-24-79-49.ngrok-free.app",
+        target: "http://localhost:8088",
+        //本地端的話不用設定沒關係，但有碰到local以外的就有跨域的問題，必須加 changeOrigin: true
         changeOrigin: true,
       },
     },
