@@ -35,7 +35,6 @@ function TaskCard({ task, columnId }: Props) {
   const [openDelModal, setOpenDelModal] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
   const [editTaskTitle, setEditTaskTitle] = useState(task.name);
-
   const queryClient = useQueryClient();
   const deleteTaskMutation = useMutation({
     mutationFn: (id: string) => {
@@ -69,8 +68,8 @@ function TaskCard({ task, columnId }: Props) {
   });
 
   const updateTaskDescMutation = useMutation({
-    mutationFn: (variavles: UpdateDescReq) => {
-      return updateDesc(variavles);
+    mutationFn: (variables: UpdateDescReq) => {
+      return updateDesc(variables);
     },
     onSuccess: (resData: UpdateDescRes) => {
       queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
@@ -102,16 +101,16 @@ function TaskCard({ task, columnId }: Props) {
   });
 
   const editTaskMutation = useMutation({
-    mutationFn: (editTaskTitle: {
-      id: string;
-      name: string;
-      description: string;
-      labels: string[];
-      boardId: string;
-    }) => editTask(editTaskTitle),
+    mutationFn: (
+      taskId: string,
+      editTaskTitle: {
+        name: string;
+        description: string;
+        labels: string[];
+        boardId: string;
+      }
+    ) => editTask(taskId, editTaskTitle),
     onSuccess: (resData: EditTaskRes) => {
-      console.log("data", resData);
-
       notifications.show({
         icon: <IconMoodCheck />,
         message: "更新成功",
@@ -160,31 +159,21 @@ function TaskCard({ task, columnId }: Props) {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !isComposing) {
-      console.log("editTaskTitle", editTaskTitle);
-      console.log("taskName", task.name);
       e.preventDefault();
       e.currentTarget.blur();
-      return;
     }
   };
 
-  const handleBlur = (
-    id: string,
-    name: string,
-    description: string,
-    labels: string[],
-    boardId: string
-  ) => {
+  const handleBlur = () => {
     if (task.name === editTaskTitle || editTaskTitle === "") {
       setEditTaskTitle(task.name);
       return;
     }
-    editTaskMutation.mutate({
-      id,
-      name,
-      description,
-      labels,
-      boardId,
+    editTaskMutation.mutate(task.id, {
+      name: task.name,
+      description: task.description,
+      labels: task.labels,
+      boardId: columnId,
     });
   };
 
@@ -193,13 +182,7 @@ function TaskCard({ task, columnId }: Props) {
       <Box onClick={open} className={style.taskContainer}>
         <Text>{editTaskTitle}</Text>
       </Box>
-      <Modal.Root
-        // display={opened ? "flex" : "none"}
-        opened={opened}
-        onClose={close}
-        size={"lg"}
-        trapFocus={false}
-      >
+      <Modal.Root opened={opened} onClose={close} size={"lg"} trapFocus={false}>
         <Modal.Overlay />
         <Modal.Content>
           <Modal.Header>
@@ -208,15 +191,7 @@ function TaskCard({ task, columnId }: Props) {
               className={style.taskTitleTextarea}
               value={editTaskTitle}
               autosize
-              onBlur={() =>
-                handleBlur(
-                  task.id,
-                  editTaskTitle,
-                  task.description,
-                  task.labels,
-                  columnId
-                )
-              }
+              onBlur={handleBlur}
               onKeyDown={(e) => handleKeyDown(e)}
               onCompositionStart={() => setIsComposing(true)}
               onCompositionEnd={() => setIsComposing(false)}

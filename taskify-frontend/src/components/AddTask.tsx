@@ -9,15 +9,12 @@ import { notifications } from "@mantine/notifications";
 import { AllDataResType, ColumnResType, TasksResType } from "@/types/column";
 import { calculateDataIndex } from "@/utils";
 
-function AddTask({
-  isAddingTask,
-  toggleAddingTask,
-  column,
-}: {
+type Props = {
   isAddingTask: boolean;
   toggleAddingTask: (isAdding: boolean) => void;
   column: ColumnResType;
-}) {
+};
+function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
   const [newTask, setNewTask] = useState("");
   const [isComposing, setIsComposing] = useState(false);
 
@@ -36,7 +33,6 @@ function AddTask({
           message: "新增成功",
           autoClose: 2000,
         });
-
         const newData: TasksResType = {
           id: resData.id,
           name: resData.name,
@@ -100,7 +96,7 @@ function AddTask({
       {isAddingTask && (
         <Stack className={style.addButtonContainer}>
           <Textarea
-            autoFocus
+            // autoFocus
             className={style.addTaskTextarea}
             placeholder="為這張卡片輸入標題..."
             onChange={(e) => setNewTask(e.target.value)}

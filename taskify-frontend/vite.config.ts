@@ -16,6 +16,7 @@ export default defineConfig({
     proxy: {
       "/api": {
         target: "http://localhost:8088",
+        //本地端的話不用設定沒關係，但有碰到local以外的就有跨域的問題，必須加 changeOrigin: true
         changeOrigin: true,
       },
     },

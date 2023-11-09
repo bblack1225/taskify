@@ -13,13 +13,6 @@ export type TaskMutateRes = {
   idLabels: string[];
 };
 
-// export type EditTaskReq = {
-//   name: string;
-//   description: string;
-//   labels: string[];
-//   boardId: string;
-// }
-
 export type EditTaskRes = {
   id: string;
   name: string;

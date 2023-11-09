@@ -12,10 +12,11 @@ type Props = {
   boardId: string;
   currentColDataIndex: number;
 };
-// TODO style 是共用的，尚未拆分
+
 function AddColumn({ boardId, currentColDataIndex }: Props) {
   const [isAddingColumn, setIsAddingColumn] = useState(false);
   const [newTitle, setNewTitle] = useState("");
+  const [isComposing, setIsComposing] = useState(false);
   const ref = useClickOutside(() => {
     setNewTitle((prev) => prev.trim());
     setIsAddingColumn(false);
@@ -50,8 +51,6 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
       setNewTitle("");
     },
   });
-
-  const [isComposing, setIsComposing] = useState(false);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !isComposing) {

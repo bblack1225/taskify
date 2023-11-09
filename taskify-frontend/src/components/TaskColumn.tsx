@@ -192,8 +192,8 @@ function TaskColumn() {
     });
   };
 
-  const handleDelColumn = (id: string) => {
-    deleteMutation.mutate(id);
+  const handleDelColumn = () => {
+    deleteMutation.mutate(currentDelId);
     setCurrentDelId("");
   };
 
@@ -254,7 +254,7 @@ function TaskColumn() {
           blur: 2,
         }}
       >
-        <Button color="red" onClick={() => handleDelColumn(currentDelId)}>
+        <Button color="red" onClick={handleDelColumn}>
           確定刪除
         </Button>
       </Modal>
