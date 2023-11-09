@@ -11,6 +11,8 @@ type ErrorType = {
   errorCode: number;
   errorMessage: string;
 }
+
+//攔截器
 axiosClient.interceptors.response.use(
   (response) => response.data,
   (error) => {

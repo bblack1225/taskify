@@ -9,10 +9,15 @@ import {
 } from "@tabler/icons-react";
 import Editor from "./editor/Editor";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { DelTaskRes, UpdateDescReq, UpdateDescRes } from "@/types/task";
+import {
+  DelTaskRes,
+  EditTaskRes,
+  UpdateDescReq,
+  UpdateDescRes,
+} from "@/types/task";
 import { notifications } from "@mantine/notifications";
 import { AllDataResType } from "@/types/column";
-import { delTask, updateDesc } from "@/api/tasks";
+import { delTask, editTask, updateDesc } from "@/api/tasks";
 import { useState } from "react";
 
 type Props = {
@@ -20,6 +25,7 @@ type Props = {
     id: string;
     name: string;
     description: string;
+    labels: string[];
   };
   columnId: string;
 };
@@ -27,6 +33,8 @@ type Props = {
 function TaskCard({ task, columnId }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
   const [openDelModal, setOpenDelModal] = useState(false);
+  const [isComposing, setIsComposing] = useState(false);
+  const [editTaskTitle, setEditTaskTitle] = useState(task.name);
 
   const queryClient = useQueryClient();
   const deleteTaskMutation = useMutation({
@@ -93,6 +101,50 @@ function TaskCard({ task, columnId }: Props) {
     },
   });
 
+  const editTaskMutation = useMutation({
+    mutationFn: (editTaskTitle: {
+      id: string;
+      name: string;
+      description: string;
+      labels: string[];
+      boardId: string;
+    }) => editTask(editTaskTitle),
+    onSuccess: (resData: EditTaskRes) => {
+      console.log("data", resData);
+
+      notifications.show({
+        icon: <IconMoodCheck />,
+        message: "更新成功",
+        autoClose: 2000,
+      });
+      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+        const NewData = {
+          ...oldData,
+          columns: oldData.columns.map((column) => {
+            if (column.id !== columnId) {
+              return column;
+            } else {
+              return {
+                ...column,
+                tasks: column.tasks.map((oldTask) => {
+                  if (oldTask.id !== task.id) {
+                    return oldTask;
+                  } else {
+                    return {
+                      ...oldTask,
+                      name: resData.name,
+                    };
+                  }
+                }),
+              };
+            }
+          }),
+        };
+        return NewData;
+      });
+    },
+  });
+
   const handleDelTask = (id: string) => {
     deleteTaskMutation.mutate(id);
     setOpenDelModal(false);
@@ -105,10 +157,41 @@ function TaskCard({ task, columnId }: Props) {
       description,
     });
   };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !isComposing) {
+      console.log("editTaskTitle", editTaskTitle);
+      console.log("taskName", task.name);
+      e.preventDefault();
+      e.currentTarget.blur();
+      return;
+    }
+  };
+
+  const handleBlur = (
+    id: string,
+    name: string,
+    description: string,
+    labels: string[],
+    boardId: string
+  ) => {
+    if (task.name === editTaskTitle || editTaskTitle === "") {
+      setEditTaskTitle(task.name);
+      return;
+    }
+    editTaskMutation.mutate({
+      id,
+      name,
+      description,
+      labels,
+      boardId,
+    });
+  };
+
   return (
     <>
-      <Box className={style.taskContainer}>
-        <Text onClick={open}>{task.name}</Text>
+      <Box onClick={open} className={style.taskContainer}>
+        <Text>{editTaskTitle}</Text>
       </Box>
       <Modal.Root opened={opened} onClose={close} size={"lg"}>
         <Modal.Overlay />
@@ -117,8 +200,23 @@ function TaskCard({ task, columnId }: Props) {
             <IconBallpen />
             <Textarea
               style={{ flex: "2", margin: "0 10px" }}
+              value={editTaskTitle}
+              // autoFocus沒有起作用
+              autoFocus
               autosize
-              value={task.name}
+              onBlur={() =>
+                handleBlur(
+                  task.id,
+                  editTaskTitle,
+                  task.description,
+                  task.labels,
+                  columnId
+                )
+              }
+              onKeyDown={(e) => handleKeyDown(e)}
+              onCompositionStart={() => setIsComposing(true)}
+              onCompositionEnd={() => setIsComposing(false)}
+              onChange={(e) => setEditTaskTitle(e.target.value)}
             />
             <Modal.CloseButton />
           </Modal.Header>

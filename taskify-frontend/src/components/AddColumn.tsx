@@ -3,7 +3,7 @@ import { ActionIcon, Box, Button, Flex, Stack, Textarea } from "@mantine/core";
 import { useClickOutside } from "@mantine/hooks";
 import { IconMoodCheck, IconX } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addColumns } from "@/api/column";
+import { addColumn } from "@/api/column";
 import { ColumnMutateRes, AllDataResType } from "@/types/column";
 import style from "./AddColumn.module.scss";
 import { notifications } from "@mantine/notifications";
@@ -28,9 +28,14 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
       boardId: string;
       title: string;
       dataIndex: number;
-    }) => addColumns(newColumn),
+    }) => addColumn(newColumn),
     onSuccess: (resData: ColumnMutateRes) => {
-      const newData = { id: resData.id, title: resData.title, tasks: [], dataIndex: resData.dataIndex};
+      const newData = {
+        id: resData.id,
+        title: resData.title,
+        tasks: [],
+        dataIndex: resData.dataIndex,
+      };
       queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
         return {
           ...oldData,

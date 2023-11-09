@@ -12,7 +12,7 @@ import style from "@/components/TaskColumn.module.scss";
 import { useState } from "react";
 import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { delColumns, editColumns, getAllColumns } from "@/api/column";
+import { delColumn, editColumn, getAllColumns } from "@/api/column";
 import {
   AllDataResType,
   ColumnDeleteRes,
@@ -123,7 +123,7 @@ function TaskColumn() {
   const queryClient = useQueryClient();
   const updateMutation = useMutation({
     mutationFn: (editTitle: { id: string; title: string }) =>
-      editColumns(editTitle),
+      editColumn(editTitle),
     onSuccess: (resData: ColumnMutateRes) => {
       console.log("data", data);
 
@@ -153,7 +153,7 @@ function TaskColumn() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => {
       close();
-      return delColumns(id);
+      return delColumn(id);
     },
     onSuccess: (resData: ColumnDeleteRes) => {
       notifications.show({

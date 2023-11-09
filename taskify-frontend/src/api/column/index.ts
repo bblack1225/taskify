@@ -5,7 +5,7 @@ export const getAllColumns = (id: string): Promise<AllDataResType> => {
   return axiosClient.get(`/statusCol/all/${id}`);
 };
 
-export const addColumns = (requestData: {
+export const addColumn = (requestData: {
   boardId: string;
   title: string;
   dataIndex: number;
@@ -13,10 +13,10 @@ export const addColumns = (requestData: {
   return axiosClient.post("/statusCol", requestData);
 };
 
-export const editColumns = (editColumns:{id: string, title: string}): Promise<ColumnMutateRes> => {
-  return axiosClient.put(`/statusCol/${editColumns.id}`,{title: editColumns.title})
+export const editColumn = (editColumn:{id: string, title: string}): Promise<ColumnMutateRes> => {
+  return axiosClient.put(`/statusCol/${editColumn.id}`,{title: editColumn.title})
 }
 
-export const delColumns = (id:string):Promise<ColumnDeleteRes> => {
+export const delColumn = (id:string):Promise<ColumnDeleteRes> => {
   return axiosClient.delete(`/statusCol/${id}`)
 }

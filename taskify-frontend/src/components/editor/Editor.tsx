@@ -5,8 +5,8 @@ import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import { Button } from "@mantine/core";
-import axios from "axios";
-import axiosClient from "@/api/axiosClient";
+// import axios from "axios";
+// import axiosClient from "@/api/axiosClient";
 // import Superscript from "@tiptap/extension-superscript";
 // import SubScript from "@tiptap/extension-subscript";
 
@@ -17,7 +17,7 @@ type Props = {
 };
 
 function Editor({ description, onSave }: Props) {
-  console.log("description", description);
+  // console.log("description", description);
   // console.log("content!!", JSON.parse(description));
   const editor = useEditor({
     extensions: [
