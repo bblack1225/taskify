@@ -81,6 +81,7 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
       textareaRef.current.selectionStart = len;
     }
   }, [isAddingColumn]);
+
   return (
     <Flex style={{ flexShrink: 0 }}>
       <Box>

@@ -193,16 +193,20 @@ function TaskCard({ task, columnId }: Props) {
       <Box onClick={open} className={style.taskContainer}>
         <Text>{editTaskTitle}</Text>
       </Box>
-      <Modal.Root opened={opened} onClose={close} size={"lg"}>
+      <Modal.Root
+        // display={opened ? "flex" : "none"}
+        opened={opened}
+        onClose={close}
+        size={"lg"}
+        trapFocus={false}
+      >
         <Modal.Overlay />
         <Modal.Content>
           <Modal.Header>
             <IconBallpen />
             <Textarea
-              style={{ flex: "2", margin: "0 10px" }}
+              className={style.taskTitleTextarea}
               value={editTaskTitle}
-              // autoFocus沒有起作用
-              autoFocus
               autosize
               onBlur={() =>
                 handleBlur(
