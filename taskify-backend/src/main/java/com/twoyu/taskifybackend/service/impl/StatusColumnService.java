@@ -7,11 +7,9 @@ import com.twoyu.taskifybackend.model.entity.StatusColumn;
 import com.twoyu.taskifybackend.model.entity.Tasks;
 import com.twoyu.taskifybackend.model.vo.request.AddColumnRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateColumnTitleRequest;
-import com.twoyu.taskifybackend.model.vo.response.AddColumnResponse;
-import com.twoyu.taskifybackend.model.vo.response.DeleteColumnResponse;
-import com.twoyu.taskifybackend.model.vo.response.QueryAllColumnResponse;
-import com.twoyu.taskifybackend.model.vo.response.UpdateColumnTitleResponse;
+import com.twoyu.taskifybackend.model.vo.response.*;
 import com.twoyu.taskifybackend.model.vo.response.shared.LabelsResponse;
+import com.twoyu.taskifybackend.model.vo.response.shared.StatusColumnResponse;
 import com.twoyu.taskifybackend.model.vo.response.shared.TaskColumnRes;
 import com.twoyu.taskifybackend.model.vo.response.shared.TasksResponse;
 import com.twoyu.taskifybackend.repository.BoardRepository;
@@ -113,5 +111,38 @@ public class StatusColumnService implements IStatusColumnService {
         statusColumnRepository.deleteById(id);
         log.info("Delete status column id success:{}", id);
         return new DeleteColumnResponse(id);
+    }
+
+    @Override
+    public QueryBaseDataResponse queryBaseData(UUID boardId) {
+        QueryBaseDataResponse res = new QueryBaseDataResponse();
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(() -> new ServiceException("Board id not found:" + boardId));
+        res.setBoardId(boardId);
+        res.setBoardName(board.getName());
+        List<StatusColumn> statusColumns = statusColumnRepository
+                .findAllByBoardIdOrderByDataIndex(boardId);
+        List<StatusColumnResponse> statusColumnResList = statusColumns.stream().map(column -> {
+            StatusColumnResponse statusColumnRes = new StatusColumnResponse();
+            statusColumnRes.setId(column.getId());
+            statusColumnRes.setTitle(column.getTitle());
+            statusColumnRes.setColor(column.getColor());
+            statusColumnRes.setDataIndex(column.getDataIndex());
+            return statusColumnRes;
+        }).toList();
+        res.setColumns(statusColumnResList);
+        List<Tasks> tasks = tasksRepository.findAllByBoardId(boardId);
+        List<TasksResponse> tasksResponses = tasks.stream().map(task -> {
+            TasksResponse tasksResponse = new TasksResponse();
+            tasksResponse.setId(task.getId());
+            tasksResponse.setName(task.getName());
+            tasksResponse.setDataIndex(task.getDataIndex());
+            tasksResponse.setDescription(task.getDescription());
+            tasksResponse.setLabels(new ArrayList<>());
+            tasksResponse.setColumnId(task.getStatusId());
+            return tasksResponse;
+        }).toList();
+        res.setTasks(tasksResponses);
+        return res;
     }
 }

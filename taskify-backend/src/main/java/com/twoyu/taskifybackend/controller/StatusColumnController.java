@@ -1,11 +1,9 @@
 package com.twoyu.taskifybackend.controller;
 
+import com.twoyu.taskifybackend.exception.ServiceException;
 import com.twoyu.taskifybackend.model.vo.request.AddColumnRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateColumnTitleRequest;
-import com.twoyu.taskifybackend.model.vo.response.AddColumnResponse;
-import com.twoyu.taskifybackend.model.vo.response.DeleteColumnResponse;
-import com.twoyu.taskifybackend.model.vo.response.QueryAllColumnResponse;
-import com.twoyu.taskifybackend.model.vo.response.UpdateColumnTitleResponse;
+import com.twoyu.taskifybackend.model.vo.response.*;
 import com.twoyu.taskifybackend.service.IStatusColumnService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,6 +42,12 @@ public class StatusColumnController {
     @GetMapping("/all/{boardId}")
     public QueryAllColumnResponse getAll(@PathVariable("boardId") UUID boardId){
         return statusColumnService.queryAll(boardId);
+    }
+
+    @Operation(summary = "取得所有狀態列表")
+    @GetMapping("/v2/all/{boardId}")
+    public QueryBaseDataResponse getBaseData(@PathVariable("boardId") UUID boardId){
+        return statusColumnService.queryBaseData(boardId);
     }
 
 }

@@ -7,7 +7,7 @@ export type ColumnMutateRes = {
 
 export type ColumnDeleteRes = {
   deleteColId: string;
-}
+};
 
 export type AllDataResType = {
   boardId: string;
@@ -29,4 +29,27 @@ export type TasksResType = {
   dataIndex: number;
   description: string;
   labels: string[];
+};
+
+export type BaseDataRes = {
+  boardId: string;
+  boardName: string;
+  columns: BaseColumnRes[];
+  tasks: BaseTaskRes[];
+};
+
+export type BaseColumnRes = {
+  id: string;
+  title: string;
+  color: string;
+  dataIndex: number;
+};
+
+export type BaseTaskRes = {
+  id: string;
+  name: string;
+  dataIndex: number;
+  description: string;
+  labels: string[];
+  columnId: string;
 };
