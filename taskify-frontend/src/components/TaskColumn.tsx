@@ -12,12 +12,7 @@ import style from "@/components/TaskColumn.module.scss";
 import { useMemo, useState } from "react";
 import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  delColumn,
-  editColumn,
-  getAllColumns,
-  getBaseData,
-} from "@/api/column";
+import { delColumn, editColumn, getBaseData } from "@/api/column";
 import {
   AllDataResType,
   ColumnDeleteRes,
@@ -46,11 +41,7 @@ function TaskColumn() {
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
 
-  const {
-    isPending: isPending,
-    data,
-    error,
-  } = useQuery({
+  const { isPending, data, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: () => getBaseData(BOARD_ID),
   });

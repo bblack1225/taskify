@@ -6,8 +6,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addTask } from "@/api/tasks";
 import { TaskMutateRes } from "@/types/task";
 import { notifications } from "@mantine/notifications";
-import { AllDataResType, ColumnResType, TasksResType } from "@/types/column";
+import { BaseDataRes, BaseTaskRes, ColumnResType } from "@/types/column";
 import { calculateDataIndex } from "@/utils";
+import { v4 as uuidv4 } from "uuid";
 
 type Props = {
   isAddingTask: boolean;
@@ -20,38 +21,65 @@ function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
 
   const currentDataIndex = calculateDataIndex(column.tasks);
   const queryClient = useQueryClient();
+  // TODO 為了取得 boardId，可能有更好的做法?
+  const queryData = queryClient.getQueryData<BaseDataRes>([
+    "tasks",
+  ]) as BaseDataRes;
   const updateTask = useMutation({
     mutationFn: (newTask: {
       name: string;
       dataIndex: number;
       statusColumnId: string;
+      boardId: string;
     }) => addTask(newTask),
-    onSuccess: (resData: TaskMutateRes) => {
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+      const optimisticTask: BaseTaskRes = {
+        id: uuidv4(),
+        name: variables.name,
+        dataIndex: variables.dataIndex,
+        labels: [],
+        columnId: variables.statusColumnId,
+        description: "",
+      };
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+        return {
+          ...oldData,
+          tasks: [...oldData.tasks, optimisticTask],
+        };
+      });
+      return { optimisticTask };
+    },
+    onSuccess: (resData: TaskMutateRes, variables, context) => {
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         notifications.show({
           icon: <IconMoodCheck />,
           message: "新增成功",
           autoClose: 2000,
         });
-        const newData: TasksResType = {
+        const newData: BaseTaskRes = {
           id: resData.id,
           name: resData.name,
           description: resData.description,
           dataIndex: resData.dataIndex,
           labels: resData.idLabels,
+          columnId: resData.statusColumnId,
         };
         return {
           ...oldData,
-          columns: oldData.columns.map((oldColumn) => {
-            if (oldColumn.id !== column.id) {
-              return oldColumn;
-            } else {
-              return {
-                ...oldColumn,
-                tasks: [...oldColumn.tasks, newData],
-              };
-            }
+          tasks: oldData.tasks.map((task) => {
+            return task.id === context?.optimisticTask.id ? newData : task;
           }),
+        };
+      });
+    },
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+        return {
+          ...oldData,
+          tasks: oldData.tasks.filter(
+            (task) => task.id !== context?.optimisticTask.id
+          ),
         };
       });
     },
@@ -66,6 +94,7 @@ function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
         name,
         dataIndex: currentDataIndex,
         statusColumnId,
+        boardId: queryData.boardId,
       });
     }
   };
@@ -78,6 +107,7 @@ function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
         name,
         dataIndex: currentDataIndex,
         statusColumnId,
+        boardId: queryData.boardId,
       });
       setNewTask("");
       toggleAddingTask(false);

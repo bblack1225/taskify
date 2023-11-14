@@ -22,4 +22,8 @@ public class AddTaskRequest {
     @Schema(description = "任務所屬的看板ID")
     private UUID statusColumnId;
 
+    @NotNull
+    @Schema(description = "看板ID")
+    private UUID boardId;
+
 }

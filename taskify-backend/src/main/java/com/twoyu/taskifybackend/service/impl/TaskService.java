@@ -38,6 +38,7 @@ public class TaskService implements ITaskService {
         task.setDataIndex(request.getDataIndex());
         task.setStatusId(request.getStatusColumnId());
         task.setDescription("");
+        task.setBoardId(request.getBoardId());
         task = tasksRepository.save(task);
         return new MutateTaskResponse(
                 task.getId(),

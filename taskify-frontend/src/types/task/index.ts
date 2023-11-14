@@ -1,7 +1,8 @@
-export type TaskMutateReq = {
+export type AddTaskReq = {
   name: string;
   dataIndex: number;
   statusColumnId: string;
+  boardId: string;
 };
 
 export type TaskMutateRes = {
@@ -20,7 +21,7 @@ export type EditTaskRes = {
   dataIndex: number;
   statusColumnId: string;
   labels: string[];
-}
+};
 
 export type DelTaskRes = {
   delTaskId: string;
