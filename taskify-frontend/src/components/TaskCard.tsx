@@ -1,4 +1,13 @@
-import { Box, Button, Flex, Modal, Text, Textarea } from "@mantine/core";
+import {
+  Box,
+  Button,
+  Flex,
+  Group,
+  HoverCard,
+  Modal,
+  Text,
+  Textarea,
+} from "@mantine/core";
 import style from "@/components/TaskCard.module.scss";
 import { useDisclosure } from "@mantine/hooks";
 import {
@@ -19,6 +28,27 @@ import { notifications } from "@mantine/notifications";
 import { AllDataResType } from "@/types/column";
 import { delTask, editTask, updateDesc } from "@/api/tasks";
 import { useState } from "react";
+import TaskMemberMenu from "./Menu/TaskMemberMenu";
+import TaskTagMenu from "./Menu/TaskTagMenu";
+import TaskDateMenu from "./Menu/TaskDateMenu";
+
+const labels = [
+  { id: 1, color: "#CE5A67", showLabel: true, name: "重要" },
+  { id: 2, color: "#FF9B50", showLabel: true, name: "待處理事件" },
+  { id: 3, color: "#FFE17B", showLabel: true, name: "優先" },
+  { id: 4, color: "#B6E2A1", showLabel: true, name: "完成" },
+  {
+    id: 5,
+    color: "#87C4FF",
+    showLabel: true,
+    name: "進行中測試～",
+  },
+  { id: 6, color: "#D3CEDF", showLabel: true, name: "註記中" },
+  { id: 7, color: "#E5D4FF", showLabel: true, name: "審核" },
+  { id: 8, color: "#EBE3D5", showLabel: true, name: "問題" },
+  { id: 9, color: "#FFDFDF", showLabel: true, name: "緊急" },
+  { id: 10, color: "#F3FDE8", showLabel: false, name: "無標題" },
+];
 
 type Props = {
   task: {
@@ -35,6 +65,7 @@ function TaskCard({ task, columnId }: Props) {
   const [openDelModal, setOpenDelModal] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
   const [editTaskTitle, setEditTaskTitle] = useState(task.name);
+
   const queryClient = useQueryClient();
   const deleteTaskMutation = useMutation({
     mutationFn: (id: string) => {
@@ -101,15 +132,13 @@ function TaskCard({ task, columnId }: Props) {
   });
 
   const editTaskMutation = useMutation({
-    mutationFn: (
-      taskId: string,
-      editTaskTitle: {
-        name: string;
-        description: string;
-        labels: string[];
-        boardId: string;
-      }
-    ) => editTask(taskId, editTaskTitle),
+    mutationFn: (editTaskTitle: {
+      id: string;
+      name: string;
+      description: string;
+      labels: string[];
+      boardId: string;
+    }) => editTask(editTaskTitle),
     onSuccess: (resData: EditTaskRes) => {
       notifications.show({
         icon: <IconMoodCheck />,
@@ -169,7 +198,8 @@ function TaskCard({ task, columnId }: Props) {
       setEditTaskTitle(task.name);
       return;
     }
-    editTaskMutation.mutate(task.id, {
+    editTaskMutation.mutate({
+      id: task.id,
       name: task.name,
       description: task.description,
       labels: task.labels,
@@ -180,9 +210,43 @@ function TaskCard({ task, columnId }: Props) {
   return (
     <>
       <Box onClick={open} className={style.taskContainer}>
-        <Text>{editTaskTitle}</Text>
+        <Flex style={{ flexDirection: "row", flexWrap: "wrap" }}>
+          {labels.map((label) => {
+            if (label.showLabel === true) {
+              return (
+                <Group
+                  key={label.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  justify="center"
+                >
+                  <HoverCard openDelay={300}>
+                    <HoverCard.Target>
+                      <div
+                        style={{
+                          backgroundColor: `${label.color}`,
+                        }}
+                        className={style.hoverCard}
+                      />
+                    </HoverCard.Target>
+                    <HoverCard.Dropdown h={20} className={style.dropdown}>
+                      <Text size="xs">標題：『{label.name}』</Text>
+                    </HoverCard.Dropdown>
+                  </HoverCard>
+                </Group>
+              );
+            }
+          })}
+        </Flex>
+        <Text style={{ marginLeft: "4px" }}>{editTaskTitle}</Text>
       </Box>
-      <Modal.Root opened={opened} onClose={close} size={"lg"} trapFocus={false}>
+      <Modal.Root
+        opened={opened}
+        onClose={close}
+        size={"700"}
+        trapFocus={false}
+      >
         <Modal.Overlay />
         <Modal.Content>
           <Modal.Header>
@@ -203,16 +267,52 @@ function TaskCard({ task, columnId }: Props) {
             <Flex justify={"space-between"}>
               <Flex direction={"column"}>
                 <Flex>
+                  <Text className={style.tagText} c={"gray.6"} fw={600}>
+                    標籤
+                  </Text>
+                  <Flex
+                    style={{
+                      flexDirection: "row",
+                      flexWrap: "wrap",
+                      width: "420px",
+                    }}
+                  >
+                    {labels.map((label) => {
+                      if (label.showLabel === true) {
+                        return (
+                          <div
+                            key={label.id}
+                            style={{
+                              backgroundColor: `${label.color}`,
+                            }}
+                            className={style.labelDiv}
+                          >
+                            <span>{label.name}</span>
+                          </div>
+                        );
+                      }
+                    })}
+                  </Flex>
+                </Flex>
+                <Flex mt={15}>
                   <IconAlignBoxLeftStretch />
-                  <Text ml={10}>描述</Text>
+                  <Text ml={10} c={"gray.6"} fw={600}>
+                    描述
+                  </Text>
                 </Flex>
                 <Editor
                   description={task.description}
                   onSave={handleSaveDesc}
                 />
               </Flex>
-              <Flex direction={"column"} gap={5}>
-                <Text size="sm" c={"gray.6"} fw={600}>
+              <Flex direction={"column"} gap={8}>
+                <Text size="xs" c={"gray.6"} fw={600}>
+                  新增至卡片
+                </Text>
+                <TaskMemberMenu />
+                <TaskTagMenu />
+                <TaskDateMenu />
+                <Text size="xs" c={"gray.6"} fw={600}>
                   動作
                 </Text>
                 <Button

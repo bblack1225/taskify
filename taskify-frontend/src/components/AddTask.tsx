@@ -126,7 +126,7 @@ function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
       {isAddingTask && (
         <Stack className={style.addButtonContainer}>
           <Textarea
-            // autoFocus
+            autoFocus
             className={style.addTaskTextarea}
             placeholder="為這張卡片輸入標題..."
             onChange={(e) => setNewTask(e.target.value)}

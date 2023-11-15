@@ -1,10 +1,11 @@
-@import '/src/themes/theme.scss';
+@import "/src/themes/theme.scss";
 
 .main {
   display: flex;
-  padding-left: 17em; 
+  padding-left: 17em;
   // 神奇的height設定，讓scroll bar出現
   height: 1px;
+  background-image: -moz-element();
 }
 
 .navbar {
