@@ -1,6 +1,6 @@
 import { Menu, Button, Checkbox, Center, CloseButton } from "@mantine/core";
 import { IconBallpen, IconTagStarred } from "@tabler/icons-react";
-import style from "./TaskTagMenu.module.scss";
+import style from "./TaskLabelMenu.module.scss";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { LabelRes } from "@/types/labels";
