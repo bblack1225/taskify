@@ -29,33 +29,16 @@ import { AllDataResType } from "@/types/column";
 import { delTask, editTask, updateDesc } from "@/api/tasks";
 import { useState } from "react";
 import TaskMemberMenu from "./Menu/TaskMemberMenu";
-import TaskTagMenu from "./Menu/TaskTagMenu";
+import TaskLabelMenu from "./Menu/TaskLabelMenu";
 import TaskDateMenu from "./Menu/TaskDateMenu";
-
-const labels = [
-  { id: 1, color: "#CE5A67", showLabel: true, name: "重要" },
-  { id: 2, color: "#FF9B50", showLabel: true, name: "待處理事件" },
-  { id: 3, color: "#FFE17B", showLabel: true, name: "優先" },
-  { id: 4, color: "#B6E2A1", showLabel: true, name: "完成" },
-  {
-    id: 5,
-    color: "#87C4FF",
-    showLabel: true,
-    name: "進行中測試～",
-  },
-  { id: 6, color: "#D3CEDF", showLabel: true, name: "註記中" },
-  { id: 7, color: "#E5D4FF", showLabel: true, name: "審核" },
-  { id: 8, color: "#EBE3D5", showLabel: true, name: "問題" },
-  { id: 9, color: "#FFDFDF", showLabel: true, name: "緊急" },
-  { id: 10, color: "#F3FDE8", showLabel: false, name: "無標題" },
-];
+import { TaskLabel } from "@/types/labels";
 
 type Props = {
   task: {
     id: string;
     name: string;
     description: string;
-    labels: string[];
+    labels: TaskLabel[];
   };
   columnId: string;
 };
@@ -136,7 +119,7 @@ function TaskCard({ task, columnId }: Props) {
       id: string;
       name: string;
       description: string;
-      labels: string[];
+      labels: TaskLabel[];
       boardId: string;
     }) => editTask(editTaskTitle),
     onSuccess: (resData: EditTaskRes) => {
@@ -206,37 +189,36 @@ function TaskCard({ task, columnId }: Props) {
       boardId: columnId,
     });
   };
+  const taskLabelIds = task.labels.map((label) => label.id);
 
   return (
     <>
       <Box onClick={open} className={style.taskContainer}>
         <Flex style={{ flexDirection: "row", flexWrap: "wrap" }}>
-          {labels.map((label) => {
-            if (label.showLabel === true) {
-              return (
-                <Group
-                  key={label.id}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  justify="center"
-                >
-                  <HoverCard openDelay={300}>
-                    <HoverCard.Target>
-                      <div
-                        style={{
-                          backgroundColor: `${label.color}`,
-                        }}
-                        className={style.hoverCard}
-                      />
-                    </HoverCard.Target>
-                    <HoverCard.Dropdown h={20} className={style.dropdown}>
-                      <Text size="xs">標題：『{label.name}』</Text>
-                    </HoverCard.Dropdown>
-                  </HoverCard>
-                </Group>
-              );
-            }
+          {task.labels.map((label) => {
+            return (
+              <Group
+                key={label.id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                justify="center"
+              >
+                <HoverCard openDelay={300}>
+                  <HoverCard.Target>
+                    <div
+                      style={{
+                        backgroundColor: `${label.color}`,
+                      }}
+                      className={style.hoverCard}
+                    />
+                  </HoverCard.Target>
+                  <HoverCard.Dropdown h={20} className={style.dropdown}>
+                    <Text size="xs">標題：『{label.name}』</Text>
+                  </HoverCard.Dropdown>
+                </HoverCard>
+              </Group>
+            );
           })}
         </Flex>
         <Text style={{ marginLeft: "4px" }}>{editTaskTitle}</Text>
@@ -277,20 +259,18 @@ function TaskCard({ task, columnId }: Props) {
                       width: "420px",
                     }}
                   >
-                    {labels.map((label) => {
-                      if (label.showLabel === true) {
-                        return (
-                          <div
-                            key={label.id}
-                            style={{
-                              backgroundColor: `${label.color}`,
-                            }}
-                            className={style.labelDiv}
-                          >
-                            <span>{label.name}</span>
-                          </div>
-                        );
-                      }
+                    {task.labels.map((label) => {
+                      return (
+                        <div
+                          key={label.id}
+                          style={{
+                            backgroundColor: `${label.color}`,
+                          }}
+                          className={style.labelDiv}
+                        >
+                          <span>{label.name}</span>
+                        </div>
+                      );
                     })}
                   </Flex>
                 </Flex>
@@ -310,9 +290,7 @@ function TaskCard({ task, columnId }: Props) {
                   新增至卡片
                 </Text>
                 <TaskMemberMenu />
-                <TaskTagMenu
-                  selectedLabels={["c1ca37e2-752f-4cff-af58-4c8e3e703edd"]}
-                />
+                <TaskLabelMenu selectedLabels={taskLabelIds} />
                 <TaskDateMenu />
                 <Text size="xs" c={"gray.6"} fw={600}>
                   動作

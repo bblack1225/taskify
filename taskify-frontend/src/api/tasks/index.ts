@@ -1,3 +1,4 @@
+import { TaskLabel } from "@/types/labels";
 import axiosClient from "../axiosClient";
 import {
   DelTaskRes,
@@ -20,7 +21,7 @@ export const editTask = (editTask: {
   id: string;
   name: string;
   description: string;
-  labels: string[];
+  labels: TaskLabel[];
   boardId: string;
 }): Promise<EditTaskRes> => {
   return axiosClient.put(`/tasks/${editTask.id}`, editTask);

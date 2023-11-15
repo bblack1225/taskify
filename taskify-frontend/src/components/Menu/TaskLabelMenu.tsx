@@ -2,56 +2,17 @@ import { Menu, Button, Checkbox, Center, CloseButton } from "@mantine/core";
 import { IconBallpen, IconTagStarred } from "@tabler/icons-react";
 import style from "./TaskTagMenu.module.scss";
 import { useState } from "react";
-import useLabels from "@/hooks/useLabels";
 import { useQueryClient } from "@tanstack/react-query";
 import { LabelRes } from "@/types/labels";
-const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
-
-const labels = [
-  { id: 1, color: "#CE5A67", showLabel: true, name: "重要" },
-  { id: 2, color: "#FF9B50", showLabel: true, name: "待處理事件好多好多好多" },
-  { id: 3, color: "#FFE17B", showLabel: true, name: "優先" },
-  { id: 4, color: "#B6E2A1", showLabel: true, name: "完成" },
-  {
-    id: 5,
-    color: "#87C4FF",
-    showLabel: true,
-    name: "進行中測試～～～～～～～",
-  },
-  { id: 6, color: "#D3CEDF", showLabel: true, name: "註記" },
-  { id: 7, color: "#E5D4FF", showLabel: true, name: "審核" },
-  { id: 8, color: "#EBE3D5", showLabel: true, name: "問題" },
-  { id: 9, color: "#FFDFDF", showLabel: true, name: "緊急" },
-  { id: 10, color: "#F3FDE8", showLabel: false, name: "無標題" },
-];
-
-// type LabelType = {
-//   id: number;
-//   color: string;
-//   showLabel: boolean;
-//   name: string;
-// };
-// type Props = {
-//   isLabel: LabelType[];
-//   setIsLabel: (
-//     updatedLabels: {
-//       id: number;
-//       color: string;
-//       showLabel: boolean;
-//       name: string;
-//     }[]
-//   ) => void;
-// };
 
 type Props = {
   selectedLabels: string[];
 };
 
-function TaskTagMenu({ selectedLabels }: Props) {
+function TaskLabelMenu({ selectedLabels }: Props) {
   const [opened, setOpened] = useState(false);
   const queryClient = useQueryClient();
   const labels = queryClient.getQueryData<LabelRes[]>(["labels"]);
-  console.log("labels", labels);
 
   // const handleLabels = (id: number) => {
   //   setIsLabel((prev: LabelType[]) =>
@@ -115,4 +76,4 @@ function TaskTagMenu({ selectedLabels }: Props) {
   );
 }
 
-export default TaskTagMenu;
+export default TaskLabelMenu;

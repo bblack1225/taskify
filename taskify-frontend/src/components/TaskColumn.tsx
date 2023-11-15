@@ -63,7 +63,7 @@ function TaskColumn() {
     onMutate: async (updatedTask) => {
       await queryClient.cancelQueries({ queryKey: ["tasks"] });
       const previousTasks = queryClient.getQueryData(["tasks"]);
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         return {
           ...oldData,
           columns: oldData.columns.map((column) =>

@@ -1,14 +1,12 @@
 package com.twoyu.taskifybackend.service.impl;
 
 import com.twoyu.taskifybackend.exception.ServiceException;
+import com.twoyu.taskifybackend.model.dto.TasksDto;
 import com.twoyu.taskifybackend.model.entity.*;
 import com.twoyu.taskifybackend.model.vo.request.AddColumnRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateColumnTitleRequest;
 import com.twoyu.taskifybackend.model.vo.response.*;
-import com.twoyu.taskifybackend.model.vo.response.shared.LabelsResponse;
-import com.twoyu.taskifybackend.model.vo.response.shared.StatusColumnResponse;
-import com.twoyu.taskifybackend.model.vo.response.shared.TaskColumnRes;
-import com.twoyu.taskifybackend.model.vo.response.shared.TasksResponse;
+import com.twoyu.taskifybackend.model.vo.response.shared.*;
 import com.twoyu.taskifybackend.repository.*;
 import com.twoyu.taskifybackend.repository.projection.TaskLabelsProjection;
 import com.twoyu.taskifybackend.service.IStatusColumnService;
@@ -18,9 +16,7 @@ import org.hibernate.type.SerializationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,6 +51,9 @@ public class StatusColumnService implements IStatusColumnService {
         Board board = boardRepository.findById(boardId).orElseThrow(() -> new ServiceException("Board id not found:" + boardId));
         response.setBoardId(boardId);
         response.setBoardName(board.getName());
+        List<TasksDto> tasksDtos =  tasksRepository.getAllTasksWithLabelsId(boardId)
+                .stream().map(TasksDto::fromProjection).toList();
+        log.info("tasksDtos: {}", tasksDtos);
 //        List<Labels> labels = labelsRepository.findAllByBoardId(boardId);
 //        List<LabelsResponse> labelsResponses = LabelsResponse.from(labels);
 //        response.setLabels(labelsResponses);
@@ -111,14 +110,10 @@ public class StatusColumnService implements IStatusColumnService {
 
     @Override
     public QueryBaseDataResponse queryBaseData(UUID boardId) {
-        List<TasksResponse> p = tasksRepository.getAllTasksWithLabels(boardId)
-                .stream().map(projection -> {
-                    TasksResponse tasksResponse = new TasksResponse();
-                    tasksResponse.setId(projection.getTaskId());
-                    tasksResponse.setName(projection.getTaskName());
-                    return
-                }).toList();
-        log.info("QueryBaseDataResponse:{}", tasksRes);
+        Map<UUID, Labels> labels = labelsRepository.findAllByBoardId(boardId)
+                .stream().collect(Collectors.toMap(Labels::getId, label -> label));
+
+    // TODO 待重構
         QueryBaseDataResponse res = new QueryBaseDataResponse();
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ServiceException("Board id not found:" + boardId));
@@ -135,19 +130,38 @@ public class StatusColumnService implements IStatusColumnService {
             return statusColumnRes;
         }).toList();
         res.setColumns(statusColumnResList);
-        List<Tasks> tasks = tasksRepository.findAllByBoardId(boardId);
-        List<TasksResponse> tasksResponses = tasks.stream().map(task -> {
+        List<TasksLabels> tasksLabels = tasksLabelsRepository.findAllByIdTaskId(boardId);
+        Map<UUID, List<UUID>> map = new HashMap<>();
+        for (TasksLabels tasksLabel : tasksLabels) {
+            List<UUID> uuids = map.getOrDefault(tasksLabel.getId().getTaskId(), new ArrayList<>());
+            uuids.add(tasksLabel.getId().getLabelId());
+            map.put(tasksLabel.getId().getTaskId(), uuids);
+        }
+        List<Tasks> tasksDTOs =  tasksRepository.findAllByBoardId(boardId);
+        List<TasksResponse> tasksResponses = tasksDTOs.stream().map(task -> {
             TasksResponse tasksResponse = new TasksResponse();
             tasksResponse.setId(task.getId());
             tasksResponse.setName(task.getName());
             tasksResponse.setDataIndex(task.getDataIndex());
             tasksResponse.setDescription(task.getDescription());
-            tasksResponse.setLabels(new ArrayList<>());
+            List<UUID> labelIds = map.get(task.getId());
+            if(labelIds != null) {
+                List<TaskLabelRes> labelsResponses = labelIds.stream().map(labelId -> {
+                    Labels label = labels.get(labelId);
+                    return TaskLabelRes.builder()
+                            .id(label.getId())
+                            .name(label.getName())
+                            .color(label.getColor())
+                            .build();
+                }).toList();
+                tasksResponse.setLabels(labelsResponses);
+            } else {
+                tasksResponse.setLabels(new ArrayList<>());
+            }
             tasksResponse.setColumnId(task.getStatusId());
             return tasksResponse;
         }).toList();
         res.setTasks(tasksResponses);
-        List<Labels> labels = labelsRepository.findAllByBoardId(boardId);
         return res;
     }
 }

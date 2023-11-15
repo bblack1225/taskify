@@ -1,5 +1,6 @@
 package com.twoyu.taskifybackend.repository.projection;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface TaskLabelsProjection {
@@ -9,8 +10,4 @@ public interface TaskLabelsProjection {
 
     String getDescription();
     UUID  getColumnId();
-    UUID getBoardId();
-    UUID getLabelId();
-    String getLabelName();
-    String getLabelColor();
 }

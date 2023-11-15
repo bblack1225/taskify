@@ -21,10 +21,11 @@ public interface TasksRepository extends JpaRepository<Tasks, UUID>, JpaSpecific
     @Query(nativeQuery = true,
     value = """
             SELECT t.id as taskId, t.name as taskName, t.data_index as dataIndex, 
-             t.description as description, t.status_id as columnId, t.board_id as boardId, 
-              l.id as labelId, l.name as labelName, l.color as labelColor FROM TASKS t left join TASKS_LABELS tl on t.id = tl.task_id 
-            left join LABELS l on tl.label_id = l.id where t.board_id = :boardId
+             t.description as description, t.status_id as columnId,
+              tl.label_id as labelId FROM TASKS t 
+              left join TASKS_LABELS tl on t.id = tl.task_id 
+             where t.board_id = :boardId
             """)
-    List<TaskLabelsProjection> getAllTasksWithLabels(UUID boardId);
+    List<TaskLabelsProjection> getAllTasksWithLabelsId(UUID boardId);
 
 }
