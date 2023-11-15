@@ -25,6 +25,7 @@ import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
 import { useDisclosure } from "@mantine/hooks";
 import TaskCardList from "./TaskCardList";
 import { calculateDataIndex } from "@/utils";
+import useLabels from "@/hooks/useLabels";
 
 // 先寫死
 const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
@@ -45,6 +46,8 @@ function TaskColumn() {
     queryKey: ["tasks"],
     queryFn: () => getBaseData(BOARD_ID),
   });
+
+  const { data: labels, isPending: isLabelsLoading } = useLabels(BOARD_ID);
 
   const columnsWithTasks = useMemo(() => {
     if (!data) {
@@ -110,7 +113,7 @@ function TaskColumn() {
     },
   });
 
-  if (isPending)
+  if (isPending || isLabelsLoading)
     return (
       <div style={{ margin: "0 auto" }}>
         <Loader color="#4592af" type="dots" />

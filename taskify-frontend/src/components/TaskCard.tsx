@@ -310,7 +310,9 @@ function TaskCard({ task, columnId }: Props) {
                   新增至卡片
                 </Text>
                 <TaskMemberMenu />
-                <TaskTagMenu />
+                <TaskTagMenu
+                  selectedLabels={["c1ca37e2-752f-4cff-af58-4c8e3e703edd"]}
+                />
                 <TaskDateMenu />
                 <Text size="xs" c={"gray.6"} fw={600}>
                   動作

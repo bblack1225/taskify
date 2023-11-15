@@ -1,10 +1,7 @@
 package com.twoyu.taskifybackend.service.impl;
 
 import com.twoyu.taskifybackend.exception.ServiceException;
-import com.twoyu.taskifybackend.model.entity.Board;
-import com.twoyu.taskifybackend.model.entity.Labels;
-import com.twoyu.taskifybackend.model.entity.StatusColumn;
-import com.twoyu.taskifybackend.model.entity.Tasks;
+import com.twoyu.taskifybackend.model.entity.*;
 import com.twoyu.taskifybackend.model.vo.request.AddColumnRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateColumnTitleRequest;
 import com.twoyu.taskifybackend.model.vo.response.*;
@@ -12,10 +9,8 @@ import com.twoyu.taskifybackend.model.vo.response.shared.LabelsResponse;
 import com.twoyu.taskifybackend.model.vo.response.shared.StatusColumnResponse;
 import com.twoyu.taskifybackend.model.vo.response.shared.TaskColumnRes;
 import com.twoyu.taskifybackend.model.vo.response.shared.TasksResponse;
-import com.twoyu.taskifybackend.repository.BoardRepository;
-import com.twoyu.taskifybackend.repository.LabelsRepository;
-import com.twoyu.taskifybackend.repository.StatusColumnRepository;
-import com.twoyu.taskifybackend.repository.TasksRepository;
+import com.twoyu.taskifybackend.repository.*;
+import com.twoyu.taskifybackend.repository.projection.TaskLabelsProjection;
 import com.twoyu.taskifybackend.service.IStatusColumnService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +33,7 @@ public class StatusColumnService implements IStatusColumnService {
     private final TasksRepository tasksRepository;
     private final LabelsRepository labelsRepository;
     private final BoardRepository boardRepository;
+    private final TasksLabelsRepository tasksLabelsRepository;
     @Override
     public AddColumnResponse addColumn(AddColumnRequest addColumnRequest) {
         StatusColumn statusColumn = new StatusColumn();
@@ -115,6 +111,14 @@ public class StatusColumnService implements IStatusColumnService {
 
     @Override
     public QueryBaseDataResponse queryBaseData(UUID boardId) {
+        List<TasksResponse> p = tasksRepository.getAllTasksWithLabels(boardId)
+                .stream().map(projection -> {
+                    TasksResponse tasksResponse = new TasksResponse();
+                    tasksResponse.setId(projection.getTaskId());
+                    tasksResponse.setName(projection.getTaskName());
+                    return
+                }).toList();
+        log.info("QueryBaseDataResponse:{}", tasksRes);
         QueryBaseDataResponse res = new QueryBaseDataResponse();
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new ServiceException("Board id not found:" + boardId));
@@ -143,6 +147,7 @@ public class StatusColumnService implements IStatusColumnService {
             return tasksResponse;
         }).toList();
         res.setTasks(tasksResponses);
+        List<Labels> labels = labelsRepository.findAllByBoardId(boardId);
         return res;
     }
 }

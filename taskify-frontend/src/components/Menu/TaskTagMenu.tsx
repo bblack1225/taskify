@@ -2,6 +2,10 @@ import { Menu, Button, Checkbox, Center, CloseButton } from "@mantine/core";
 import { IconBallpen, IconTagStarred } from "@tabler/icons-react";
 import style from "./TaskTagMenu.module.scss";
 import { useState } from "react";
+import useLabels from "@/hooks/useLabels";
+import { useQueryClient } from "@tanstack/react-query";
+import { LabelRes } from "@/types/labels";
+const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
 
 const labels = [
   { id: 1, color: "#CE5A67", showLabel: true, name: "重要" },
@@ -39,8 +43,16 @@ const labels = [
 //   ) => void;
 // };
 
-function TaskTagMenu() {
+type Props = {
+  selectedLabels: string[];
+};
+
+function TaskTagMenu({ selectedLabels }: Props) {
   const [opened, setOpened] = useState(false);
+  const queryClient = useQueryClient();
+  const labels = queryClient.getQueryData<LabelRes[]>(["labels"]);
+  console.log("labels", labels);
+
   // const handleLabels = (id: number) => {
   //   setIsLabel((prev: LabelType[]) =>
   //     prev.map((label) =>
@@ -67,13 +79,14 @@ function TaskTagMenu() {
             style={{ gridColumn: "3/3" }}
           />
         </Menu.Label>
-        {labels.map((label) => (
+        {labels?.map((label) => (
           <div key={label.id} style={{ display: "flex", margin: "2px" }}>
             <Checkbox
               id={label.id.toString()}
               className={style.checkbox}
-              checked={label.showLabel}
+              checked={selectedLabels.includes(label.id)}
               // onChange={() => handleLabels(label.id)}
+              onChange={() => console.log("change labels")}
               color="gray"
               styles={{
                 root: {
