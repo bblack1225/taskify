@@ -1,3 +1,5 @@
+import { TaskLabel } from "../labels";
+
 export type ColumnMutateRes = {
   id: string;
   boardId: string;
@@ -9,26 +11,12 @@ export type ColumnDeleteRes = {
   deleteColId: string;
 };
 
-export type AllDataResType = {
-  boardId: string;
-  title: string;
-  columns: ColumnResType[];
-};
-
 export type ColumnResType = {
   id: string;
   title: string;
   color: string;
   dataIndex: number;
-  tasks: TasksResType[];
-};
-
-export type TasksResType = {
-  id: string;
-  name: string;
-  dataIndex: number;
-  description: string;
-  labels: string[];
+  tasks: BaseTaskRes[];
 };
 
 export type BaseDataRes = {
@@ -50,6 +38,6 @@ export type BaseTaskRes = {
   name: string;
   dataIndex: number;
   description: string;
-  labels: string[];
+  labels: TaskLabel[];
   columnId: string;
 };

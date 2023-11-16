@@ -4,7 +4,7 @@ import { useClickOutside } from "@mantine/hooks";
 import { IconMoodCheck, IconX } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addColumn } from "@/api/column";
-import { ColumnMutateRes, AllDataResType } from "@/types/column";
+import { ColumnMutateRes, BaseDataRes } from "@/types/column";
 import style from "./AddColumn.module.scss";
 import { notifications } from "@mantine/notifications";
 import { v4 as uuidv4 } from "uuid";
@@ -39,7 +39,7 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
         dataIndex: variables.dataIndex,
         tasks: [],
       };
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         return {
           ...oldData,
           columns: [...oldData.columns, optimisticColumn],
@@ -54,7 +54,7 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
         tasks: [],
         dataIndex: resData.dataIndex,
       };
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         return {
           ...oldData,
           columns: oldData.columns.map((column) => {
@@ -72,7 +72,7 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
       setNewTitle("");
     },
     onError: (err, variables, context) => {
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         return {
           ...oldData,
           columns: oldData.columns.filter(

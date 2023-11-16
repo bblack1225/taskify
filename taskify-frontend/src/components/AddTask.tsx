@@ -62,7 +62,7 @@ function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
           name: resData.name,
           description: resData.description,
           dataIndex: resData.dataIndex,
-          labels: resData.idLabels,
+          labels: resData.labels,
           columnId: resData.statusColumnId,
         };
         return {

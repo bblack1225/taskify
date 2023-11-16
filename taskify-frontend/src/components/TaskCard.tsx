@@ -25,31 +25,27 @@ import {
   UpdateDescRes,
 } from "@/types/task";
 import { notifications } from "@mantine/notifications";
-import { AllDataResType } from "@/types/column";
+import { BaseDataRes, BaseTaskRes } from "@/types/column";
 import { delTask, editTask, updateDesc } from "@/api/tasks";
 import { useState } from "react";
 import TaskMemberMenu from "./Menu/TaskMemberMenu";
 import TaskLabelMenu from "./Menu/TaskLabelMenu";
 import TaskDateMenu from "./Menu/TaskDateMenu";
-import { TaskLabel } from "@/types/labels";
 
 type Props = {
-  task: {
-    id: string;
-    name: string;
-    description: string;
-    labels: TaskLabel[];
-  };
-  columnId: string;
+  task: BaseTaskRes;
 };
-
-function TaskCard({ task, columnId }: Props) {
+// 等全域狀態管理
+const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
+function TaskCard({ task }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
   const [openDelModal, setOpenDelModal] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
   const [editTaskTitle, setEditTaskTitle] = useState(task.name);
 
+  const taskLabelIds = task.labels.map((label) => label.id);
   const queryClient = useQueryClient();
+
   const deleteTaskMutation = useMutation({
     mutationFn: (id: string) => {
       return delTask(id);
@@ -60,21 +56,12 @@ function TaskCard({ task, columnId }: Props) {
         message: "刪除任務成功",
         autoClose: 2000,
       });
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         const NewData = {
           ...oldData,
-          columns: oldData.columns.map((column) => {
-            if (column.id !== columnId) {
-              return column;
-            } else {
-              return {
-                ...column,
-                tasks: column.tasks.filter(
-                  (oldTask) => oldTask.id !== resData.delTaskId
-                ),
-              };
-            }
-          }),
+          tasks: oldData.tasks.filter(
+            (oldTask) => oldTask.id !== resData.delTaskId
+          ),
         };
         return NewData;
       });
@@ -86,30 +73,20 @@ function TaskCard({ task, columnId }: Props) {
       return updateDesc(variables);
     },
     onSuccess: (resData: UpdateDescRes) => {
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
-        const NewData = {
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+        return {
           ...oldData,
-          columns: oldData.columns.map((column) => {
-            if (column.id !== columnId) {
-              return column;
+          tasks: oldData.tasks.map((oldTask) => {
+            if (oldTask.id !== task.id) {
+              return oldTask;
             } else {
               return {
-                ...column,
-                tasks: column.tasks.map((oldTask) => {
-                  if (oldTask.id !== task.id) {
-                    return oldTask;
-                  } else {
-                    return {
-                      ...oldTask,
-                      description: resData.description,
-                    };
-                  }
-                }),
+                ...oldTask,
+                description: resData.description,
               };
             }
           }),
         };
-        return NewData;
       });
     },
   });
@@ -119,7 +96,7 @@ function TaskCard({ task, columnId }: Props) {
       id: string;
       name: string;
       description: string;
-      labels: TaskLabel[];
+      labels: string[];
       boardId: string;
     }) => editTask(editTaskTitle),
     onSuccess: (resData: EditTaskRes) => {
@@ -128,25 +105,16 @@ function TaskCard({ task, columnId }: Props) {
         message: "更新成功",
         autoClose: 2000,
       });
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         const NewData = {
           ...oldData,
-          columns: oldData.columns.map((column) => {
-            if (column.id !== columnId) {
-              return column;
+          tasks: oldData.tasks.map((oldTask) => {
+            if (oldTask.id !== task.id) {
+              return oldTask;
             } else {
               return {
-                ...column,
-                tasks: column.tasks.map((oldTask) => {
-                  if (oldTask.id !== task.id) {
-                    return oldTask;
-                  } else {
-                    return {
-                      ...oldTask,
-                      name: resData.name,
-                    };
-                  }
-                }),
+                ...oldTask,
+                name: resData.name,
               };
             }
           }),
@@ -185,11 +153,11 @@ function TaskCard({ task, columnId }: Props) {
       id: task.id,
       name: task.name,
       description: task.description,
-      labels: task.labels,
-      boardId: columnId,
+      // TODO: labelIds
+      labels: taskLabelIds,
+      boardId: BOARD_ID,
     });
   };
-  const taskLabelIds = task.labels.map((label) => label.id);
 
   return (
     <>

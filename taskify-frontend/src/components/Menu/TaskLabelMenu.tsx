@@ -3,7 +3,7 @@ import { IconBallpen, IconTagStarred } from "@tabler/icons-react";
 import style from "./TaskLabelMenu.module.scss";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { LabelRes } from "@/types/labels";
+import { TaskLabel } from "@/types/labels";
 
 type Props = {
   selectedLabels: string[];
@@ -12,7 +12,7 @@ type Props = {
 function TaskLabelMenu({ selectedLabels }: Props) {
   const [opened, setOpened] = useState(false);
   const queryClient = useQueryClient();
-  const labels = queryClient.getQueryData<LabelRes[]>(["labels"]);
+  const labels = queryClient.getQueryData<TaskLabel[]>(["labels"]);
 
   // const handleLabels = (id: number) => {
   //   setIsLabel((prev: LabelType[]) =>

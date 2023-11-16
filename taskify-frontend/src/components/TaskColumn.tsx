@@ -13,12 +13,7 @@ import { useMemo, useState } from "react";
 import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { delColumn, editColumn, getBaseData } from "@/api/column";
-import {
-  AllDataResType,
-  ColumnDeleteRes,
-  ColumnResType,
-  BaseDataRes,
-} from "@/types/column";
+import { ColumnDeleteRes, ColumnResType, BaseDataRes } from "@/types/column";
 import AddColumn from "./AddColumn";
 import { notifications } from "@mantine/notifications";
 import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
@@ -97,7 +92,7 @@ function TaskColumn() {
       return delColumn(id);
     },
     onSuccess: (resData: ColumnDeleteRes) => {
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         return {
           ...oldData,
           columns: oldData.columns.filter(
