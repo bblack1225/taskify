@@ -4,10 +4,10 @@ import { useClickOutside } from "@mantine/hooks";
 import { IconMoodCheck, IconX } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addColumn } from "@/api/column";
-import { ColumnMutateRes, AllDataResType } from "@/types/column";
+import { ColumnMutateRes, BaseDataRes } from "@/types/column";
 import style from "./AddColumn.module.scss";
 import { notifications } from "@mantine/notifications";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 type Props = {
   boardId: string;
   currentColDataIndex: number;
@@ -29,30 +29,39 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
       boardId: string;
       title: string;
       dataIndex: number;
-    }) => addColumns(newColumn),
-    onMutate: async(variables) => {
-      
-      await queryClient.cancelQueries({queryKey: ["tasks"]});
-      
-      const optimisticColumn = {id: uuidv4(), title: variables.title, dataIndex: variables.dataIndex, tasks: []};
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+    }) => addColumn(newColumn),
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+
+      const optimisticColumn = {
+        id: uuidv4(),
+        title: variables.title,
+        dataIndex: variables.dataIndex,
+        tasks: [],
+      };
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         return {
-          ...oldData, 
-          columns:[...oldData.columns, optimisticColumn]  
-        }
-      })
+          ...oldData,
+          columns: [...oldData.columns, optimisticColumn],
+        };
+      });
       return { optimisticColumn };
     },
     onSuccess: (resData: ColumnMutateRes, variables, context) => {
-      
-      const newData = { id: resData.id, title: resData.title, tasks: [], dataIndex: resData.dataIndex};
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
-        
+      const newData = {
+        id: resData.id,
+        title: resData.title,
+        tasks: [],
+        dataIndex: resData.dataIndex,
+      };
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         return {
           ...oldData,
-          columns: oldData.columns.map(column => {
-            return column.id === context?.optimisticColumn.id ? newData : column
-        })
+          columns: oldData.columns.map((column) => {
+            return column.id === context?.optimisticColumn.id
+              ? newData
+              : column;
+          }),
         };
       });
       notifications.show({
@@ -63,12 +72,14 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
       setNewTitle("");
     },
     onError: (err, variables, context) => {
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         return {
           ...oldData,
-          columns: oldData.columns.filter(column => column.id !== context?.optimisticColumn.id)
-        }
-      })
+          columns: oldData.columns.filter(
+            (column) => column.id !== context?.optimisticColumn.id
+          ),
+        };
+      });
     },
     // 或許需要retry，目前先不給
   });

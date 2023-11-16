@@ -2,13 +2,13 @@ import axiosClient from "../axiosClient";
 import {
   DelTaskRes,
   EditTaskRes,
-  TaskMutateReq,
+  AddTaskReq,
   TaskMutateRes,
   UpdateDescReq,
   UpdateDescRes,
 } from "@/types/task";
 
-export const addTask = (request: TaskMutateReq): Promise<TaskMutateRes> => {
+export const addTask = (request: AddTaskReq): Promise<TaskMutateRes> => {
   return axiosClient.post("/tasks", request);
 };
 

@@ -1,4 +1,13 @@
-import { Box, Button, Flex, Modal, Text, Textarea } from "@mantine/core";
+import {
+  Box,
+  Button,
+  Flex,
+  Group,
+  HoverCard,
+  Modal,
+  Text,
+  Textarea,
+} from "@mantine/core";
 import style from "@/components/TaskCard.module.scss";
 import { useDisclosure } from "@mantine/hooks";
 import {
@@ -16,26 +25,27 @@ import {
   UpdateDescRes,
 } from "@/types/task";
 import { notifications } from "@mantine/notifications";
-import { AllDataResType } from "@/types/column";
+import { BaseDataRes, BaseTaskRes } from "@/types/column";
 import { delTask, editTask, updateDesc } from "@/api/tasks";
 import { useState } from "react";
+import TaskMemberMenu from "./Menu/TaskMemberMenu";
+import TaskLabelMenu from "./Menu/TaskLabelMenu";
+import TaskDateMenu from "./Menu/TaskDateMenu";
 
 type Props = {
-  task: {
-    id: string;
-    name: string;
-    description: string;
-    labels: string[];
-  };
-  columnId: string;
+  task: BaseTaskRes;
 };
-
-function TaskCard({ task, columnId }: Props) {
+// 等全域狀態管理
+const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
+function TaskCard({ task }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
   const [openDelModal, setOpenDelModal] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
   const [editTaskTitle, setEditTaskTitle] = useState(task.name);
+
+  const taskLabelIds = task.labels.map((label) => label.id);
   const queryClient = useQueryClient();
+
   const deleteTaskMutation = useMutation({
     mutationFn: (id: string) => {
       return delTask(id);
@@ -46,21 +56,12 @@ function TaskCard({ task, columnId }: Props) {
         message: "刪除任務成功",
         autoClose: 2000,
       });
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         const NewData = {
           ...oldData,
-          columns: oldData.columns.map((column) => {
-            if (column.id !== columnId) {
-              return column;
-            } else {
-              return {
-                ...column,
-                tasks: column.tasks.filter(
-                  (oldTask) => oldTask.id !== resData.delTaskId
-                ),
-              };
-            }
-          }),
+          tasks: oldData.tasks.filter(
+            (oldTask) => oldTask.id !== resData.delTaskId
+          ),
         };
         return NewData;
       });
@@ -72,69 +73,48 @@ function TaskCard({ task, columnId }: Props) {
       return updateDesc(variables);
     },
     onSuccess: (resData: UpdateDescRes) => {
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
-        const NewData = {
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+        return {
           ...oldData,
-          columns: oldData.columns.map((column) => {
-            if (column.id !== columnId) {
-              return column;
+          tasks: oldData.tasks.map((oldTask) => {
+            if (oldTask.id !== task.id) {
+              return oldTask;
             } else {
               return {
-                ...column,
-                tasks: column.tasks.map((oldTask) => {
-                  if (oldTask.id !== task.id) {
-                    return oldTask;
-                  } else {
-                    return {
-                      ...oldTask,
-                      description: resData.description,
-                    };
-                  }
-                }),
+                ...oldTask,
+                description: resData.description,
               };
             }
           }),
         };
-        return NewData;
       });
     },
   });
 
   const editTaskMutation = useMutation({
-    mutationFn: (
-      taskId: string,
-      editTaskTitle: {
-        name: string;
-        description: string;
-        labels: string[];
-        boardId: string;
-      }
-    ) => editTask(taskId, editTaskTitle),
+    mutationFn: (editTaskTitle: {
+      id: string;
+      name: string;
+      description: string;
+      labels: string[];
+      boardId: string;
+    }) => editTask(editTaskTitle),
     onSuccess: (resData: EditTaskRes) => {
       notifications.show({
         icon: <IconMoodCheck />,
         message: "更新成功",
         autoClose: 2000,
       });
-      queryClient.setQueryData(["tasks"], (oldData: AllDataResType) => {
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         const NewData = {
           ...oldData,
-          columns: oldData.columns.map((column) => {
-            if (column.id !== columnId) {
-              return column;
+          tasks: oldData.tasks.map((oldTask) => {
+            if (oldTask.id !== task.id) {
+              return oldTask;
             } else {
               return {
-                ...column,
-                tasks: column.tasks.map((oldTask) => {
-                  if (oldTask.id !== task.id) {
-                    return oldTask;
-                  } else {
-                    return {
-                      ...oldTask,
-                      name: resData.name,
-                    };
-                  }
-                }),
+                ...oldTask,
+                name: resData.name,
               };
             }
           }),
@@ -169,20 +149,54 @@ function TaskCard({ task, columnId }: Props) {
       setEditTaskTitle(task.name);
       return;
     }
-    editTaskMutation.mutate(task.id, {
+    editTaskMutation.mutate({
+      id: task.id,
       name: task.name,
       description: task.description,
-      labels: task.labels,
-      boardId: columnId,
+      // TODO: labelIds
+      labels: taskLabelIds,
+      boardId: BOARD_ID,
     });
   };
 
   return (
     <>
       <Box onClick={open} className={style.taskContainer}>
-        <Text>{editTaskTitle}</Text>
+        <Flex style={{ flexDirection: "row", flexWrap: "wrap" }}>
+          {task.labels.map((label) => {
+            return (
+              <Group
+                key={label.id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                justify="center"
+              >
+                <HoverCard openDelay={300}>
+                  <HoverCard.Target>
+                    <div
+                      style={{
+                        backgroundColor: `${label.color}`,
+                      }}
+                      className={style.hoverCard}
+                    />
+                  </HoverCard.Target>
+                  <HoverCard.Dropdown h={20} className={style.dropdown}>
+                    <Text size="xs">標題：『{label.name}』</Text>
+                  </HoverCard.Dropdown>
+                </HoverCard>
+              </Group>
+            );
+          })}
+        </Flex>
+        <Text style={{ marginLeft: "4px" }}>{editTaskTitle}</Text>
       </Box>
-      <Modal.Root opened={opened} onClose={close} size={"lg"} trapFocus={false}>
+      <Modal.Root
+        opened={opened}
+        onClose={close}
+        size={"700"}
+        trapFocus={false}
+      >
         <Modal.Overlay />
         <Modal.Content>
           <Modal.Header>
@@ -203,16 +217,50 @@ function TaskCard({ task, columnId }: Props) {
             <Flex justify={"space-between"}>
               <Flex direction={"column"}>
                 <Flex>
+                  <Text className={style.tagText} c={"gray.6"} fw={600}>
+                    標籤
+                  </Text>
+                  <Flex
+                    style={{
+                      flexDirection: "row",
+                      flexWrap: "wrap",
+                      width: "420px",
+                    }}
+                  >
+                    {task.labels.map((label) => {
+                      return (
+                        <div
+                          key={label.id}
+                          style={{
+                            backgroundColor: `${label.color}`,
+                          }}
+                          className={style.labelDiv}
+                        >
+                          <span>{label.name}</span>
+                        </div>
+                      );
+                    })}
+                  </Flex>
+                </Flex>
+                <Flex mt={15}>
                   <IconAlignBoxLeftStretch />
-                  <Text ml={10}>描述</Text>
+                  <Text ml={10} c={"gray.6"} fw={600}>
+                    描述
+                  </Text>
                 </Flex>
                 <Editor
                   description={task.description}
                   onSave={handleSaveDesc}
                 />
               </Flex>
-              <Flex direction={"column"} gap={5}>
-                <Text size="sm" c={"gray.6"} fw={600}>
+              <Flex direction={"column"} gap={8}>
+                <Text size="xs" c={"gray.6"} fw={600}>
+                  新增至卡片
+                </Text>
+                <TaskMemberMenu />
+                <TaskLabelMenu selectedLabels={taskLabelIds} />
+                <TaskDateMenu />
+                <Text size="xs" c={"gray.6"} fw={600}>
                   動作
                 </Text>
                 <Button

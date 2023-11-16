@@ -51,6 +51,9 @@ public class Tasks implements Serializable {
     @Column(name = "status_id", nullable = false)
     private UUID statusId;
 
+    @Column(name = "board_id", nullable = false)
+    private UUID boardId;
+
 
     /**
      * 建立日期

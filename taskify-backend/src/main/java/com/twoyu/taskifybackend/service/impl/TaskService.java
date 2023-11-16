@@ -38,6 +38,7 @@ public class TaskService implements ITaskService {
         task.setDataIndex(request.getDataIndex());
         task.setStatusId(request.getStatusColumnId());
         task.setDescription("");
+        task.setBoardId(request.getBoardId());
         task = tasksRepository.save(task);
         return new MutateTaskResponse(
                 task.getId(),
@@ -58,6 +59,7 @@ public class TaskService implements ITaskService {
                 .stream().map(Labels::getId).toList();
         UUID taskId = task.getId();
         List<TasksLabels> tasksLabelsList = new ArrayList<>();
+        tasksLabelsRepository.deleteAllByIdTaskId(taskId);
         if(!request.getLabels().isEmpty()) {
             for (UUID labelId : request.getLabels()) {
                 if (!labelIdList.contains(labelId)) {

@@ -1,7 +1,7 @@
 import { Stack, Button } from "@mantine/core";
 import AddTask from "./AddTask";
 import TaskCard from "./TaskCard";
-import { ColumnResType, TasksResType } from "@/types/column";
+import { BaseTaskRes, ColumnResType } from "@/types/column";
 import { useState } from "react";
 import style from "./TaskCardList.module.scss";
 
@@ -14,8 +14,8 @@ const TaskCardList = ({ column }: Props) => {
   return (
     <>
       <Stack className={style.taskContainer}>
-        {column.tasks.map((task: TasksResType) => (
-          <TaskCard key={task.id} task={task} columnId={column.id} />
+        {column.tasks.map((task: BaseTaskRes) => (
+          <TaskCard key={task.id} task={task} />
         ))}
         <AddTask
           column={column}
