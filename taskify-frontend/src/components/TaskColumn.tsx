@@ -42,6 +42,7 @@ function TaskColumn() {
     queryFn: () => getBaseData(BOARD_ID),
   });
 
+  // 這邊讓我有點煩惱，我在這裡使用useLabels是為了先撈取全域labels的資料，沒有要在這裡做使用，但labels就會因為沒使用跳警告，暫時還沒去想可以怎麼優化
   const { data: labels, isPending: isLabelsLoading } = useLabels(BOARD_ID);
 
   const columnsWithTasks = useMemo(() => {

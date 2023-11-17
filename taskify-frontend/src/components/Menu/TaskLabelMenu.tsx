@@ -11,29 +11,21 @@ type Props = {
 };
 
 function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
-  console.log("selectedLabels", selectedLabels);
-
   const [opened, setOpened] = useState(false);
   const queryClient = useQueryClient();
   const labels = queryClient.getQueryData<TaskLabel[]>(["labels"]);
 
-  // const handleLabels = (id: number) => {
-  //   setIsLabel((prev: LabelType[]) =>
-  //     prev.map((label) =>
-  //       label.id === id ? { ...label, showLabel: !label.showLabel } : label
-  //     )
-  //   );
-  // };
-
+  // 這邊是要把props跟change後的值傳回去，可能是值變少(unchecked)，或是值變多(checked)
+  // 邏輯大概是下方註解的樣子，或許push跟filter的方式可以改成更優雅的方式，但我目前不知道
   const handleChange = (checked: boolean, id: string) => {
-    const oldSelectedLabels = [...selectedLabels];
-    if (checked) {
-      oldSelectedLabels.push(id);
-      onLabelChange(oldSelectedLabels);
-    } else {
-      const newLabelIds = oldSelectedLabels.filter((labelId) => labelId !== id);
-      onLabelChange(newLabelIds);
-    }
+    // const oldSelectedLabels = [...selectedLabels];
+    // if (checked) {
+    //   oldSelectedLabels.push(id);
+    //   onLabelChange(oldSelectedLabels);
+    // } else {
+    //   const newLabelIds = oldSelectedLabels.filter((labelId) => labelId !== id);
+    //   onLabelChange(newLabelIds);
+    // }
   };
 
   return (
@@ -60,11 +52,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
               id={label.id.toString()}
               className={style.checkbox}
               checked={selectedLabels.includes(label.id)}
-              // onChange={() => handleLabels(label.id)}
-              onChange={(e) => {
-                handleChange(e.target.checked, label.id);
-                console.log("change", e.target.checked);
-              }}
+              onChange={(e) => handleChange(e.target.checked, label.id)}
               color="gray"
               styles={{
                 root: {

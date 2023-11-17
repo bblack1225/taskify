@@ -87,6 +87,7 @@ function TaskCard({ task }: Props) {
   });
 
   const editTaskMutation = useMutation({
+    // 因為name或labels的修改是使用同個api，所以可以擇一傳入，但一定要傳其中一個
     mutationFn: (editTaskTitle: {
       id: string;
       name?: string;
@@ -145,8 +146,8 @@ function TaskCard({ task }: Props) {
     });
   };
 
+  // TODO labelChange時要call api
   const handleLabelChange = (labelIds: string[]) => {
-    // TODO labelChange時要call api
     // queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
     //   return {
     //     ...oldData,
@@ -157,6 +158,7 @@ function TaskCard({ task }: Props) {
     //         return {
     //           ...oldTask,
     //           labels: labelIds.map((labelId) => {
+    // // 這邊的跟下面的做法就是會造成labels出現在modal上的順序差異，一個是以右側選單的順序，一個是以labelIds的順序
     //             return labels?.find((label) => label.id === labelId);
     //           }),
     //           // labels: labels?.filter((label) => labelIds.includes(label.id)),
@@ -266,6 +268,7 @@ function TaskCard({ task }: Props) {
                   新增至卡片
                 </Text>
                 <TaskMemberMenu />
+                {/* 目前將選定的labelId跟label改變的event handler當作props傳入 */}
                 <TaskLabelMenu
                   selectedLabels={taskLabelIds}
                   onLabelChange={handleLabelChange}
