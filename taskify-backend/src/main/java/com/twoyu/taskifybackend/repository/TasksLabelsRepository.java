@@ -1,5 +1,6 @@
 package com.twoyu.taskifybackend.repository;
 
+import com.twoyu.taskifybackend.model.entity.Labels;
 import com.twoyu.taskifybackend.model.entity.TaskLabelsId;
 import com.twoyu.taskifybackend.model.entity.TasksLabels;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,5 +20,5 @@ public interface TasksLabelsRepository extends JpaRepository<TasksLabels, TaskLa
             join board b on b.id = t.board_id
             where b.id = :boardId
             """)
-    List<TasksLabels> findAllByIdTaskId(UUID boardId);
+    List<TasksLabels> findAllByBoardId(UUID boardId);
 }

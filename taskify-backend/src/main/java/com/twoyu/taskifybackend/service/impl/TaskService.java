@@ -7,20 +7,24 @@ import com.twoyu.taskifybackend.model.vo.request.AddTaskRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateTaskDescRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateTaskRequest;
 import com.twoyu.taskifybackend.model.vo.response.DeleteTaskResponse;
-import com.twoyu.taskifybackend.model.vo.response.MutateTaskResponse;
 import com.twoyu.taskifybackend.model.vo.response.UpdateTaskDescResponse;
+import com.twoyu.taskifybackend.model.vo.response.shared.TaskLabelRes;
+import com.twoyu.taskifybackend.model.vo.response.shared.TasksResponse;
 import com.twoyu.taskifybackend.repository.LabelsRepository;
 import com.twoyu.taskifybackend.repository.TasksLabelsRepository;
 import com.twoyu.taskifybackend.repository.TasksRepository;
 import com.twoyu.taskifybackend.service.ITaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -32,7 +36,7 @@ public class TaskService implements ITaskService {
     private final LabelsRepository labelsRepository;
     private final TasksLabelsRepository tasksLabelsRepository;
     @Override
-    public MutateTaskResponse addTask(AddTaskRequest request) {
+    public TasksResponse addTask(AddTaskRequest request) {
         Tasks task = new Tasks();
         task.setName(request.getName());
         task.setDataIndex(request.getDataIndex());
@@ -40,44 +44,48 @@ public class TaskService implements ITaskService {
         task.setDescription("");
         task.setBoardId(request.getBoardId());
         task = tasksRepository.save(task);
-        return new MutateTaskResponse(
+        return new TasksResponse(
                 task.getId(),
                 task.getName(),
-                task.getDescription(),
                 task.getDataIndex(),
-                task.getStatusId(),
-                new ArrayList<>());
+                task.getDescription(),
+                new ArrayList<>(),
+                task.getStatusId()
+               );
     }
 
     @Override
-    public MutateTaskResponse updateTask(UUID id, UpdateTaskRequest request) {
-        Tasks task = tasksRepository.findById(id)
+    public TasksResponse updateTask(UUID taskId, UpdateTaskRequest request) {
+        Tasks task = tasksRepository.findById(taskId)
                 .orElseThrow(() -> new ServiceException("Task not found"));
-        task.setName(request.getName());
-        task = tasksRepository.save(task);
-        List<UUID> labelIdList = labelsRepository.findAllByBoardId(request.getBoardId())
-                .stream().map(Labels::getId).toList();
-        UUID taskId = task.getId();
-        List<TasksLabels> tasksLabelsList = new ArrayList<>();
-        tasksLabelsRepository.deleteAllByIdTaskId(taskId);
-        if(!request.getLabels().isEmpty()) {
-            for (UUID labelId : request.getLabels()) {
-                if (!labelIdList.contains(labelId)) {
-                    throw new ServiceException("Label not found: " + labelId);
-                }
-                TaskLabelsId taskLabelsId = new TaskLabelsId(taskId, labelId);
-                TasksLabels tasksLabel = new TasksLabels(taskLabelsId);
-                tasksLabelsList.add(tasksLabel);
-            }
-            tasksLabelsRepository.saveAll(tasksLabelsList);
+        if(StringUtils.isNotBlank(request.getName())){
+            task.setName(request.getName());
+            task = tasksRepository.save(task);
         }
-        return new MutateTaskResponse(
+
+        // update labels
+        List<UUID> labelIds =  request.getLabels();
+        List<Labels> labels;
+        if(labelIds != null){
+            updateTaskLabel(task, labelIds);
+            labels = labelsRepository.findAllByIdIn(labelIds);
+        }else {
+            labels = labelsRepository.getLabelsByTasksId(taskId);
+        }
+        List<TaskLabelRes> taskLabelRes = labels.stream().map(label ->
+                TaskLabelRes.builder()
+                        .id(label.getId())
+                        .name(label.getName())
+                        .color(label.getColor())
+                        .build()).toList();
+
+        return new TasksResponse(
                 task.getId(),
                 task.getName(),
-                task.getDescription(),
                 task.getDataIndex(),
-                task.getStatusId(),
-                labelIdList);
+                task.getDescription(),
+                taskLabelRes,
+                task.getStatusId());
     }
 
     @Override
@@ -95,5 +103,17 @@ public class TaskService implements ITaskService {
         task.setDescription(request.getDescription());
         task = tasksRepository.save(task);
         return new UpdateTaskDescResponse(task.getId(), task.getDescription());
+    }
+
+    private void updateTaskLabel(Tasks task, List<UUID> labelIds){
+        UUID taskId = task.getId();
+        List<TasksLabels> tasksLabelsList = new ArrayList<>();
+        tasksLabelsRepository.deleteAllByIdTaskId(taskId);
+            for (UUID labelId : labelIds) {
+                TaskLabelsId taskLabelsId = new TaskLabelsId(taskId, labelId);
+                TasksLabels tasksLabel = new TasksLabels(taskLabelsId);
+                tasksLabelsList.add(tasksLabel);
+            }
+            tasksLabelsRepository.saveAll(tasksLabelsList);
     }
 }

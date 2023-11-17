@@ -1,13 +1,11 @@
 package com.twoyu.taskifybackend.controller;
 
-import com.twoyu.taskifybackend.exception.ServiceException;
-import com.twoyu.taskifybackend.model.entity.Tasks;
 import com.twoyu.taskifybackend.model.vo.request.AddTaskRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateTaskDescRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateTaskRequest;
 import com.twoyu.taskifybackend.model.vo.response.DeleteTaskResponse;
-import com.twoyu.taskifybackend.model.vo.response.MutateTaskResponse;
 import com.twoyu.taskifybackend.model.vo.response.UpdateTaskDescResponse;
+import com.twoyu.taskifybackend.model.vo.response.shared.TasksResponse;
 import com.twoyu.taskifybackend.repository.TasksRepository;
 import com.twoyu.taskifybackend.service.ITaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,13 +27,13 @@ public class TaskController {
 
     @PostMapping
     @Operation(summary = "新增一個任務")
-    public MutateTaskResponse addTask(@RequestBody @Valid AddTaskRequest request){
+    public TasksResponse addTask(@RequestBody @Valid AddTaskRequest request){
         return taskService.addTask(request);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "修改任務(點進任務modal後的操作)")
-    public MutateTaskResponse updateTask(@PathVariable UUID id, @RequestBody @Valid UpdateTaskRequest request){
+    public TasksResponse updateTask(@PathVariable UUID id, @RequestBody @Valid UpdateTaskRequest request){
         return taskService.updateTask(id, request);
     }
 

@@ -18,12 +18,7 @@ import {
 } from "@tabler/icons-react";
 import Editor from "./editor/Editor";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  DelTaskRes,
-  EditTaskRes,
-  UpdateDescReq,
-  UpdateDescRes,
-} from "@/types/task";
+import { DelTaskRes, UpdateDescReq, UpdateDescRes } from "@/types/task";
 import { notifications } from "@mantine/notifications";
 import { BaseDataRes, BaseTaskRes } from "@/types/column";
 import { delTask, editTask, updateDesc } from "@/api/tasks";
@@ -31,12 +26,11 @@ import { useState } from "react";
 import TaskMemberMenu from "./Menu/TaskMemberMenu";
 import TaskLabelMenu from "./Menu/TaskLabelMenu";
 import TaskDateMenu from "./Menu/TaskDateMenu";
+import { TaskLabel } from "@/types/labels";
 
 type Props = {
   task: BaseTaskRes;
 };
-// 等全域狀態管理
-const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
 function TaskCard({ task }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
   const [openDelModal, setOpenDelModal] = useState(false);
@@ -45,6 +39,7 @@ function TaskCard({ task }: Props) {
 
   const taskLabelIds = task.labels.map((label) => label.id);
   const queryClient = useQueryClient();
+  const labels = queryClient.getQueryData<TaskLabel[]>(["labels"]);
 
   const deleteTaskMutation = useMutation({
     mutationFn: (id: string) => {
@@ -94,12 +89,10 @@ function TaskCard({ task }: Props) {
   const editTaskMutation = useMutation({
     mutationFn: (editTaskTitle: {
       id: string;
-      name: string;
-      description: string;
-      labels: string[];
-      boardId: string;
+      name?: string;
+      labels?: string[];
     }) => editTask(editTaskTitle),
-    onSuccess: (resData: EditTaskRes) => {
+    onSuccess: (resData: BaseTaskRes) => {
       notifications.show({
         icon: <IconMoodCheck />,
         message: "更新成功",
@@ -112,10 +105,7 @@ function TaskCard({ task }: Props) {
             if (oldTask.id !== task.id) {
               return oldTask;
             } else {
-              return {
-                ...oldTask,
-                name: resData.name,
-              };
+              return resData;
             }
           }),
         };
@@ -145,18 +135,36 @@ function TaskCard({ task }: Props) {
   };
 
   const handleBlur = () => {
-    if (task.name === editTaskTitle || editTaskTitle === "") {
+    if (editTaskTitle === task.name || editTaskTitle === "") {
       setEditTaskTitle(task.name);
       return;
     }
     editTaskMutation.mutate({
       id: task.id,
-      name: task.name,
-      description: task.description,
-      // TODO: labelIds
-      labels: taskLabelIds,
-      boardId: BOARD_ID,
+      name: editTaskTitle,
     });
+  };
+
+  const handleLabelChange = (labelIds: string[]) => {
+    // TODO labelChange時要call api
+    // queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+    //   return {
+    //     ...oldData,
+    //     tasks: oldData.tasks.map((oldTask) => {
+    //       if (oldTask.id !== task.id) {
+    //         return oldTask;
+    //       } else {
+    //         return {
+    //           ...oldTask,
+    //           labels: labelIds.map((labelId) => {
+    //             return labels?.find((label) => label.id === labelId);
+    //           }),
+    //           // labels: labels?.filter((label) => labelIds.includes(label.id)),
+    //         };
+    //       }
+    //     }),
+    //   };
+    // });
   };
 
   return (
@@ -258,7 +266,10 @@ function TaskCard({ task }: Props) {
                   新增至卡片
                 </Text>
                 <TaskMemberMenu />
-                <TaskLabelMenu selectedLabels={taskLabelIds} />
+                <TaskLabelMenu
+                  selectedLabels={taskLabelIds}
+                  onLabelChange={handleLabelChange}
+                />
                 <TaskDateMenu />
                 <Text size="xs" c={"gray.6"} fw={600}>
                   動作

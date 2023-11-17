@@ -7,9 +7,12 @@ import { TaskLabel } from "@/types/labels";
 
 type Props = {
   selectedLabels: string[];
+  onLabelChange: (labelIds: string[]) => void;
 };
 
-function TaskLabelMenu({ selectedLabels }: Props) {
+function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
+  console.log("selectedLabels", selectedLabels);
+
   const [opened, setOpened] = useState(false);
   const queryClient = useQueryClient();
   const labels = queryClient.getQueryData<TaskLabel[]>(["labels"]);
@@ -21,6 +24,17 @@ function TaskLabelMenu({ selectedLabels }: Props) {
   //     )
   //   );
   // };
+
+  const handleChange = (checked: boolean, id: string) => {
+    const oldSelectedLabels = [...selectedLabels];
+    if (checked) {
+      oldSelectedLabels.push(id);
+      onLabelChange(oldSelectedLabels);
+    } else {
+      const newLabelIds = oldSelectedLabels.filter((labelId) => labelId !== id);
+      onLabelChange(newLabelIds);
+    }
+  };
 
   return (
     <Menu shadow="md" width={200} opened={opened} onChange={setOpened}>
@@ -47,7 +61,10 @@ function TaskLabelMenu({ selectedLabels }: Props) {
               className={style.checkbox}
               checked={selectedLabels.includes(label.id)}
               // onChange={() => handleLabels(label.id)}
-              onChange={() => console.log("change labels")}
+              onChange={(e) => {
+                handleChange(e.target.checked, label.id);
+                console.log("change", e.target.checked);
+              }}
               color="gray"
               styles={{
                 root: {

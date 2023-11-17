@@ -11,13 +11,10 @@ import java.util.UUID;
 
 @Data
 public class UpdateTaskRequest {
-    @NotBlank
+
     @Size(max = 50)
     @Schema(description = "任務名稱")
     private String name;
     @Schema(description = "任務含有的標籤")
-    @NotNull
     private List<UUID> labels;
-    @Schema(description = "所屬的看板ID")
-    private UUID boardId;
 }

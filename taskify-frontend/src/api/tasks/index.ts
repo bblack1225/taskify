@@ -1,14 +1,13 @@
+import { BaseTaskRes } from "@/types/column";
 import axiosClient from "../axiosClient";
 import {
   DelTaskRes,
-  EditTaskRes,
   AddTaskReq,
-  TaskMutateRes,
   UpdateDescReq,
   UpdateDescRes,
 } from "@/types/task";
 
-export const addTask = (request: AddTaskReq): Promise<TaskMutateRes> => {
+export const addTask = (request: AddTaskReq): Promise<BaseTaskRes> => {
   return axiosClient.post("/tasks", request);
 };
 
@@ -18,11 +17,9 @@ export const delTask = (id: string): Promise<DelTaskRes> => {
 
 export const editTask = (editTask: {
   id: string;
-  name: string;
-  description: string;
-  labels: string[];
-  boardId: string;
-}): Promise<EditTaskRes> => {
+  name?: string;
+  labels?: string[];
+}): Promise<BaseTaskRes> => {
   return axiosClient.put(`/tasks/${editTask.id}`, editTask);
 };
 
