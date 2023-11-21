@@ -192,7 +192,7 @@ function TaskCard({ task }: Props) {
   return (
     <>
       <Box onClick={open} className={style.taskContainer}>
-        <Flex style={{ flexDirection: "row", flexWrap: "wrap" }}>
+        <Flex style={{ flexDirection: "row", flexWrap: "wrap", gap:5, marginBottom:10 }}>
           {task.labels.map((label) => {
             return (
               <Group
