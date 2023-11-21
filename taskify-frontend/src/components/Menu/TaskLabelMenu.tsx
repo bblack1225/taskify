@@ -8,9 +8,10 @@ import { TaskLabel } from "@/types/labels";
 type Props = {
   selectedLabels: string[];
   onLabelChange: (labelIds: string[]) => void;
+  onModalBlur: (labelIds: string[]) => void;
 };
 
-function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
+function TaskLabelMenu({ selectedLabels, onLabelChange, onModalBlur }: Props) {
   const [opened, setOpened] = useState(false);
   const queryClient = useQueryClient();
   const labels = queryClient.getQueryData<TaskLabel[]>(["labels"]);
@@ -18,14 +19,16 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
   // 這邊是要把props跟change後的值傳回去，可能是值變少(unchecked)，或是值變多(checked)
   // 邏輯大概是下方註解的樣子，或許push跟filter的方式可以改成更優雅的方式，但我目前不知道
   const handleChange = (checked: boolean, id: string) => {
-    // const oldSelectedLabels = [...selectedLabels];
-    // if (checked) {
-    //   oldSelectedLabels.push(id);
-    //   onLabelChange(oldSelectedLabels);
-    // } else {
-    //   const newLabelIds = oldSelectedLabels.filter((labelId) => labelId !== id);
-    //   onLabelChange(newLabelIds);
-    // }
+    const oldSelectedLabels = [...selectedLabels];
+    if (checked) {
+      oldSelectedLabels.push(id);
+      onLabelChange(oldSelectedLabels);
+      onModalBlur(oldSelectedLabels);
+    } else {
+      const newLabelIds = oldSelectedLabels.filter((labelId) => labelId !== id);
+      onLabelChange(newLabelIds);
+      onModalBlur(newLabelIds);
+    }
   };
 
   return (

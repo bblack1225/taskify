@@ -88,11 +88,13 @@ function TaskCard({ task }: Props) {
 
   const editTaskMutation = useMutation({
     // 因為name或labels的修改是使用同個api，所以可以擇一傳入，但一定要傳其中一個
+    // 瞭改（日語）
     mutationFn: (editTaskTitle: {
       id: string;
       name?: string;
       labels?: string[];
     }) => editTask(editTaskTitle),
+
     onSuccess: (resData: BaseTaskRes) => {
       notifications.show({
         icon: <IconMoodCheck />,
@@ -147,26 +149,57 @@ function TaskCard({ task }: Props) {
   };
 
   // TODO labelChange時要call api
+  // const handleLabelChange = (labelIds: string[]) => {
+  //   queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+  //     return {
+  //       ...oldData,
+  //       tasks: oldData.tasks.map((oldTask) => {
+  //         if (oldTask.id !== task.id) {
+  //           return oldTask;
+  //         } else {
+  //           return {
+  //             ...oldTask,
+  //             labels: labelIds.map((labelId) => {
+  //               // 這邊的跟下面的做法就是會造成labels出現在modal上的順序差異，一個是以右側選單的順序，一個是以labelIds的順序
+  //               return labels?.find((label) => label.id === labelId);
+  //             }),
+  //             // labels: labels?.filter((label) => labelIds.includes(label.id)),
+  //           };
+  //         }
+  //       }),
+  //     };
+  //   });
+  // };
+
   const handleLabelChange = (labelIds: string[]) => {
-    // queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
-    //   return {
-    //     ...oldData,
-    //     tasks: oldData.tasks.map((oldTask) => {
-    //       if (oldTask.id !== task.id) {
-    //         return oldTask;
-    //       } else {
-    //         return {
-    //           ...oldTask,
-    //           labels: labelIds.map((labelId) => {
-    // // 這邊的跟下面的做法就是會造成labels出現在modal上的順序差異，一個是以右側選單的順序，一個是以labelIds的順序
-    //             return labels?.find((label) => label.id === labelId);
-    //           }),
-    //           // labels: labels?.filter((label) => labelIds.includes(label.id)),
-    //         };
-    //       }
-    //     }),
-    //   };
-    // });
+    editTaskMutation.mutate({
+      id: task.id,
+      labels: labelIds,
+    });
+    queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+      return {
+        ...oldData,
+        tasks: oldData.tasks.map((oldTask) => {
+          if (oldTask.id !== task.id) {
+            return oldTask;
+          } else {
+            return {
+              ...oldTask,
+              labels: labelIds.map((labelId) => {
+                return labels?.find((label) => label.id === labelId);
+              }),
+            };
+          }
+        }),
+      };
+    });
+  };
+
+  const handleModal = (labelIds: string[]) => {
+    editTaskMutation.mutate({
+      id: task.id,
+      labels: labelIds,
+    });
   };
 
   return (
@@ -206,6 +239,7 @@ function TaskCard({ task }: Props) {
         onClose={close}
         size={"700"}
         trapFocus={false}
+        onBlur={() => handleModal}
       >
         <Modal.Overlay />
         <Modal.Content>
@@ -272,6 +306,7 @@ function TaskCard({ task }: Props) {
                 <TaskLabelMenu
                   selectedLabels={taskLabelIds}
                   onLabelChange={handleLabelChange}
+                  onModalBlur={handleModal}
                 />
                 <TaskDateMenu />
                 <Text size="xs" c={"gray.6"} fw={600}>

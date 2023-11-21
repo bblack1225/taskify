@@ -1,14 +1,14 @@
 import {
-  AllDataResType,
+  // AllDataResType,
   BaseDataRes,
   ColumnDeleteRes,
   ColumnMutateRes,
 } from "@/types/column";
 import axiosClient from "../axiosClient";
 
-export const getAllColumns = (id: string): Promise<AllDataResType> => {
-  return axiosClient.get(`/statusCol/all/${id}`);
-};
+// export const getAllColumns = (id: string): Promise<AllDataResType> => {
+//   return axiosClient.get(`/statusCol/all/${id}`);
+// };
 
 export const addColumn = (requestData: {
   boardId: string;
