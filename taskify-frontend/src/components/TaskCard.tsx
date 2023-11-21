@@ -36,8 +36,8 @@ function TaskCard({ task }: Props) {
   const [openDelModal, setOpenDelModal] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
   const [editTaskTitle, setEditTaskTitle] = useState(task.name);
-
   const taskLabelIds = task.labels.map((label) => label.id);
+  const [isTaskLabel, setIsTaskLabel] = useState<string[]>(taskLabelIds);
   const queryClient = useQueryClient();
   const labels = queryClient.getQueryData<TaskLabel[]>(["labels"]);
 
@@ -96,11 +96,6 @@ function TaskCard({ task }: Props) {
     }) => editTask(editTaskTitle),
 
     onSuccess: (resData: BaseTaskRes) => {
-      notifications.show({
-        icon: <IconMoodCheck />,
-        message: "更新成功",
-        autoClose: 2000,
-      });
       queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         const NewData = {
           ...oldData,
@@ -146,6 +141,11 @@ function TaskCard({ task }: Props) {
       id: task.id,
       name: editTaskTitle,
     });
+    notifications.show({
+      icon: <IconMoodCheck />,
+      message: "更新成功",
+      autoClose: 2000,
+    });
   };
 
   // 另一種方法讓他按照label原本標籤排序
@@ -171,11 +171,22 @@ function TaskCard({ task }: Props) {
     });
   };
 
-  const handleModal = (labelIds: string[]) => {
-    editTaskMutation.mutate({
-      id: task.id,
-      labels: labelIds,
-    });
+  const handleTaskUpdate = () => {
+    const data = queryClient.getQueryData<BaseDataRes>(["tasks"])!;
+    //加!是為了確保data不會undefined
+    const selectedTask = data.tasks.find((t) => t.id === task.id);
+
+    //加入[]是因為防止undefined
+    const labels = selectedTask?.labels.map((label) => label.id) || [];
+
+    if (isTaskLabel !== taskLabelIds) {
+      setIsTaskLabel(labels);
+      editTaskMutation.mutate({
+        id: task.id,
+        labels: labels,
+      });
+    }
+    close();
   };
 
   return (
@@ -212,10 +223,9 @@ function TaskCard({ task }: Props) {
       </Box>
       <Modal.Root
         opened={opened}
-        onClose={close}
+        onClose={handleTaskUpdate}
         size={"700"}
         trapFocus={false}
-        onBlur={() => handleModal}
       >
         <Modal.Overlay />
         <Modal.Content>
@@ -282,7 +292,6 @@ function TaskCard({ task }: Props) {
                 <TaskLabelMenu
                   selectedLabels={taskLabelIds}
                   onLabelChange={handleLabelChange}
-                  onModalBlur={handleModal}
                 />
                 <TaskDateMenu />
                 <Text size="xs" c={"gray.6"} fw={600}>
