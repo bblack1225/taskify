@@ -38,7 +38,7 @@ function Editor({ description, onSave }: Props) {
 
   return (
     <>
-      <RichTextEditor w={450} mt={10} editor={editor}>
+      <RichTextEditor w={525} mt={10} editor={editor}>
         <RichTextEditor.Toolbar sticky stickyOffset={60}>
           <RichTextEditor.ControlsGroup>
             <RichTextEditor.Bold />
