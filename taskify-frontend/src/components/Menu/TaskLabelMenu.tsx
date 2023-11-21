@@ -14,7 +14,7 @@ type Props = {
 function TaskLabelMenu({ selectedLabels, onLabelChange, onModalBlur }: Props) {
   const [opened, setOpened] = useState(false);
   const queryClient = useQueryClient();
-  const labels = queryClient.getQueryData<TaskLabel[]>(["labels"]);
+  const labels = queryClient.getQueryData<TaskLabel[]>(["labels"]) || [];
 
   // 這邊是要把props跟change後的值傳回去，可能是值變少(unchecked)，或是值變多(checked)
   // 邏輯大概是下方註解的樣子，或許push跟filter的方式可以改成更優雅的方式，但我目前不知道
@@ -49,7 +49,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange, onModalBlur }: Props) {
             style={{ gridColumn: "3/3" }}
           />
         </Menu.Label>
-        {labels?.map((label) => (
+        {labels.map((label) => (
           <div key={label.id} style={{ display: "flex", margin: "2px" }}>
             <Checkbox
               id={label.id.toString()}

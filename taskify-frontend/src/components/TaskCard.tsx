@@ -39,7 +39,7 @@ function TaskCard({ task }: Props) {
   const taskLabelIds = task.labels.map((label) => label.id);
   const [isTaskLabel, setIsTaskLabel] = useState<string[]>(taskLabelIds);
   const queryClient = useQueryClient();
-  const labels = queryClient.getQueryData<TaskLabel[]>(["labels"]);
+  const labels = queryClient.getQueryData<TaskLabel[]>(["labels"]) || [];
 
   const deleteTaskMutation = useMutation({
     mutationFn: (id: string) => {
@@ -162,7 +162,7 @@ function TaskCard({ task }: Props) {
             return {
               ...oldTask,
               labels: labelIds.map((labelId) => {
-                return labels?.find((label) => label.id === labelId);
+                return labels.find((label) => label.id === labelId);
               }),
             };
           }
