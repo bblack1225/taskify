@@ -148,34 +148,10 @@ function TaskCard({ task }: Props) {
     });
   };
 
-  // TODO labelChange時要call api
-  // const handleLabelChange = (labelIds: string[]) => {
-  //   queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
-  //     return {
-  //       ...oldData,
-  //       tasks: oldData.tasks.map((oldTask) => {
-  //         if (oldTask.id !== task.id) {
-  //           return oldTask;
-  //         } else {
-  //           return {
-  //             ...oldTask,
-  //             labels: labelIds.map((labelId) => {
-  //               // 這邊的跟下面的做法就是會造成labels出現在modal上的順序差異，一個是以右側選單的順序，一個是以labelIds的順序
-  //               return labels?.find((label) => label.id === labelId);
-  //             }),
-  //             // labels: labels?.filter((label) => labelIds.includes(label.id)),
-  //           };
-  //         }
-  //       }),
-  //     };
-  //   });
-  // };
+  // 另一種方法讓他按照label原本標籤排序
+  // labels: labels?.filter((label) => labelIds.includes(label.id)),
 
   const handleLabelChange = (labelIds: string[]) => {
-    editTaskMutation.mutate({
-      id: task.id,
-      labels: labelIds,
-    });
     queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
       return {
         ...oldData,
