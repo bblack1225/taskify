@@ -19,8 +19,10 @@ import {
 } from "@tabler/icons-react";
 import style from "./TaskLabelMenu.module.scss";
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TaskLabel } from "@/types/labels";
+import { editLabels } from "@/api/labels";
+import { BaseTaskRes } from "@/types/column";
 
 type Props = {
   selectedLabels: string[];
@@ -43,6 +45,7 @@ const defaultColor = [
 function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
   const [opened, setOpened] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  // const [newTag, setNewTag] = useState(false);
   const queryClient = useQueryClient();
   const labels = queryClient.getQueryData<TaskLabel[]>(["labels"]) || [];
 
@@ -52,6 +55,26 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
     color: "",
   });
   const [value, onChange] = useState(editLabel.color);
+
+  const editLabelMutation = useMutation({
+    mutationFn: (editTaskLabel: { id: string; name: string; color: string }) =>
+      editLabels(editTaskLabel),
+    onSuccess: (resData: TaskLabel) => {
+      queryClient.setQueryData(["tasks"], (oldData: BaseTaskRes) => {
+        const NewData = {
+          ...oldData,
+          labels: oldData.labels.map((oldLabel) => {
+            if (oldLabel.id !== editLabel.id) {
+              return oldData;
+            } else {
+              return resData;
+            }
+          }),
+        };
+        return NewData;
+      });
+    },
+  });
 
   // 這邊是要把props跟change後的值傳回去，可能是值變少(unchecked)，或是值變多(checked)
   // 邏輯大概是下方註解的樣子，或許push跟filter的方式可以改成更優雅的方式，但我目前不知道
@@ -72,6 +95,28 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
       id: label.id,
       name: label.name,
       color: label.color,
+    });
+  };
+
+  //新增空標籤
+  const handleAddLabel = () => {
+    setIsEditing(true);
+    setEditLabel({ id: "", name: "", color: "" });
+  };
+
+  const handleLabelChange = (e: string, id: string, color: string) => {
+    setEditLabel({
+      id: id,
+      name: `${e}`,
+      color: color,
+    });
+  };
+
+  const handleSave = () => {
+    editLabelMutation.mutate({
+      id: editLabel.id,
+      name: editLabel.name,
+      color: editLabel.color,
     });
   };
 
@@ -143,7 +188,9 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                   </Box>
                 </HoverCard.Target>
                 <HoverCard.Dropdown h={20} className={style.dropdown}>
-                  <Text size="xs">標題：『{editLabel.name}』</Text>
+                  <Text size="xs">
+                    標題：『{editLabel.name ? editLabel.name : "無"}』
+                  </Text>
                 </HoverCard.Dropdown>
               </HoverCard>
             </Group>
@@ -152,16 +199,32 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                 <Text size="xs" mt={10}>
                   標題
                 </Text>
-                <Input size="xs" defaultValue={editLabel.name} />
+                <Input
+                  size="xs"
+                  defaultValue={editLabel.name}
+                  autoFocus
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    handleLabelChange(
+                      e.target.value,
+                      editLabel.id,
+                      editLabel.color
+                    )
+                  }
+                />
                 <Text size="xs">選一個顏色</Text>
                 <ColorPicker
+                  className={style.colorPicker}
                   swatchesPerRow={5}
                   format="hex"
                   swatches={defaultColor}
                   value={value}
+                  onChange={onChange}
+                  onClick={() => console.log(value)}
                 />
                 <hr style={{ width: "100%" }} />
-                <Button mb={10}>儲存</Button>
+                <Button mb={10} onClick={handleSave}>
+                  儲存
+                </Button>
               </Stack>
             </Center>
           </>
@@ -197,7 +260,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
               </div>
             ))}
             <Center>
-              <Button w={200} mb={10}>
+              <Button w={200} mb={10} onClick={handleAddLabel}>
                 新增標籤
               </Button>
             </Center>
