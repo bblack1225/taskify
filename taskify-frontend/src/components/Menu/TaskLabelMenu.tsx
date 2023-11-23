@@ -22,11 +22,12 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TaskLabel } from "@/types/labels";
 import { editLabels } from "@/api/labels";
-import { BaseTaskRes } from "@/types/column";
+import { BaseDataRes, BaseTaskRes } from "@/types/column";
 
 type Props = {
   selectedLabels: string[];
   onLabelChange: (labelIds: string[]) => void;
+  task: BaseTaskRes;
 };
 
 const defaultColor = [
@@ -42,35 +43,40 @@ const defaultColor = [
   "#D8E1CE",
 ];
 
-function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
+function TaskLabelMenu({ selectedLabels, onLabelChange, task }: Props) {
   const [opened, setOpened] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  // const [newTag, setNewTag] = useState(false);
   const queryClient = useQueryClient();
   const labels = queryClient.getQueryData<TaskLabel[]>(["labels"]) || [];
-
   const [editLabel, setEditLabel] = useState({
     id: "",
     name: "",
     color: "",
   });
-  const [value, onChange] = useState(editLabel.color);
+  const [selectedColor, setSelectedColor] = useState(editLabel.color);
 
   const editLabelMutation = useMutation({
     mutationFn: (editTaskLabel: { id: string; name: string; color: string }) =>
       editLabels(editTaskLabel),
     onSuccess: (resData: TaskLabel) => {
-      queryClient.setQueryData(["tasks"], (oldData: BaseTaskRes) => {
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         const NewData = {
           ...oldData,
-          labels: oldData.labels.map((oldLabel) => {
-            if (oldLabel.id !== editLabel.id) {
-              return oldData;
+          tasks: oldData.tasks.map((oldTask) => {
+            if (oldTask.id !== task.id) {
+              return oldTask;
             } else {
-              return resData;
+              return {
+                ...oldTask,
+                labels: oldTask.labels.map((oldLabel) => {
+                  return oldLabel.id !== editLabel.id ? oldLabel : resData;
+                }),
+              };
             }
           }),
         };
+        console.log("New", NewData);
+
         return NewData;
       });
     },
@@ -104,19 +110,23 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
     setEditLabel({ id: "", name: "", color: "" });
   };
 
-  const handleLabelChange = (e: string, id: string, color: string) => {
-    setEditLabel({
-      id: id,
-      name: `${e}`,
-      color: color,
-    });
+  const handleLabelNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditLabel((prev) => ({
+      ...prev,
+      name: e.target.value,
+    }));
   };
+  console.log(" selectedColor1", selectedColor);
 
   const handleSave = () => {
+    setEditLabel((prev) => ({
+      ...prev,
+      color: selectedColor,
+    }));
     editLabelMutation.mutate({
       id: editLabel.id,
       name: editLabel.name,
-      color: editLabel.color,
+      color: selectedColor,
     });
   };
 
@@ -137,7 +147,9 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
         >
           {isEditing && (
             <IconChevronLeft
-              onClick={() => setIsEditing(false)}
+              onClick={() => {
+                setIsEditing(false);
+              }}
               style={{
                 gridColumn: "1/2",
                 position: "absolute",
@@ -181,7 +193,13 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                   >
                     <Center
                       className={style.isEditingLabelContainer}
-                      style={{ backgroundColor: `${editLabel.color}` }}
+                      style={
+                        selectedColor
+                          ? {
+                              backgroundColor: `${selectedColor} `,
+                            }
+                          : { backgroundColor: `${editLabel.color} ` }
+                      }
                     >
                       <span>{editLabel.name}</span>
                     </Center>
@@ -203,23 +221,15 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                   size="xs"
                   defaultValue={editLabel.name}
                   autoFocus
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    handleLabelChange(
-                      e.target.value,
-                      editLabel.id,
-                      editLabel.color
-                    )
-                  }
+                  onChange={handleLabelNameChange}
                 />
                 <Text size="xs">選一個顏色</Text>
                 <ColorPicker
-                  className={style.colorPicker}
                   swatchesPerRow={5}
                   format="hex"
                   swatches={defaultColor}
-                  value={value}
-                  onChange={onChange}
-                  onClick={() => console.log(value)}
+                  value={selectedColor}
+                  onChange={setSelectedColor}
                 />
                 <hr style={{ width: "100%" }} />
                 <Button mb={10} onClick={handleSave}>
@@ -253,7 +263,9 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                 </label>
                 <div>
                   <IconBallpen
-                    onClick={() => handleEditLabel(label)}
+                    onClick={() => {
+                      handleEditLabel(label);
+                    }}
                     style={{ marginLeft: "3px", cursor: "pointer" }}
                   />
                 </div>

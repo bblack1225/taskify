@@ -97,6 +97,7 @@ function TaskCard({ task }: Props) {
 
     onSuccess: (resData: BaseTaskRes) => {
       queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+        console.log(oldData);
         const NewData = {
           ...oldData,
           tasks: oldData.tasks.map((oldTask) => {
@@ -192,7 +193,14 @@ function TaskCard({ task }: Props) {
   return (
     <>
       <Box onClick={open} className={style.taskContainer}>
-        <Flex style={{ flexDirection: "row", flexWrap: "wrap", gap:5, marginBottom:10 }}>
+        <Flex
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: 5,
+            marginBottom: 10,
+          }}
+        >
           {task.labels.map((label) => {
             return (
               <Group
@@ -292,6 +300,7 @@ function TaskCard({ task }: Props) {
                 <TaskLabelMenu
                   selectedLabels={taskLabelIds}
                   onLabelChange={handleLabelChange}
+                  task={task}
                 />
                 <TaskDateMenu />
                 <Text size="xs" c={"gray.6"} fw={600}>
