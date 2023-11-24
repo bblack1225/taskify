@@ -65,26 +65,17 @@ public class TaskService implements ITaskService {
 
         // update labels
         List<UUID> labelIds =  request.getLabels();
-        List<Labels> labels;
         if(labelIds != null){
             updateTaskLabel(task, labelIds);
-            labels = labelsRepository.findAllByIdIn(labelIds);
-        }else {
-            labels = labelsRepository.getLabelsByTasksId(taskId);
         }
-        List<TaskLabelRes> taskLabelRes = labels.stream().map(label ->
-                TaskLabelRes.builder()
-                        .id(label.getId())
-                        .name(label.getName())
-                        .color(label.getColor())
-                        .build()).toList();
+
 
         return new TasksResponse(
                 task.getId(),
                 task.getName(),
                 task.getDataIndex(),
                 task.getDescription(),
-                labelIds,
+                labelIds == null ? new ArrayList<>() : labelIds,
                 task.getStatusId());
     }
 

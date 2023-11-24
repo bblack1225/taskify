@@ -14,6 +14,7 @@ import {
 import {
   IconBallpen,
   IconChevronLeft,
+  IconMoodCheck,
   IconTagStarred,
   IconX,
 } from "@tabler/icons-react";
@@ -23,6 +24,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TaskLabel } from "@/types/labels";
 import { editLabels } from "@/api/labels";
 import { useLabelsData } from "@/context/LabelsContext";
+import { notifications } from "@mantine/notifications";
 
 type Props = {
   selectedLabels: string[];
@@ -56,10 +58,29 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
 
   const editLabelMutation = useMutation({
     mutationFn: () => editLabels(editLabel),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ["labels"] });
+      const previousLabels = queryClient.getQueryData(["labels"]);
+      queryClient.setQueryData(["labels"], (oldData: TaskLabel[]) => {
+        return [
+          ...oldData.filter((label) => label.id !== editLabel.id),
+          editLabel,
+        ];
+      });
+      return { previousLabels };
+    },
     // TODO optimistic update
     onSuccess: () => {
+      notifications.show({
+        icon: <IconMoodCheck />,
+        message: "更新標籤成功",
+        autoClose: 2000,
+      });
       // 讓 labels 這個 queryKey 無效化，重新 fetch 一次
-      queryClient.invalidateQueries({ queryKey: ["labels"] });
+      // queryClient.invalidateQueries({ queryKey: ["labels"] });
+    },
+    onError: (err, variables, context) => {
+      queryClient.setQueryData(["labels"], context?.previousLabels);
     },
   });
 

@@ -99,7 +99,7 @@ function TaskCard({ task }: Props) {
     },
     onSuccess: (resData: UpdateDescRes) => {
       queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
-        return {
+        const newData = {
           ...oldData,
           tasks: oldData.tasks.map((oldTask) => {
             if (oldTask.id !== task.id) {
@@ -112,6 +112,7 @@ function TaskCard({ task }: Props) {
             }
           }),
         };
+        return newData;
       });
     },
   });
@@ -126,8 +127,13 @@ function TaskCard({ task }: Props) {
     }) => editTask(editTaskTitle),
 
     onSuccess: (resData: BaseTaskRes) => {
+      notifications.show({
+        icon: <IconMoodCheck />,
+        message: "更新成功",
+        autoClose: 2000,
+      });
       queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
-        const NewData = {
+        return {
           ...oldData,
           tasks: oldData.tasks.map((oldTask) => {
             if (oldTask.id !== task.id) {
@@ -137,7 +143,6 @@ function TaskCard({ task }: Props) {
             }
           }),
         };
-        return NewData;
       });
     },
   });
@@ -170,11 +175,6 @@ function TaskCard({ task }: Props) {
     editTaskMutation.mutate({
       id: task.id,
       name: editTaskTitle,
-    });
-    notifications.show({
-      icon: <IconMoodCheck />,
-      message: "更新成功",
-      autoClose: 2000,
     });
   };
 
