@@ -135,7 +135,7 @@ public class StatusColumnService implements IStatusColumnService {
             uuids.add(tasksLabel.getId().getLabelId());
             map.put(tasksLabel.getId().getTaskId(), uuids);
         }
-        List<Tasks> tasksDTOs =  tasksRepository.findAllByBoardId(boardId);
+        List<Tasks> tasksDTOs =  tasksRepository.findAllByBoardIdOrderByDataIndex(boardId);
         List<TasksResponse> tasksResponses = tasksDTOs.stream().map(task -> {
             TasksResponse tasksResponse = new TasksResponse();
             tasksResponse.setId(task.getId());

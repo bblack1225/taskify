@@ -16,7 +16,7 @@ public interface TasksRepository extends JpaRepository<Tasks, UUID>, JpaSpecific
 
     void deleteAllByStatusId(UUID statusId);
 
-    List<Tasks> findAllByBoardId(UUID boardId);
+    List<Tasks> findAllByBoardIdOrderByDataIndex(UUID boardId);
 
     @Query(nativeQuery = true,
     value = """
