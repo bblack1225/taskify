@@ -49,6 +49,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
   const labels = useLabelsData();
+  
 
   const [editLabel, setEditLabel] = useState({
     id: "",
@@ -62,22 +63,25 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
       await queryClient.cancelQueries({ queryKey: ["labels"] });
       const previousLabels = queryClient.getQueryData(["labels"]);
       queryClient.setQueryData(["labels"], (oldData: TaskLabel[]) => {
-        return [
-          ...oldData.filter((label) => label.id !== editLabel.id),
-          editLabel,
-        ];
+          return oldData.map((label) => {
+            if (label.id === editLabel.id) {
+              return {
+                ...label,
+                name: editLabel.name,
+                color: editLabel.color,
+              };
+            }
+            return label;
+          })
       });
       return { previousLabels };
     },
-    // TODO optimistic update
     onSuccess: () => {
       notifications.show({
         icon: <IconMoodCheck />,
         message: "更新標籤成功",
         autoClose: 2000,
       });
-      // 讓 labels 這個 queryKey 無效化，重新 fetch 一次
-      // queryClient.invalidateQueries({ queryKey: ["labels"] });
     },
     onError: (err, variables, context) => {
       queryClient.setQueryData(["labels"], context?.previousLabels);
@@ -118,7 +122,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
   };
 
   return (
-    <Menu shadow="md" width={250} opened={opened} onChange={setOpened}>
+    <Menu shadow="md" width={250} opened={opened} onChange={setOpened} onClose={() => setIsEditing(false)}>
       <Menu.Target>
         <Button color={"#A9A9A9"} leftSection={<IconTagStarred />}>
           標籤
