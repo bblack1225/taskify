@@ -236,12 +236,7 @@ function TaskCard({ task }: Props) {
         </Flex>
         <Text style={{ marginLeft: "4px" }}>{editTaskTitle}</Text>
       </Box>
-      <Modal.Root
-        opened={opened}
-        onClose={handleTaskUpdate}
-        size={"700"}
-        trapFocus={false}
-      >
+      <Modal.Root opened={opened} onClose={handleTaskUpdate} size={"700"}>
         <Modal.Overlay />
         <Modal.Content>
           <Modal.Header>
