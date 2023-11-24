@@ -84,7 +84,7 @@ public class TaskService implements ITaskService {
                 task.getName(),
                 task.getDataIndex(),
                 task.getDescription(),
-                taskLabelRes,
+                labelIds,
                 task.getStatusId());
     }
 

@@ -5,7 +5,6 @@ function useLabels(boardId: string) {
   return useQuery({
     queryKey: ["labels"],
     queryFn: () => getAllLabels(boardId),
-    initialData: [],
   });
 }
 

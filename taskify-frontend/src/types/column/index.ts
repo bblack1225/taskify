@@ -1,5 +1,3 @@
-import { TaskLabel } from "../labels";
-
 export type ColumnMutateRes = {
   id: string;
   boardId: string;
@@ -38,6 +36,6 @@ export type BaseTaskRes = {
   name: string;
   dataIndex: number;
   description: string;
-  labels: TaskLabel[];
+  labels: string[];
   columnId: string;
 };

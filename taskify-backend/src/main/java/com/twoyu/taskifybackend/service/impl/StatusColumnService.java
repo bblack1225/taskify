@@ -142,20 +142,21 @@ public class StatusColumnService implements IStatusColumnService {
             tasksResponse.setName(task.getName());
             tasksResponse.setDataIndex(task.getDataIndex());
             tasksResponse.setDescription(task.getDescription());
-            List<UUID> labelIds = map.get(task.getId());
-            if(labelIds != null) {
-                List<TaskLabelRes> labelsResponses = labelIds.stream().map(labelId -> {
-                    Labels label = labels.get(labelId);
-                    return TaskLabelRes.builder()
-                            .id(label.getId())
-                            .name(label.getName())
-                            .color(label.getColor())
-                            .build();
-                }).toList();
-                tasksResponse.setLabels(labelsResponses);
-            } else {
-                tasksResponse.setLabels(new ArrayList<>());
-            }
+            List<UUID> labelIds = map.getOrDefault(task.getId(), new ArrayList<>());
+            tasksResponse.setLabels(labelIds);
+//            if(labelIds != null) {
+//                List<TaskLabelRes> labelsResponses = labelIds.stream().map(labelId -> {
+//                    Labels label = labels.get(labelId);
+//                    return TaskLabelRes.builder()
+//                            .id(label.getId())
+//                            .name(label.getName())
+//                            .color(label.getColor())
+//                            .build();
+//                }).toList();
+//                tasksResponse.setLabels(labelsResponses);
+//            } else {
+//                tasksResponse.setLabels(new ArrayList<>());
+//            }
             tasksResponse.setColumnId(task.getStatusId());
             return tasksResponse;
         }).toList();

@@ -22,13 +22,11 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TaskLabel } from "@/types/labels";
 import { editLabels } from "@/api/labels";
-import { BaseDataRes, BaseTaskRes } from "@/types/column";
-import useLabels from "@/hooks/useLabels";
+import { useLabelsData } from "@/context/LabelsContext";
 
 type Props = {
   selectedLabels: string[];
-  onLabelChange: (labelIds: string[]) => void;
-  task: BaseTaskRes;
+  onLabelChange: (labelId: string, checked: boolean) => void;
 };
 
 const defaultColor = [
@@ -44,13 +42,12 @@ const defaultColor = [
   "#D8E1CE",
 ];
 
-const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
-
-function TaskLabelMenu({ selectedLabels, onLabelChange, task }: Props) {
+function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
   const [opened, setOpened] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const queryClient = useQueryClient();
-  const { data: labels} = useLabels(BOARD_ID);
+  const labels = useLabelsData();
+
   const [editLabel, setEditLabel] = useState({
     id: "",
     name: "",
@@ -58,44 +55,18 @@ function TaskLabelMenu({ selectedLabels, onLabelChange, task }: Props) {
   });
 
   const editLabelMutation = useMutation({
-    mutationFn: () =>
-      editLabels(editLabel),
-    onSuccess: (resData: TaskLabel) => {
+    mutationFn: () => editLabels(editLabel),
+    // TODO optimistic update
+    onSuccess: () => {
       // 讓 labels 這個 queryKey 無效化，重新 fetch 一次
-      queryClient.invalidateQueries({queryKey: ['labels']})
-      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
-        const NewData = {
-          ...oldData,
-          tasks: oldData.tasks.map((oldTask) => {
-            if (oldTask.id !== task.id) {
-              return oldTask;
-            } else {
-              return {
-                ...oldTask,
-                labels: oldTask.labels.map((oldLabel) => {
-                  return oldLabel.id !== editLabel.id ? oldLabel : resData;
-                }),
-              };
-            }
-          }),
-        };
-
-        return NewData;
-      });
+      queryClient.invalidateQueries({ queryKey: ["labels"] });
     },
   });
 
   // 這邊是要把props跟change後的值傳回去，可能是值變少(unchecked)，或是值變多(checked)
   // 邏輯大概是下方註解的樣子，或許push跟filter的方式可以改成更優雅的方式，但我目前不知道
   const handleChange = (checked: boolean, id: string) => {
-    const oldSelectedLabels = [...selectedLabels];
-    if (checked) {
-      oldSelectedLabels.push(id);
-      onLabelChange(oldSelectedLabels);
-    } else {
-      const newLabelIds = oldSelectedLabels.filter((labelId) => labelId !== id);
-      onLabelChange(newLabelIds);
-    }
+    onLabelChange(id, checked);
   };
 
   const handleEditLabel = (label: TaskLabel) => {
@@ -122,7 +93,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange, task }: Props) {
 
   const handleSave = () => {
     editLabelMutation.mutate();
-    setOpened(false)
+    setOpened(false);
   };
 
   return (
@@ -188,7 +159,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange, task }: Props) {
                   >
                     <Center
                       className={style.isEditingLabelContainer}
-                      style={{background: editLabel.color}}
+                      style={{ background: editLabel.color }}
                     >
                       <span>{editLabel.name}</span>
                     </Center>
@@ -218,7 +189,9 @@ function TaskLabelMenu({ selectedLabels, onLabelChange, task }: Props) {
                   format="hex"
                   swatches={defaultColor}
                   value={editLabel.color}
-                  onChange={(val) => setEditLabel(prev => ({...prev, color: val}))} //這邊要改成setEditLabel(prev => ({...prev, color: val})
+                  onChange={(val) =>
+                    setEditLabel((prev) => ({ ...prev, color: val }))
+                  } //這邊要改成setEditLabel(prev => ({...prev, color: val})
                 />
                 <hr style={{ width: "100%" }} />
                 <Button mb={10} onClick={handleSave}>

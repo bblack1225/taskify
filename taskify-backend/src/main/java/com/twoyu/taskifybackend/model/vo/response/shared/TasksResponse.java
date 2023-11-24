@@ -23,6 +23,6 @@ public class TasksResponse {
     @Schema(description = "任務描述")
     private String description;
     @Schema(description = "任務包含的標籤")
-    private List<TaskLabelRes> labels;
+    private List<UUID> labels;
     private UUID columnId;
 }

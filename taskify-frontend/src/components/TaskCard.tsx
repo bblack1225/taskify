@@ -22,24 +22,54 @@ import { DelTaskRes, UpdateDescReq, UpdateDescRes } from "@/types/task";
 import { notifications } from "@mantine/notifications";
 import { BaseDataRes, BaseTaskRes } from "@/types/column";
 import { delTask, editTask, updateDesc } from "@/api/tasks";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TaskMemberMenu from "./Menu/TaskMemberMenu";
 import TaskLabelMenu from "./Menu/TaskLabelMenu";
 import TaskDateMenu from "./Menu/TaskDateMenu";
 import { TaskLabel } from "@/types/labels";
+import { useLabelsData } from "@/context/LabelsContext";
 
 type Props = {
   task: BaseTaskRes;
 };
+
+function findLabelById(labels: TaskLabel[], labelId: string): TaskLabel {
+  return (
+    labels.find((label) => label.id === labelId) || {
+      id: labelId,
+      color: "#fff",
+      name: "Label Not Found",
+    }
+  );
+}
+
 function TaskCard({ task }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
   const [openDelModal, setOpenDelModal] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
   const [editTaskTitle, setEditTaskTitle] = useState(task.name);
-  const taskLabelIds = task.labels.map((label) => label.id);
-  const [isTaskLabel, setIsTaskLabel] = useState<string[]>(taskLabelIds);
   const queryClient = useQueryClient();
-  const labels = queryClient.getQueryData<TaskLabel[]>(["labels"]) || [];
+  const labels = useLabelsData();
+
+  const [taskLabels, setTaskLabels] = useState<TaskLabel[]>(
+    task.labels.map(
+      (labelId) =>
+        labels.find((label) => label.id === labelId) || {
+          id: labelId,
+          color: "#fff",
+          name: "Label Not Found",
+        }
+    )
+  );
+
+  // 使用effect來同步
+  useEffect(() => {
+    setTaskLabels((prev) =>
+      prev.map((label) => {
+        return findLabelById(labels, label.id);
+      })
+    );
+  }, [labels]);
 
   const deleteTaskMutation = useMutation({
     mutationFn: (id: string) => {
@@ -97,7 +127,6 @@ function TaskCard({ task }: Props) {
 
     onSuccess: (resData: BaseTaskRes) => {
       queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
-        console.log(oldData);
         const NewData = {
           ...oldData,
           tasks: oldData.tasks.map((oldTask) => {
@@ -149,44 +178,22 @@ function TaskCard({ task }: Props) {
     });
   };
 
-  // 另一種方法讓他按照label原本標籤排序
-  // labels: labels?.filter((label) => labelIds.includes(label.id)),
-
-  const handleLabelChange = (labelIds: string[]) => {
-    queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
-      return {
-        ...oldData,
-        tasks: oldData.tasks.map((oldTask) => {
-          if (oldTask.id !== task.id) {
-            return oldTask;
-          } else {
-            return {
-              ...oldTask,
-              labels: labelIds.map((labelId) => {
-                return labels.find((label) => label.id === labelId);
-              }),
-            };
-          }
-        }),
-      };
-    });
+  const handleLabelChange = (labelId: string, checked: boolean) => {
+    if (checked) {
+      const newLabel = findLabelById(labels, labelId);
+      setTaskLabels((oldTaskLabels) => [...oldTaskLabels, newLabel]);
+    } else {
+      setTaskLabels((oldTaskLabels) =>
+        oldTaskLabels.filter((oldTaskLabel) => oldTaskLabel.id !== labelId)
+      );
+    }
   };
 
   const handleTaskUpdate = () => {
-    const data = queryClient.getQueryData<BaseDataRes>(["tasks"])!;
-    //加!是為了確保data不會undefined
-    const selectedTask = data.tasks.find((t) => t.id === task.id);
-
-    //加入[]是因為防止undefined
-    const labels = selectedTask?.labels.map((label) => label.id) || [];
-
-    if (isTaskLabel !== taskLabelIds) {
-      setIsTaskLabel(labels);
-      editTaskMutation.mutate({
-        id: task.id,
-        labels: labels,
-      });
-    }
+    editTaskMutation.mutate({
+      id: task.id,
+      labels: taskLabels.map((label) => label.id),
+    });
     close();
   };
 
@@ -201,7 +208,7 @@ function TaskCard({ task }: Props) {
             marginBottom: 10,
           }}
         >
-          {task.labels.map((label) => {
+          {taskLabels.map((label) => {
             return (
               <Group
                 key={label.id}
@@ -265,7 +272,7 @@ function TaskCard({ task }: Props) {
                       width: "420px",
                     }}
                   >
-                    {task.labels.map((label) => {
+                    {taskLabels.map((label) => {
                       return (
                         <div
                           key={label.id}
@@ -298,9 +305,8 @@ function TaskCard({ task }: Props) {
                 <TaskMemberMenu />
                 {/* 目前將選定的labelId跟label改變的event handler當作props傳入 */}
                 <TaskLabelMenu
-                  selectedLabels={taskLabelIds}
+                  selectedLabels={taskLabels.map((label) => label.id)}
                   onLabelChange={handleLabelChange}
-                  task={task}
                 />
                 <TaskDateMenu />
                 <Text size="xs" c={"gray.6"} fw={600}>
