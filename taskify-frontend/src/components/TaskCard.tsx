@@ -50,17 +50,13 @@ function TaskCard({ task }: Props) {
   const [editTaskTitle, setEditTaskTitle] = useState(task.name);
   const queryClient = useQueryClient();
   const labels = useLabelsData();
+  
+  
 
   const [taskLabels, setTaskLabels] = useState<TaskLabel[]>(
-    task.labels.map(
-      (labelId) =>
-        labels.find((label) => label.id === labelId) || {
-          id: labelId,
-          color: "#fff",
-          name: "Label Not Found",
-        }
-    )
+    task.labels.map((labelId) => findLabelById(labels, labelId))
   );
+  
 
   // 使用effect來同步
   useEffect(() => {
@@ -125,7 +121,26 @@ function TaskCard({ task }: Props) {
       name?: string;
       labels?: string[];
     }) => editTask(editTaskTitle),
-
+    onMutate: async (variables) => {
+    await queryClient.cancelQueries({ queryKey: ["tasks"] });
+    const previousTasks = queryClient.getQueryData(["tasks"]);
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+        return {
+          ...oldData,
+          tasks: oldData.tasks.map((oldTask) => {
+            if (oldTask.id !== task.id) {
+              return oldTask;
+            } else {
+              return {
+                ...oldTask,
+                labels: variables.labels
+              }
+            }
+          }),
+        };
+      });
+      return { previousTasks };
+    },
     onSuccess: (resData: BaseTaskRes) => {
       notifications.show({
         icon: <IconMoodCheck />,
@@ -144,6 +159,9 @@ function TaskCard({ task }: Props) {
           }),
         };
       });
+    },
+    onError(_err, _variables, context) {
+      queryClient.setQueryData(["tasks"], context?.previousTasks);
     },
   });
 
@@ -190,10 +208,16 @@ function TaskCard({ task }: Props) {
   };
 
   const handleTaskUpdate = () => {
-    editTaskMutation.mutate({
-      id: task.id,
-      labels: taskLabels.map((label) => label.id),
-    });
+  
+    const allIdsMatch = taskLabels.length === task.labels.length && 
+    taskLabels.every(taskLabel => task.labels.includes(taskLabel.id));
+    
+    if(!allIdsMatch){
+      editTaskMutation.mutate({
+        id: task.id,
+        labels: taskLabels.map((label) => label.id),
+      });
+    }
     close();
   };
 
@@ -236,7 +260,7 @@ function TaskCard({ task }: Props) {
         </Flex>
         <Text style={{ marginLeft: "4px" }}>{editTaskTitle}</Text>
       </Box>
-      <Modal.Root opened={opened} onClose={handleTaskUpdate} size={"700"}>
+      <Modal.Root opened={opened} onClose={handleTaskUpdate} size={"700"} trapFocus={false} closeOnEscape={false}>
         <Modal.Overlay />
         <Modal.Content>
           <Modal.Header>
