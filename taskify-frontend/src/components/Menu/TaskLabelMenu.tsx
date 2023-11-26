@@ -3,8 +3,6 @@ import {
   Button,
   Checkbox,
   Center,
-  Group,
-  HoverCard,
   Text,
   Box,
   ColorPicker,
@@ -22,9 +20,11 @@ import style from "./TaskLabelMenu.module.scss";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TaskLabel } from "@/types/labels";
-import { editLabels } from "@/api/labels";
+import { addLabel, editLabel } from "@/api/labels";
 import { useLabelsData } from "@/context/LabelsContext";
 import { notifications } from "@mantine/notifications";
+import { BaseDataRes } from "@/types/column";
+import { v4 as uuidV4 } from "uuid";
 
 type Props = {
   selectedLabels: string[];
@@ -47,32 +47,32 @@ const defaultColor = [
 function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
   const [opened, setOpened] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isAddLabel, setIsAddLabel] = useState(false);
   const queryClient = useQueryClient();
   const labels = useLabelsData();
-  
 
-  const [editLabel, setEditLabel] = useState({
+  const [currentLabel, setCurrentLabel] = useState({
     id: "",
     name: "",
     color: "",
   });
 
   const editLabelMutation = useMutation({
-    mutationFn: () => editLabels(editLabel),
+    mutationFn: () => editLabel(currentLabel),
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ["labels"] });
       const previousLabels = queryClient.getQueryData(["labels"]);
       queryClient.setQueryData(["labels"], (oldData: TaskLabel[]) => {
-          return oldData.map((label) => {
-            if (label.id === editLabel.id) {
-              return {
-                ...label,
-                name: editLabel.name,
-                color: editLabel.color,
-              };
-            }
-            return label;
-          })
+        return oldData.map((label) => {
+          if (label.id === currentLabel.id) {
+            return {
+              ...label,
+              name: currentLabel.name,
+              color: currentLabel.color,
+            };
+          }
+          return label;
+        });
       });
       return { previousLabels };
     },
@@ -83,8 +83,32 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
         autoClose: 2000,
       });
     },
-    onError: (err, variables, context) => {
+    onError: (_err, _variables, context) => {
       queryClient.setQueryData(["labels"], context?.previousLabels);
+    },
+  });
+
+  const queryData = queryClient.getQueryData<BaseDataRes>([
+    "tasks",
+  ]) as BaseDataRes;
+
+  const addLabelMutation = useMutation({
+    mutationFn: () =>
+      addLabel({
+        boardId: queryData.boardId,
+        color: currentLabel.color,
+        name: currentLabel.name,
+      }),
+
+    onSuccess: (res: TaskLabel) => {
+      queryClient.setQueryData(["labels"], (oldData: TaskLabel[]) => {
+        return [...oldData, res];
+      });
+      notifications.show({
+        icon: <IconMoodCheck />,
+        message: "新增標籤成功",
+        autoClose: 2000,
+      });
     },
   });
 
@@ -95,8 +119,9 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
   };
 
   const handleEditLabelOpen = (label: TaskLabel) => {
+    setIsAddLabel(false);
     setIsEditing(true);
-    setEditLabel({
+    setCurrentLabel({
       id: label.id,
       name: label.name,
       color: label.color,
@@ -105,26 +130,37 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
 
   //新增空標籤
   const handleAddLabel = () => {
+    setIsAddLabel(true);
     setIsEditing(true);
-    setEditLabel({ id: "", name: "", color: "" });
+    setCurrentLabel({ id: "", name: "", color: "" });
   };
 
   const handleLabelNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditLabel((prev) => ({
+    setCurrentLabel((prev) => ({
       ...prev,
       name: e.target.value,
     }));
   };
 
   const handleLabelSave = () => {
-    editLabelMutation.mutate();
+    if (currentLabel.id) {
+      editLabelMutation.mutate();
+    } else {
+      addLabelMutation.mutate();
+    }
     setOpened(false);
     setIsEditing(false);
   };
-  
 
   return (
-    <Menu transitionProps={{duration:0}} shadow="md" width={250} opened={opened} onChange={setOpened} onClose={() => setIsEditing(false)}>
+    <Menu
+      transitionProps={{ duration: 0 }}
+      shadow="md"
+      width={250}
+      opened={opened}
+      onChange={setOpened}
+      onClose={() => setIsEditing(false)}
+    >
       <Menu.Target>
         <Button color={"#A9A9A9"} leftSection={<IconTagStarred />}>
           標籤
@@ -152,7 +188,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
             />
           )}
           <Center style={{ gridColumn: "2/3" }}>
-            {isEditing ? "編輯標籤" : "標籤"}
+            {isEditing ? (isAddLabel ? "新增標籤" : "編輯標籤") : "標籤"}
           </Center>
           <IconX
             onClick={() => setOpened(false)}
@@ -165,40 +201,23 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
         </Menu.Label>
         {isEditing ? (
           <>
-            <Group
-              key={editLabel.id}
-              onClick={(e) => {
-                e.stopPropagation();
+            <Box
+              w={240}
+              h={40}
+              bg={"#f7f8f9"}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
-              justify="center"
             >
-              <HoverCard openDelay={300}>
-                <HoverCard.Target>
-                  <Box
-                    w={240}
-                    h={40}
-                    bg={"#f7f8f9"}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Center
-                      className={style.isEditingLabelContainer}
-                      style={{ background: editLabel.color }}
-                    >
-                      <span>{editLabel.name}</span>
-                    </Center>
-                  </Box>
-                </HoverCard.Target>
-                <HoverCard.Dropdown h={20} className={style.dropdown}>
-                  <Text size="xs">
-                    標題：『{editLabel.name ? editLabel.name : "無"}』
-                  </Text>
-                </HoverCard.Dropdown>
-              </HoverCard>
-            </Group>
+              <Center
+                className={style.isEditingLabelContainer}
+                style={{ background: currentLabel.color }}
+              >
+                <span>{currentLabel.name}</span>
+              </Center>
+            </Box>
             <Center>
               <Stack gap="xs">
                 <Text size="xs" mt={10}>
@@ -206,7 +225,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                 </Text>
                 <Input
                   size="xs"
-                  defaultValue={editLabel.name}
+                  defaultValue={currentLabel.name}
                   autoFocus
                   onChange={handleLabelNameChange}
                 />
@@ -215,51 +234,68 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                   swatchesPerRow={5}
                   format="hex"
                   swatches={defaultColor}
-                  value={editLabel.color}
+                  value={currentLabel.color}
                   onChange={(val) =>
-                    setEditLabel((prev) => ({ ...prev, color: val }))
+                    setCurrentLabel((prev) => ({ ...prev, color: val }))
                   }
                 />
                 <hr style={{ width: "100%" }} />
                 <Button mb={10} onClick={handleLabelSave}>
-                  儲存
+                  {isAddLabel ? "建立" : "儲存"}
                 </Button>
               </Stack>
             </Center>
           </>
         ) : (
           <>
-            {labels.map((label) => (
-              <div key={label.id} style={{ display: "flex", margin: "2px" }}>
-                <Checkbox
-                  id={label.id.toString()}
-                  className={style.checkbox}
-                  checked={selectedLabels.includes(label.id)}
-                  onChange={(e) => handleChange(e.target.checked, label.id)}
-                  color="gray"
-                  styles={{
-                    root: {
-                      marginBottom: 5,
-                    },
+            <Box
+              style={{
+                overflow: "hidden auto",
+                height: "428px",
+              }}
+            >
+              {labels.map((label) => (
+                <div
+                  key={label.id}
+                  style={{
+                    display: "flex",
+                    margin: "2px",
                   }}
-                />
-                <label
-                  htmlFor={label.id.toString()}
-                  className={style.labelContainer}
-                  style={{ backgroundColor: `${label.color}` }}
                 >
-                  <span>{label.name}</span>
-                </label>
-                <div>
-                  <IconBallpen
-                    onClick={() => {
-                      handleEditLabelOpen(label);
+                  <Checkbox
+                    id={label.id.toString()}
+                    className={style.checkbox}
+                    checked={selectedLabels.includes(label.id)}
+                    onChange={(e) => handleChange(e.target.checked, label.id)}
+                    color="gray"
+                    styles={{
+                      root: {
+                        marginBottom: 5,
+                      },
                     }}
-                    style={{ marginLeft: "3px", cursor: "pointer" }}
                   />
+                  <label
+                    htmlFor={label.id.toString()}
+                    className={style.labelContainer}
+                    style={{ backgroundColor: `${label.color}` }}
+                  >
+                    <span>{label.name}</span>
+                  </label>
+                  <div>
+                    <IconBallpen
+                      onClick={() => {
+                        handleEditLabelOpen(label);
+                      }}
+                      style={{
+                        marginLeft: "3px",
+                        marginRight: "8px",
+                        cursor: "pointer",
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </Box>
             <Center>
               <Button w={200} mb={10} onClick={handleAddLabel}>
                 新增標籤

@@ -5,7 +5,7 @@ export const getAllLabels = (boardId: string): Promise<TaskLabel[]> => {
   return axiosClient.get(`/labels/all/${boardId}`);
 };
 
-export const editLabels = (editLabel: {
+export const editLabel = (editLabel: {
   id: string;
   name: string;
   color: string;
