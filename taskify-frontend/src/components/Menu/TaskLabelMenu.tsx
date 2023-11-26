@@ -94,7 +94,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
     onLabelChange(id, checked);
   };
 
-  const handleEditLabel = (label: TaskLabel) => {
+  const handleEditLabelOpen = (label: TaskLabel) => {
     setIsEditing(true);
     setEditLabel({
       id: label.id,
@@ -116,13 +116,15 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
     }));
   };
 
-  const handleSave = () => {
+  const handleLabelSave = () => {
     editLabelMutation.mutate();
     setOpened(false);
+    setIsEditing(false);
   };
+  
 
   return (
-    <Menu shadow="md" width={250} opened={opened} onChange={setOpened} onClose={() => setIsEditing(false)}>
+    <Menu transitionProps={{duration:0}} shadow="md" width={250} opened={opened} onChange={setOpened} onClose={() => setIsEditing(false)}>
       <Menu.Target>
         <Button color={"#A9A9A9"} leftSection={<IconTagStarred />}>
           標籤
@@ -216,10 +218,10 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                   value={editLabel.color}
                   onChange={(val) =>
                     setEditLabel((prev) => ({ ...prev, color: val }))
-                  } //這邊要改成setEditLabel(prev => ({...prev, color: val})
+                  }
                 />
                 <hr style={{ width: "100%" }} />
-                <Button mb={10} onClick={handleSave}>
+                <Button mb={10} onClick={handleLabelSave}>
                   儲存
                 </Button>
               </Stack>
@@ -251,7 +253,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                 <div>
                   <IconBallpen
                     onClick={() => {
-                      handleEditLabel(label);
+                      handleEditLabelOpen(label);
                     }}
                     style={{ marginLeft: "3px", cursor: "pointer" }}
                   />
