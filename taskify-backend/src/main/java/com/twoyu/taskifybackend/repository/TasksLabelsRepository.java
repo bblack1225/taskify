@@ -21,4 +21,6 @@ public interface TasksLabelsRepository extends JpaRepository<TasksLabels, TaskLa
             where b.id = :boardId
             """)
     List<TasksLabels> findAllByBoardId(UUID boardId);
+
+    void deleteAllByIdLabelId(UUID labelId);
 }

@@ -5,10 +5,12 @@ import com.twoyu.taskifybackend.model.entity.Labels;
 import com.twoyu.taskifybackend.model.vo.request.LabelMutateRequest;
 import com.twoyu.taskifybackend.model.vo.response.shared.LabelsResponse;
 import com.twoyu.taskifybackend.repository.LabelsRepository;
+import com.twoyu.taskifybackend.repository.TasksLabelsRepository;
 import com.twoyu.taskifybackend.service.ILabelService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -16,9 +18,11 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class LabelService implements ILabelService {
 
     private final LabelsRepository labelsRepository;
+    private final TasksLabelsRepository tasksLabelsRepository;
     @Override
     public List<LabelsResponse> getAllLabels(UUID boardId) {
         List<Labels> labels = labelsRepository.findAllByBoardId(boardId);
@@ -47,6 +51,7 @@ public class LabelService implements ILabelService {
 
     @Override
     public void deleteLabel(UUID labelId) {
+        tasksLabelsRepository.deleteAllByIdLabelId(labelId);
         labelsRepository.deleteById(labelId);
     }
 
