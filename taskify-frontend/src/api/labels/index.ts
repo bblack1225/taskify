@@ -27,3 +27,7 @@ export const addLabel = ({
 }): Promise<TaskLabel> => {
   return axiosClient.post(`/labels/${boardId}`, { name, color });
 };
+
+export const delLabel = (id: string): Promise<void> => {
+  return axiosClient.delete(`/labels/${id}`);
+};

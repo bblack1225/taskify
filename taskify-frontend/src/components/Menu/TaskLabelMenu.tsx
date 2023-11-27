@@ -8,6 +8,8 @@ import {
   ColorPicker,
   Stack,
   Input,
+  Flex,
+  Modal,
 } from "@mantine/core";
 import {
   IconBallpen,
@@ -20,11 +22,10 @@ import style from "./TaskLabelMenu.module.scss";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TaskLabel } from "@/types/labels";
-import { addLabel, editLabel } from "@/api/labels";
+import { addLabel, delLabel, editLabel } from "@/api/labels";
 import { useLabelsData } from "@/context/LabelsContext";
 import { notifications } from "@mantine/notifications";
 import { BaseDataRes } from "@/types/column";
-import { v4 as uuidV4 } from "uuid";
 
 type Props = {
   selectedLabels: string[];
@@ -45,9 +46,10 @@ const defaultColor = [
 ];
 
 function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
-  const [opened, setOpened] = useState(false);
+  const [isOpened, setIsOpened] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isAddLabel, setIsAddLabel] = useState(false);
+  const [isDelModal, setIsDelModal] = useState(false);
   const queryClient = useQueryClient();
   const labels = useLabelsData();
 
@@ -112,6 +114,18 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
     },
   });
 
+  const delLabelMutation = useMutation({
+    mutationFn: () => delLabel(currentLabel.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+      notifications.show({
+        icon: <IconMoodCheck />,
+        message: "刪除標籤成功",
+        autoClose: 2000,
+      });
+    },
+  });
+
   // 這邊是要把props跟change後的值傳回去，可能是值變少(unchecked)，或是值變多(checked)
   // 邏輯大概是下方註解的樣子，或許push跟filter的方式可以改成更優雅的方式，但我目前不知道
   const handleChange = (checked: boolean, id: string) => {
@@ -148,8 +162,13 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
     } else {
       addLabelMutation.mutate();
     }
-    setOpened(false);
     setIsEditing(false);
+  };
+
+  const handleDelLabel = () => {
+    delLabelMutation.mutate();
+    setIsEditing(false);
+    setIsDelModal(false);
   };
 
   return (
@@ -157,8 +176,8 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
       transitionProps={{ duration: 0 }}
       shadow="md"
       width={250}
-      opened={opened}
-      onChange={setOpened}
+      opened={isOpened}
+      onChange={setIsOpened}
       onClose={() => setIsEditing(false)}
     >
       <Menu.Target>
@@ -191,7 +210,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
             {isEditing ? (isAddLabel ? "新增標籤" : "編輯標籤") : "標籤"}
           </Center>
           <IconX
-            onClick={() => setOpened(false)}
+            onClick={() => setIsOpened(false)}
             style={{
               gridColumn: "3/4",
               cursor: "pointer",
@@ -240,61 +259,87 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                   }
                 />
                 <hr style={{ width: "100%" }} />
-                <Button mb={10} onClick={handleLabelSave}>
-                  {isAddLabel ? "建立" : "儲存"}
-                </Button>
+                <Flex justify={"space-between"}>
+                  <Button mb={10} onClick={handleLabelSave}>
+                    {isAddLabel ? "建立" : "儲存"}
+                  </Button>
+                  {!isAddLabel && (
+                    <Menu>
+                      <Button color="red" onClick={() => setIsDelModal(true)}>
+                        刪除
+                      </Button>
+                    </Menu>
+                  )}
+                  {isDelModal && (
+                    <Menu.Dropdown p={8}>
+                      <Text
+                        size="md"
+                        mb={10}
+                        c={"red"}
+                        style={{ textAlign: "center" }}
+                      >
+                        確定刪除？刪除後將無法復原
+                      </Text>
+                      <Flex justify={"space-between"}>
+                        <Button color="red" onClick={handleDelLabel}>
+                          確定刪除
+                        </Button>
+                        <Button onClick={() => setIsDelModal(false)}>
+                          取消
+                        </Button>
+                      </Flex>
+                    </Menu.Dropdown>
+                  )}
+                </Flex>
               </Stack>
             </Center>
           </>
         ) : (
           <>
-            <Box
-              style={{
-                overflow: "hidden auto",
-                height: "428px",
-              }}
-            >
-              {labels.map((label) => (
-                <div
-                  key={label.id}
-                  style={{
-                    display: "flex",
-                    margin: "2px",
-                  }}
-                >
-                  <Checkbox
-                    id={label.id.toString()}
-                    className={style.checkbox}
-                    checked={selectedLabels.includes(label.id)}
-                    onChange={(e) => handleChange(e.target.checked, label.id)}
-                    color="gray"
-                    styles={{
-                      root: {
-                        marginBottom: 5,
-                      },
+            <Box style={{ overflow: "hidden auto", maxHeight: "428px" }}>
+              <Box>
+                {labels.map((label) => (
+                  <div
+                    key={label.id}
+                    style={{
+                      display: "flex",
+                      margin: "2px",
                     }}
-                  />
-                  <label
-                    htmlFor={label.id.toString()}
-                    className={style.labelContainer}
-                    style={{ backgroundColor: `${label.color}` }}
                   >
-                    <span>{label.name}</span>
-                  </label>
-                  <div>
-                    <IconBallpen
-                      onClick={() => {
-                        handleEditLabelOpen(label);
-                      }}
-                      style={{
-                        marginLeft: "3px",
-                        marginRight: "8px",
-                        cursor: "pointer",
+                    <Checkbox
+                      id={label.id.toString()}
+                      className={style.checkbox}
+                      checked={selectedLabels.includes(label.id)}
+                      onChange={(e) => handleChange(e.target.checked, label.id)}
+                      color="gray"
+                      styles={{
+                        root: {
+                          marginBottom: 5,
+                        },
                       }}
                     />
+                    <label
+                      htmlFor={label.id.toString()}
+                      className={style.labelContainer}
+                      style={{ backgroundColor: `${label.color}` }}
+                    >
+                      <span>{label.name}</span>
+                    </label>
+                    <div>
+                      <IconBallpen
+                        onClick={() => {
+                          handleEditLabelOpen(label);
+                        }}
+                        style={{
+                          marginLeft: "3px",
+                          marginRight: "8px",
+                          cursor: "pointer",
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </Box>
             </Box>
             <Center>
               <Button w={200} mb={10} onClick={handleAddLabel}>
