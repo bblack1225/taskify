@@ -9,7 +9,6 @@ import {
   Stack,
   Input,
   Flex,
-  Modal,
 } from "@mantine/core";
 import {
   IconBallpen,
@@ -45,11 +44,53 @@ const defaultColor = [
   "#D8E1CE",
 ];
 
+enum LabelMenuType {
+  DEFAULT = "DEFAULT",
+  EDIT = "EDIT",
+  ADD = "ADD",
+  DELETE = "DELETE",
+}
+
+type PreviousModeType = LabelMenuType.DEFAULT | LabelMenuType.EDIT | "";
+
+const labelMenuMode: {
+  [key in LabelMenuType]: {
+    key: LabelMenuType;
+    title: string;
+    canGoBack: boolean;
+    previousMode: PreviousModeType;
+  };
+} = {
+    DEFAULT: {
+      key: LabelMenuType.DEFAULT,
+      title: "標籤",
+      canGoBack: false,
+      previousMode: "",
+    },
+    EDIT: {
+      key: LabelMenuType.EDIT,
+      title: "編輯標籤",
+      canGoBack: true,
+      previousMode: LabelMenuType.DEFAULT,
+    },
+    ADD: {
+      key: LabelMenuType.ADD,
+      title: "新增標籤",
+      canGoBack: true,
+      previousMode: LabelMenuType.DEFAULT,
+    },
+    DELETE:{
+      key: LabelMenuType.DELETE,
+      title: "刪除標籤",
+      canGoBack: true,
+      previousMode: LabelMenuType.EDIT,
+    },
+  }
+
 function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
   const [isOpened, setIsOpened] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isAddLabel, setIsAddLabel] = useState(false);
-  const [isDelModal, setIsDelModal] = useState(false);
+  const [currentMode, setCurrentMode] = useState(labelMenuMode.DEFAULT);
+  
   const queryClient = useQueryClient();
   const labels = useLabelsData();
 
@@ -133,8 +174,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
   };
 
   const handleEditLabelOpen = (label: TaskLabel) => {
-    setIsAddLabel(false);
-    setIsEditing(true);
+    setCurrentMode(labelMenuMode.EDIT)
     setCurrentLabel({
       id: label.id,
       name: label.name,
@@ -144,8 +184,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
 
   //新增空標籤
   const handleAddLabel = () => {
-    setIsAddLabel(true);
-    setIsEditing(true);
+    setCurrentMode(labelMenuMode.ADD)
     setCurrentLabel({ id: "", name: "", color: "" });
   };
 
@@ -162,13 +201,13 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
     } else {
       addLabelMutation.mutate();
     }
-    setIsEditing(false);
+    setCurrentMode(labelMenuMode.DEFAULT)
+
   };
 
   const handleDelLabel = () => {
     delLabelMutation.mutate();
-    setIsEditing(false);
-    setIsDelModal(false);
+    setCurrentMode(labelMenuMode.DEFAULT)
   };
 
   return (
@@ -178,7 +217,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
       width={250}
       opened={isOpened}
       onChange={setIsOpened}
-      onClose={() => setIsEditing(false)}
+      onClose={() => setCurrentMode(labelMenuMode.DEFAULT)}
     >
       <Menu.Target>
         <Button color={"#A9A9A9"} leftSection={<IconTagStarred />}>
@@ -193,10 +232,13 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
             gridTemplateColumns: "20px 1fr 20px",
           }}
         >
-          {isEditing && (
+          { currentMode.canGoBack  && (
             <IconChevronLeft
               onClick={() => {
-                setIsEditing(false);
+                const previousMode: PreviousModeType = currentMode.previousMode;
+                if(previousMode){
+                  setCurrentMode(labelMenuMode[previousMode]);
+                }
               }}
               style={{
                 gridColumn: "1/2",
@@ -207,10 +249,13 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
             />
           )}
           <Center style={{ gridColumn: "2/3" }}>
-            {isEditing ? (isAddLabel ? "新增標籤" : "編輯標籤") : "標籤"}
+            {currentMode.title}
           </Center>
           <IconX
-            onClick={() => setIsOpened(false)}
+            onClick={() => {
+              setIsOpened(false)
+              setCurrentMode(labelMenuMode.DEFAULT)
+            }}
             style={{
               gridColumn: "3/4",
               cursor: "pointer",
@@ -218,84 +263,25 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
             className={style.closeButton}
           />
         </Menu.Label>
-        {isEditing ? (
-          <>
-            <Box
-              w={240}
-              h={40}
-              bg={"#f7f8f9"}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Center
-                className={style.isEditingLabelContainer}
-                style={{ background: currentLabel.color }}
-              >
-                <span>{currentLabel.name}</span>
-              </Center>
-            </Box>
-            <Center>
-              <Stack gap="xs">
-                <Text size="xs" mt={10}>
-                  標題
-                </Text>
-                <Input
-                  size="xs"
-                  defaultValue={currentLabel.name}
-                  autoFocus
-                  onChange={handleLabelNameChange}
-                />
-                <Text size="xs">選一個顏色</Text>
-                <ColorPicker
-                  swatchesPerRow={5}
-                  format="hex"
-                  swatches={defaultColor}
-                  value={currentLabel.color}
-                  onChange={(val) =>
-                    setCurrentLabel((prev) => ({ ...prev, color: val }))
-                  }
-                />
-                <hr style={{ width: "100%" }} />
-                <Flex justify={"space-between"}>
-                  <Button mb={10} onClick={handleLabelSave}>
-                    {isAddLabel ? "建立" : "儲存"}
-                  </Button>
-                  {!isAddLabel && (
-                    <Menu>
-                      <Button color="red" onClick={() => setIsDelModal(true)}>
-                        刪除
-                      </Button>
-                    </Menu>
-                  )}
-                  {isDelModal && (
-                    <Menu.Dropdown p={8}>
-                      <Text
-                        size="md"
-                        mb={10}
-                        c={"red"}
-                        style={{ textAlign: "center" }}
-                      >
-                        確定刪除？刪除後將無法復原
-                      </Text>
-                      <Flex justify={"space-between"}>
-                        <Button color="red" onClick={handleDelLabel}>
-                          確定刪除
-                        </Button>
-                        <Button onClick={() => setIsDelModal(false)}>
-                          取消
-                        </Button>
-                      </Flex>
-                    </Menu.Dropdown>
-                  )}
-                </Flex>
-              </Stack>
-            </Center>
-          </>
-        ) : (
-          <>
+        {currentMode.key === LabelMenuType.DELETE && 
+        <>
+          <Text
+            size="md"
+            mb={10}
+            c={"red"}
+            style={{ textAlign: "center" }}
+          >
+            確定刪除？刪除後將無法復原
+          </Text>
+          <Flex justify={"space-between"}>
+            <Button color="red" onClick={handleDelLabel}>
+              確定刪除
+            </Button>
+          </Flex>
+        </>
+        }
+        { currentMode.key === LabelMenuType.DEFAULT &&
+         <>
             <Box style={{ overflow: "hidden auto", maxHeight: "428px" }}>
               <Box>
                 {labels.map((label) => (
@@ -346,8 +332,60 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                 新增標籤
               </Button>
             </Center>
+          </>}
+          { (currentMode.key === LabelMenuType.EDIT || currentMode.key === LabelMenuType.ADD) &&
+          <>
+            <Box
+              w={240}
+              h={40}
+              bg={"#f7f8f9"}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Center
+                className={style.isEditingLabelContainer}
+                style={{ background: currentLabel.color }}
+              >
+                <span>{currentLabel.name}</span>
+              </Center>
+            </Box>
+            <Center>
+              <Stack gap="xs">
+                <Text size="xs" mt={10}>
+                  標題
+                </Text>
+                <Input
+                  size="xs"
+                  defaultValue={currentLabel.name}
+                  autoFocus
+                  onChange={handleLabelNameChange}
+                />
+                <Text size="xs">選一個顏色</Text>
+                <ColorPicker
+                  swatchesPerRow={5}
+                  format="hex"
+                  swatches={defaultColor}
+                  value={currentLabel.color}
+                  onChange={(val) =>
+                    setCurrentLabel((prev) => ({ ...prev, color: val }))
+                  }
+                />
+                <hr style={{ width: "100%" }} />
+                <Flex justify={"space-between"}>
+                  <Button mb={10} onClick={handleLabelSave}>
+                   {currentMode.key === LabelMenuType.ADD ? "建立" : "儲存"}
+                  </Button>
+                  { currentMode.key === LabelMenuType.EDIT && <Button color="red" onClick={() => setCurrentMode(labelMenuMode.DELETE)}>
+                    刪除
+                  </Button>}
+                </Flex>
+              </Stack>
+            </Center>
           </>
-        )}
+      }
       </Menu.Dropdown>
     </Menu>
   );
