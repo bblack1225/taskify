@@ -50,22 +50,15 @@ function TaskCard({ task }: Props) {
   const [editTaskTitle, setEditTaskTitle] = useState(task.name);
   const queryClient = useQueryClient();
   const labels = useLabelsData();
-  
-  
 
   const [taskLabels, setTaskLabels] = useState<TaskLabel[]>(
     task.labels.map((labelId) => findLabelById(labels, labelId))
   );
-  
 
   // 使用effect來同步
   useEffect(() => {
-    setTaskLabels((prev) =>
-      prev.map((label) => {
-        return findLabelById(labels, label.id);
-      })
-    );
-  }, [labels]);
+    setTaskLabels(task.labels.map((labelId) => findLabelById(labels, labelId)));
+  }, [labels, task.labels]);
 
   const deleteTaskMutation = useMutation({
     mutationFn: (id: string) => {
@@ -122,8 +115,8 @@ function TaskCard({ task }: Props) {
       labels?: string[];
     }) => editTask(editTaskTitle),
     onMutate: async (variables) => {
-    await queryClient.cancelQueries({ queryKey: ["tasks"] });
-    const previousTasks = queryClient.getQueryData(["tasks"]);
+      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+      const previousTasks = queryClient.getQueryData(["tasks"]);
       queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         return {
           ...oldData,
@@ -133,8 +126,9 @@ function TaskCard({ task }: Props) {
             } else {
               return {
                 ...oldTask,
-                labels: variables.labels
-              }
+                name: variables.name ?? oldTask.name,
+                labels: variables.labels ?? oldTask.labels,
+              };
             }
           }),
         };
@@ -208,11 +202,11 @@ function TaskCard({ task }: Props) {
   };
 
   const handleTaskUpdate = () => {
-  
-    const allIdsMatch = taskLabels.length === task.labels.length && 
-    taskLabels.every(taskLabel => task.labels.includes(taskLabel.id));
-    
-    if(!allIdsMatch){
+    const allIdsMatch =
+      taskLabels.length === task.labels.length &&
+      taskLabels.every((taskLabel) => task.labels.includes(taskLabel.id));
+
+    if (!allIdsMatch) {
       editTaskMutation.mutate({
         id: task.id,
         labels: taskLabels.map((label) => label.id),
@@ -260,7 +254,13 @@ function TaskCard({ task }: Props) {
         </Flex>
         <Text style={{ marginLeft: "4px" }}>{editTaskTitle}</Text>
       </Box>
-      <Modal.Root opened={opened} onClose={handleTaskUpdate} size={"700"} trapFocus={false} closeOnEscape={false}>
+      <Modal.Root
+        opened={opened}
+        onClose={handleTaskUpdate}
+        size={"700"}
+        trapFocus={false}
+        closeOnEscape={false}
+      >
         <Modal.Overlay />
         <Modal.Content>
           <Modal.Header>

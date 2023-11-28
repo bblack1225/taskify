@@ -61,36 +61,36 @@ const labelMenuMode: {
     previousMode: PreviousModeType;
   };
 } = {
-    DEFAULT: {
-      key: LabelMenuType.DEFAULT,
-      title: "標籤",
-      canGoBack: false,
-      previousMode: "",
-    },
-    EDIT: {
-      key: LabelMenuType.EDIT,
-      title: "編輯標籤",
-      canGoBack: true,
-      previousMode: LabelMenuType.DEFAULT,
-    },
-    ADD: {
-      key: LabelMenuType.ADD,
-      title: "新增標籤",
-      canGoBack: true,
-      previousMode: LabelMenuType.DEFAULT,
-    },
-    DELETE:{
-      key: LabelMenuType.DELETE,
-      title: "刪除標籤",
-      canGoBack: true,
-      previousMode: LabelMenuType.EDIT,
-    },
-  }
+  DEFAULT: {
+    key: LabelMenuType.DEFAULT,
+    title: "標籤",
+    canGoBack: false,
+    previousMode: "",
+  },
+  EDIT: {
+    key: LabelMenuType.EDIT,
+    title: "編輯標籤",
+    canGoBack: true,
+    previousMode: LabelMenuType.DEFAULT,
+  },
+  ADD: {
+    key: LabelMenuType.ADD,
+    title: "新增標籤",
+    canGoBack: true,
+    previousMode: LabelMenuType.DEFAULT,
+  },
+  DELETE: {
+    key: LabelMenuType.DELETE,
+    title: "刪除標籤",
+    canGoBack: true,
+    previousMode: LabelMenuType.EDIT,
+  },
+};
 
 function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
   const [isOpened, setIsOpened] = useState(false);
   const [currentMode, setCurrentMode] = useState(labelMenuMode.DEFAULT);
-  
+
   const queryClient = useQueryClient();
   const labels = useLabelsData();
 
@@ -157,6 +157,22 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
 
   const delLabelMutation = useMutation({
     mutationFn: () => delLabel(currentLabel.id),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ["labels"] });
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+        return {
+          ...oldData,
+          tasks: oldData.tasks.map((oldTask) => {
+            return {
+              ...oldTask,
+              labels: oldTask.labels.filter(
+                (labelId) => labelId !== currentLabel.id
+              ),
+            };
+          }),
+        };
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries();
       notifications.show({
@@ -174,7 +190,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
   };
 
   const handleEditLabelOpen = (label: TaskLabel) => {
-    setCurrentMode(labelMenuMode.EDIT)
+    setCurrentMode(labelMenuMode.EDIT);
     setCurrentLabel({
       id: label.id,
       name: label.name,
@@ -184,7 +200,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
 
   //新增空標籤
   const handleAddLabel = () => {
-    setCurrentMode(labelMenuMode.ADD)
+    setCurrentMode(labelMenuMode.ADD);
     setCurrentLabel({ id: "", name: "", color: "" });
   };
 
@@ -201,13 +217,12 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
     } else {
       addLabelMutation.mutate();
     }
-    setCurrentMode(labelMenuMode.DEFAULT)
-
+    setCurrentMode(labelMenuMode.DEFAULT);
   };
 
   const handleDelLabel = () => {
     delLabelMutation.mutate();
-    setCurrentMode(labelMenuMode.DEFAULT)
+    setCurrentMode(labelMenuMode.DEFAULT);
   };
 
   return (
@@ -232,11 +247,11 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
             gridTemplateColumns: "20px 1fr 20px",
           }}
         >
-          { currentMode.canGoBack  && (
+          {currentMode.canGoBack && (
             <IconChevronLeft
               onClick={() => {
                 const previousMode: PreviousModeType = currentMode.previousMode;
-                if(previousMode){
+                if (previousMode) {
                   setCurrentMode(labelMenuMode[previousMode]);
                 }
               }}
@@ -248,13 +263,11 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
               }}
             />
           )}
-          <Center style={{ gridColumn: "2/3" }}>
-            {currentMode.title}
-          </Center>
+          <Center style={{ gridColumn: "2/3" }}>{currentMode.title}</Center>
           <IconX
             onClick={() => {
-              setIsOpened(false)
-              setCurrentMode(labelMenuMode.DEFAULT)
+              setIsOpened(false);
+              setCurrentMode(labelMenuMode.DEFAULT);
             }}
             style={{
               gridColumn: "3/4",
@@ -263,25 +276,20 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
             className={style.closeButton}
           />
         </Menu.Label>
-        {currentMode.key === LabelMenuType.DELETE && 
-        <>
-          <Text
-            size="md"
-            mb={10}
-            c={"red"}
-            style={{ textAlign: "center" }}
-          >
-            確定刪除？刪除後將無法復原
-          </Text>
-          <Flex justify={"space-between"}>
-            <Button color="red" onClick={handleDelLabel}>
-              確定刪除
-            </Button>
-          </Flex>
-        </>
-        }
-        { currentMode.key === LabelMenuType.DEFAULT &&
-         <>
+        {currentMode.key === LabelMenuType.DELETE && (
+          <>
+            <Text size="md" mb={10} c={"red"} style={{ textAlign: "center" }}>
+              確定刪除？刪除後將無法復原
+            </Text>
+            <Flex justify={"space-between"}>
+              <Button color="red" onClick={handleDelLabel}>
+                確定刪除
+              </Button>
+            </Flex>
+          </>
+        )}
+        {currentMode.key === LabelMenuType.DEFAULT && (
+          <>
             <Box style={{ overflow: "hidden auto", maxHeight: "428px" }}>
               <Box>
                 {labels.map((label) => (
@@ -332,8 +340,10 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                 新增標籤
               </Button>
             </Center>
-          </>}
-          { (currentMode.key === LabelMenuType.EDIT || currentMode.key === LabelMenuType.ADD) &&
+          </>
+        )}
+        {(currentMode.key === LabelMenuType.EDIT ||
+          currentMode.key === LabelMenuType.ADD) && (
           <>
             <Box
               w={240}
@@ -376,16 +386,21 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                 <hr style={{ width: "100%" }} />
                 <Flex justify={"space-between"}>
                   <Button mb={10} onClick={handleLabelSave}>
-                   {currentMode.key === LabelMenuType.ADD ? "建立" : "儲存"}
+                    {currentMode.key === LabelMenuType.ADD ? "建立" : "儲存"}
                   </Button>
-                  { currentMode.key === LabelMenuType.EDIT && <Button color="red" onClick={() => setCurrentMode(labelMenuMode.DELETE)}>
-                    刪除
-                  </Button>}
+                  {currentMode.key === LabelMenuType.EDIT && (
+                    <Button
+                      color="red"
+                      onClick={() => setCurrentMode(labelMenuMode.DELETE)}
+                    >
+                      刪除
+                    </Button>
+                  )}
                 </Flex>
               </Stack>
             </Center>
           </>
-      }
+        )}
       </Menu.Dropdown>
     </Menu>
   );

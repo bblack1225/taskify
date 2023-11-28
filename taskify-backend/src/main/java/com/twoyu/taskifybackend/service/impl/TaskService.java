@@ -8,7 +8,6 @@ import com.twoyu.taskifybackend.model.vo.request.UpdateTaskDescRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateTaskRequest;
 import com.twoyu.taskifybackend.model.vo.response.DeleteTaskResponse;
 import com.twoyu.taskifybackend.model.vo.response.UpdateTaskDescResponse;
-import com.twoyu.taskifybackend.model.vo.response.shared.TaskLabelRes;
 import com.twoyu.taskifybackend.model.vo.response.shared.TasksResponse;
 import com.twoyu.taskifybackend.repository.LabelsRepository;
 import com.twoyu.taskifybackend.repository.TasksLabelsRepository;
@@ -65,8 +64,12 @@ public class TaskService implements ITaskService {
 
         // update labels
         List<UUID> labelIds =  request.getLabels();
+        List<UUID> labelIdRes;
         if(labelIds != null){
             updateTaskLabel(task, labelIds);
+            labelIdRes = labelIds;
+        }else {
+            labelIdRes = tasksLabelsRepository.getLabelIdsByTaskId(taskId);
         }
 
 
@@ -75,7 +78,7 @@ public class TaskService implements ITaskService {
                 task.getName(),
                 task.getDataIndex(),
                 task.getDescription(),
-                labelIds == null ? new ArrayList<>() : labelIds,
+                labelIdRes,
                 task.getStatusId());
     }
 
