@@ -1,0 +1,12 @@
+import useLabels from "@/hooks/useLabels";
+import { LabelsComponent } from "./useLabelsData";
+
+type Props = {
+  boardId: string;
+  children: React.ReactNode;
+};
+
+export const LabelsProvider = ({ boardId, children }: Props) => {
+  const { data: labels = [] } = useLabels(boardId);
+  return <LabelsComponent value={labels}>{children}</LabelsComponent>;
+};

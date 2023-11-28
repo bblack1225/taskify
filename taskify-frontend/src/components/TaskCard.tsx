@@ -27,7 +27,7 @@ import TaskMemberMenu from "./Menu/TaskMemberMenu";
 import TaskLabelMenu from "./Menu/TaskLabelMenu";
 import TaskDateMenu from "./Menu/TaskDateMenu";
 import { TaskLabel } from "@/types/labels";
-import { useLabelsData } from "@/context/LabelsContext";
+import { useLabelsData } from "@/context/useLabelsData";
 
 type Props = {
   task: BaseTaskRes;

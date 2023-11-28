@@ -22,7 +22,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { TaskLabel } from "@/types/labels";
 import { addLabel, delLabel, editLabel } from "@/api/labels";
-import { useLabelsData } from "@/context/LabelsContext";
+import { useLabelsData } from "@/context/useLabelsData";
 import { notifications } from "@mantine/notifications";
 import { BaseDataRes } from "@/types/column";
 
