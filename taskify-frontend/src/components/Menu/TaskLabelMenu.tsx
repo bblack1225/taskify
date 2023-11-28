@@ -9,8 +9,10 @@ import {
   Stack,
   Input,
   Flex,
+  Loader,
 } from "@mantine/core";
 import {
+  IconAlertCircleFilled,
   IconBallpen,
   IconChevronLeft,
   IconMoodCheck,
@@ -159,22 +161,17 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
     mutationFn: () => delLabel(currentLabel.id),
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ["labels"] });
-      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
-        return {
-          ...oldData,
-          tasks: oldData.tasks.map((oldTask) => {
-            return {
-              ...oldTask,
-              labels: oldTask.labels.filter(
-                (labelId) => labelId !== currentLabel.id
-              ),
-            };
-          }),
-        };
-      });
+      const previousLabels =
+        queryClient.getQueryData<TaskLabel[]>(["labels"]) || [];
+      const newLabels = previousLabels.filter(
+        (oldLabel) => oldLabel.id !== currentLabel.id
+      );
+      queryClient.setQueryData(["labels"], newLabels);
+      return { previousLabels };
     },
     onSuccess: () => {
       queryClient.invalidateQueries();
+      setCurrentMode(labelMenuMode.DEFAULT);
       notifications.show({
         icon: <IconMoodCheck />,
         message: "刪除標籤成功",
@@ -222,7 +219,6 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
 
   const handleDelLabel = () => {
     delLabelMutation.mutate();
-    setCurrentMode(labelMenuMode.DEFAULT);
   };
 
   return (
@@ -277,16 +273,24 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
           />
         </Menu.Label>
         {currentMode.key === LabelMenuType.DELETE && (
-          <>
+          <Flex direction={"column"} p={10}>
             <Text size="md" mb={10} c={"red"} style={{ textAlign: "center" }}>
+              <IconAlertCircleFilled />
+              <Stack />
               確定刪除？刪除後將無法復原
             </Text>
-            <Flex justify={"space-between"}>
-              <Button color="red" onClick={handleDelLabel}>
-                確定刪除
-              </Button>
-            </Flex>
-          </>
+            <Button
+              color="red"
+              onClick={handleDelLabel}
+              loading={delLabelMutation.isPending}
+            >
+              {delLabelMutation.isPending ? (
+                <Loader color="rgba(250, 250, 250, 1)" size="sm" />
+              ) : (
+                "確定刪除"
+              )}
+            </Button>
+          </Flex>
         )}
         {currentMode.key === LabelMenuType.DEFAULT && (
           <>
