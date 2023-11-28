@@ -33,9 +33,12 @@ type Props = {
   task: BaseTaskRes;
 };
 
-function findLabelById(labels: TaskLabel[], labelId: string): TaskLabel {
+function findLabelById(
+  labels: Map<string, TaskLabel>,
+  labelId: string
+): TaskLabel {
   return (
-    labels.find((label) => label.id === labelId) || {
+    labels.get(labelId) ?? {
       id: labelId,
       color: "#fff",
       name: "Label Not Found",

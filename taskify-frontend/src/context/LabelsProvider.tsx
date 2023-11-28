@@ -8,5 +8,6 @@ type Props = {
 
 export const LabelsProvider = ({ boardId, children }: Props) => {
   const { data: labels = [] } = useLabels(boardId);
-  return <LabelsComponent value={labels}>{children}</LabelsComponent>;
+  const labelsMap = new Map(labels.map((label) => [label.id, label]));
+  return <LabelsComponent value={labelsMap}>{children}</LabelsComponent>;
 };

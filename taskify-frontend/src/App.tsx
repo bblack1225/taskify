@@ -6,7 +6,7 @@ import MainLayout from "./components/layout/MainLayout";
 import TaskBoard from "./pages/Taskboard";
 import { Notifications } from "@mantine/notifications";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { LabelsProvider } from "@/context/LabelsContext";
+import { LabelsProvider } from "@/context/LabelsProvider";
 
 const queryClient = new QueryClient();
 
