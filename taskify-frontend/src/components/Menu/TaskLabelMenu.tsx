@@ -161,6 +161,19 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
     mutationFn: () => delLabel(currentLabel.id),
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ["labels"] });
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+        return {
+          ...oldData,
+          tasks: oldData.tasks.map((oldTask) => {
+            return {
+              ...oldTask,
+              labels: oldTask.labels.filter(
+                (labelId) => labelId !== currentLabel.id
+              ),
+            };
+          }),
+        };
+      });
       const previousLabels =
         queryClient.getQueryData<TaskLabel[]>(["labels"]) || [];
       const newLabels = previousLabels.filter(
@@ -169,6 +182,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
       queryClient.setQueryData(["labels"], newLabels);
       return { previousLabels };
     },
+
     onSuccess: () => {
       queryClient.invalidateQueries();
       setCurrentMode(labelMenuMode.DEFAULT);
@@ -277,13 +291,10 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
             <Text size="md" mb={10} c={"red"} style={{ textAlign: "center" }}>
               <IconAlertCircleFilled />
               <Stack />
+              <hr />
               確定刪除？刪除後將無法復原
             </Text>
-            <Button
-              color="red"
-              onClick={handleDelLabel}
-              loading={delLabelMutation.isPending}
-            >
+            <Button color="red" onClick={handleDelLabel}>
               {delLabelMutation.isPending ? (
                 <Loader color="rgba(250, 250, 250, 1)" size="sm" />
               ) : (

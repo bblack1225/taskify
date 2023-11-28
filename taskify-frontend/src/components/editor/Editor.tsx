@@ -4,7 +4,8 @@ import Highlight from "@tiptap/extension-highlight";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
-import { Button } from "@mantine/core";
+import { Button, Flex } from "@mantine/core";
+
 // import axios from "axios";
 // import axiosClient from "@/api/axiosClient";
 // import Superscript from "@tiptap/extension-superscript";
@@ -14,11 +15,13 @@ import { Button } from "@mantine/core";
 type Props = {
   description: string;
   onSave: (description: string) => void;
+  setEditTaskDes: (value: boolean) => void;
 };
 
-function Editor({ description, onSave }: Props) {
-  // console.log("description", description);
-  // console.log("content!!", JSON.parse(description));
+function Editor({ description, onSave, setEditTaskDes }: Props) {
+  console.log("description", description);
+  console.log("content!!", JSON.parse(description));
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -30,10 +33,13 @@ function Editor({ description, onSave }: Props) {
     content: description ? JSON.parse(description) : "",
   });
 
-  const handleClick = async () => {
+  const handleSave = async () => {
     const json = editor?.getJSON();
+    console.log("json", json);
     const jsonContent = JSON.stringify(json);
+    console.log("jsonContent", jsonContent);
     onSave(jsonContent);
+    setEditTaskDes(false);
   };
 
   return (
@@ -78,9 +84,19 @@ function Editor({ description, onSave }: Props) {
 
         <RichTextEditor.Content />
       </RichTextEditor>
-      <Button w={100} mt={10} onClick={handleClick}>
-        save
-      </Button>
+      <Flex gap={15}>
+        <Button w={100} mt={10} onClick={handleSave}>
+          save
+        </Button>
+        <Button
+          color="gray"
+          w={100}
+          mt={10}
+          onClick={() => setEditTaskDes(false)}
+        >
+          取消
+        </Button>
+      </Flex>
     </>
   );
 }
