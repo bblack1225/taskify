@@ -218,40 +218,42 @@ function TaskCard({ task }: Props) {
   return (
     <>
       <Box onClick={open} className={style.taskContainer}>
-        <Flex
-          style={{
-            flexDirection: "row",
-            flexWrap: "wrap",
-            gap: 5,
-            marginBottom: 10,
-          }}
-        >
-          {taskLabels.map((label) => {
-            return (
-              <Group
-                key={label.id}
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                justify="center"
-              >
-                <HoverCard openDelay={300}>
-                  <HoverCard.Target>
-                    <div
-                      style={{
-                        backgroundColor: `${label.color}`,
-                      }}
-                      className={style.hoverCard}
-                    />
-                  </HoverCard.Target>
-                  <HoverCard.Dropdown h={20} className={style.dropdown}>
-                    <Text size="xs">標題：『{label.name}』</Text>
-                  </HoverCard.Dropdown>
-                </HoverCard>
-              </Group>
-            );
-          })}
-        </Flex>
+        {taskLabels.length > 0 && (
+          <Flex
+            style={{
+              flexDirection: "row",
+              flexWrap: "wrap",
+              gap: 5,
+              marginBottom: 5,
+            }}
+          >
+            {taskLabels.map((label) => {
+              return (
+                <Group
+                  key={label.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  justify="center"
+                >
+                  <HoverCard openDelay={300}>
+                    <HoverCard.Target>
+                      <div
+                        style={{
+                          backgroundColor: `${label.color}`,
+                        }}
+                        className={style.hoverCard}
+                      />
+                    </HoverCard.Target>
+                    <HoverCard.Dropdown h={20} className={style.dropdown}>
+                      <Text size="xs">標題：『{label.name}』</Text>
+                    </HoverCard.Dropdown>
+                  </HoverCard>
+                </Group>
+              );
+            })}
+          </Flex>
+        )}
         <Text style={{ marginLeft: "4px" }}>{editTaskTitle}</Text>
       </Box>
       <Modal.Root
