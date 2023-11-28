@@ -22,7 +22,7 @@ import { DelTaskRes, UpdateDescReq, UpdateDescRes } from "@/types/task";
 import { notifications } from "@mantine/notifications";
 import { BaseDataRes, BaseTaskRes } from "@/types/column";
 import { delTask, editTask, updateDesc } from "@/api/tasks";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TaskMemberMenu from "./Menu/TaskMemberMenu";
 import TaskLabelMenu from "./Menu/TaskLabelMenu";
 import TaskDateMenu from "./Menu/TaskDateMenu";
@@ -65,10 +65,17 @@ function TaskCard({ task }: Props) {
   const [taskLabels, setTaskLabels] = useState<TaskLabel[]>(
     task.labels.map((labelId) => findLabelById(labels, labelId))
   );
+  const isInitialMount = useRef(true);
 
-  // 使用effect來同步
+  // 使用ref避免第一次render時，除了state初值外，也會執行effect
   useEffect(() => {
-    setTaskLabels(task.labels.map((labelId) => findLabelById(labels, labelId)));
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    } else {
+      setTaskLabels(
+        task.labels.map((labelId) => findLabelById(labels, labelId))
+      );
+    }
   }, [labels, task.labels]);
 
   const deleteTaskMutation = useMutation({
