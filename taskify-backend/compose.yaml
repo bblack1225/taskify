@@ -1,5 +1,6 @@
 services:
   postgres:
+    container_name: postgres
     image: 'postgres:13'
     ports:
       - '5434:5432'
@@ -9,7 +10,28 @@ services:
       POSTGRES_DB: taskify
       POSTGRES_PASSWORD: password
       POSTGRES_USER: user
+    networks:
+      - taskify-network
+  pgadmin:
+    container_name: my_pgadmin
+    image: 'dpage/pgadmin4'
+    ports:
+      - '5050:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - taskify-network
+
 volumes:
     taskify_db_data:
       external: true
-
+    pgadmin_data:
+      external: true
+networks:
+    taskify-network:
+        external: true
