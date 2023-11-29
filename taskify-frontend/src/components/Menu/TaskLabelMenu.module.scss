@@ -2,14 +2,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 130px;
+  width: 200px;
   height: 20px;
   border-radius: 5px;
   cursor: pointer;
   margin-left: 5px;
-  &:hover {
-    width: 140px;
-  }
   span {
     margin-left: 5px;
     color: black;
@@ -23,3 +20,34 @@
 .checkbox input:hover {
   border: 1px solid black;
 }
+
+// .closeButton :hover {
+// }
+
+.isEditingLabelContainer {
+  width: 200px;
+  height: 20px;
+  border-radius: 5px;
+  margin-left: 5px;
+  &:hover {
+    cursor: default;
+  }
+  span {
+    margin-left: 5px;
+    color: black;
+    font-size: small;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+.dropdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// .colorPicker span {
+//   border: 2px solid black;
+// }

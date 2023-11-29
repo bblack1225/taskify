@@ -4,11 +4,10 @@ import { IconMoodCheck, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addTask } from "@/api/tasks";
-import { TaskMutateRes } from "@/types/task";
 import { notifications } from "@mantine/notifications";
 import { BaseDataRes, BaseTaskRes, ColumnResType } from "@/types/column";
 import { calculateDataIndex } from "@/utils";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidV4 } from "uuid";
 
 type Props = {
   isAddingTask: boolean;
@@ -35,7 +34,7 @@ function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
     onMutate: async (variables) => {
       await queryClient.cancelQueries({ queryKey: ["tasks"] });
       const optimisticTask: BaseTaskRes = {
-        id: uuidv4(),
+        id: uuidV4(),
         name: variables.name,
         dataIndex: variables.dataIndex,
         labels: [],
@@ -50,7 +49,7 @@ function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
       });
       return { optimisticTask };
     },
-    onSuccess: (resData: TaskMutateRes, variables, context) => {
+    onSuccess: (resData: BaseTaskRes, _variables, context) => {
       queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         notifications.show({
           icon: <IconMoodCheck />,
@@ -58,12 +57,7 @@ function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
           autoClose: 2000,
         });
         const newData: BaseTaskRes = {
-          id: resData.id,
-          name: resData.name,
-          description: resData.description,
-          dataIndex: resData.dataIndex,
-          labels: resData.labels,
-          columnId: resData.statusColumnId,
+          ...resData,
         };
         return {
           ...oldData,
@@ -73,7 +67,7 @@ function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
         };
       });
     },
-    onError: (err, variables, context) => {
+    onError: (_err, _variables, context) => {
       queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         return {
           ...oldData,

@@ -14,7 +14,7 @@ function TaskMemberMenu() {
   const [opened, setOpened] = useState(false);
 
   return (
-    <Menu shadow="md" width={200} opened={opened} onChange={setOpened}>
+    <Menu shadow="md" width={250} opened={opened} onChange={setOpened}>
       <Menu.Target>
         <Button color={"#A9A9A9"} leftSection={<IconUserPlus />}>
           成員

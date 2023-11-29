@@ -18,33 +18,58 @@ import {
 } from "@tabler/icons-react";
 import Editor from "./editor/Editor";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  DelTaskRes,
-  EditTaskRes,
-  UpdateDescReq,
-  UpdateDescRes,
-} from "@/types/task";
+import { DelTaskRes, UpdateDescReq, UpdateDescRes } from "@/types/task";
 import { notifications } from "@mantine/notifications";
 import { BaseDataRes, BaseTaskRes } from "@/types/column";
 import { delTask, editTask, updateDesc } from "@/api/tasks";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TaskMemberMenu from "./Menu/TaskMemberMenu";
 import TaskLabelMenu from "./Menu/TaskLabelMenu";
 import TaskDateMenu from "./Menu/TaskDateMenu";
+import { TaskLabel } from "@/types/labels";
+import { useLabelsData } from "@/context/useLabelsData";
 
 type Props = {
   task: BaseTaskRes;
 };
-// 等全域狀態管理
-const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
+
+function findLabelById(
+  labels: Map<string, TaskLabel>,
+  labelId: string
+): TaskLabel {
+  return (
+    labels.get(labelId) ?? {
+      id: labelId,
+      color: "#fff",
+      name: "Label Not Found",
+    }
+  );
+}
+
 function TaskCard({ task }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
   const [openDelModal, setOpenDelModal] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
   const [editTaskTitle, setEditTaskTitle] = useState(task.name);
 
-  const taskLabelIds = task.labels.map((label) => label.id);
   const queryClient = useQueryClient();
+  const labels = useLabelsData();
+
+  const [taskLabels, setTaskLabels] = useState<TaskLabel[]>(
+    task.labels.map((labelId) => findLabelById(labels, labelId))
+  );
+  const isInitialMount = useRef(true);
+
+  // 使用ref避免第一次render時，除了state初值外，也會執行effect
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    } else {
+      setTaskLabels(
+        task.labels.map((labelId) => findLabelById(labels, labelId))
+      );
+    }
+  }, [labels, task.labels]);
 
   const deleteTaskMutation = useMutation({
     mutationFn: (id: string) => {
@@ -74,7 +99,7 @@ function TaskCard({ task }: Props) {
     },
     onSuccess: (resData: UpdateDescRes) => {
       queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
-        return {
+        const newData = {
           ...oldData,
           tasks: oldData.tasks.map((oldTask) => {
             if (oldTask.id !== task.id) {
@@ -87,26 +112,24 @@ function TaskCard({ task }: Props) {
             }
           }),
         };
+        return newData;
       });
     },
   });
 
   const editTaskMutation = useMutation({
+    // 因為name或labels的修改是使用同個api，所以可以擇一傳入，但一定要傳其中一個
+    // 瞭改（日語）
     mutationFn: (editTaskTitle: {
       id: string;
-      name: string;
-      description: string;
-      labels: string[];
-      boardId: string;
+      name?: string;
+      labels?: string[];
     }) => editTask(editTaskTitle),
-    onSuccess: (resData: EditTaskRes) => {
-      notifications.show({
-        icon: <IconMoodCheck />,
-        message: "更新成功",
-        autoClose: 2000,
-      });
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+      const previousTasks = queryClient.getQueryData(["tasks"]);
       queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
-        const NewData = {
+        return {
           ...oldData,
           tasks: oldData.tasks.map((oldTask) => {
             if (oldTask.id !== task.id) {
@@ -114,13 +137,36 @@ function TaskCard({ task }: Props) {
             } else {
               return {
                 ...oldTask,
-                name: resData.name,
+                name: variables.name ?? oldTask.name,
+                labels: variables.labels ?? oldTask.labels,
               };
             }
           }),
         };
-        return NewData;
       });
+      return { previousTasks };
+    },
+    onSuccess: (resData: BaseTaskRes) => {
+      notifications.show({
+        icon: <IconMoodCheck />,
+        message: "更新成功",
+        autoClose: 2000,
+      });
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+        return {
+          ...oldData,
+          tasks: oldData.tasks.map((oldTask) => {
+            if (oldTask.id !== task.id) {
+              return oldTask;
+            } else {
+              return resData;
+            }
+          }),
+        };
+      });
+    },
+    onError(_err, _variables, context) {
+      queryClient.setQueryData(["tasks"], context?.previousTasks);
     },
   });
 
@@ -145,57 +191,88 @@ function TaskCard({ task }: Props) {
   };
 
   const handleBlur = () => {
-    if (task.name === editTaskTitle || editTaskTitle === "") {
+    if (editTaskTitle === task.name || editTaskTitle === "") {
       setEditTaskTitle(task.name);
       return;
     }
     editTaskMutation.mutate({
       id: task.id,
-      name: task.name,
-      description: task.description,
-      // TODO: labelIds
-      labels: taskLabelIds,
-      boardId: BOARD_ID,
+      name: editTaskTitle,
     });
+  };
+
+  const handleLabelChange = (labelId: string, checked: boolean) => {
+    if (checked) {
+      const newLabel = findLabelById(labels, labelId);
+      setTaskLabels((oldTaskLabels) => [...oldTaskLabels, newLabel]);
+    } else {
+      setTaskLabels((oldTaskLabels) =>
+        oldTaskLabels.filter((oldTaskLabel) => oldTaskLabel.id !== labelId)
+      );
+    }
+  };
+
+  const handleTaskUpdate = () => {
+    const allIdsMatch =
+      taskLabels.length === task.labels.length &&
+      taskLabels.every((taskLabel) => task.labels.includes(taskLabel.id));
+
+    if (!allIdsMatch) {
+      editTaskMutation.mutate({
+        id: task.id,
+        labels: taskLabels.map((label) => label.id),
+      });
+    }
+    close();
   };
 
   return (
     <>
       <Box onClick={open} className={style.taskContainer}>
-        <Flex style={{ flexDirection: "row", flexWrap: "wrap" }}>
-          {task.labels.map((label) => {
-            return (
-              <Group
-                key={label.id}
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                justify="center"
-              >
-                <HoverCard openDelay={300}>
-                  <HoverCard.Target>
-                    <div
-                      style={{
-                        backgroundColor: `${label.color}`,
-                      }}
-                      className={style.hoverCard}
-                    />
-                  </HoverCard.Target>
-                  <HoverCard.Dropdown h={20} className={style.dropdown}>
-                    <Text size="xs">標題：『{label.name}』</Text>
-                  </HoverCard.Dropdown>
-                </HoverCard>
-              </Group>
-            );
-          })}
-        </Flex>
+        {taskLabels.length > 0 && (
+          <Flex
+            style={{
+              flexDirection: "row",
+              flexWrap: "wrap",
+              gap: 5,
+              marginBottom: 5,
+            }}
+          >
+            {taskLabels.map((label) => {
+              return (
+                <Group
+                  key={label.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  justify="center"
+                >
+                  <HoverCard openDelay={300}>
+                    <HoverCard.Target>
+                      <div
+                        style={{
+                          backgroundColor: `${label.color}`,
+                        }}
+                        className={style.hoverCard}
+                      />
+                    </HoverCard.Target>
+                    <HoverCard.Dropdown h={20} className={style.dropdown}>
+                      <Text size="xs">標題：『{label.name}』</Text>
+                    </HoverCard.Dropdown>
+                  </HoverCard>
+                </Group>
+              );
+            })}
+          </Flex>
+        )}
         <Text style={{ marginLeft: "4px" }}>{editTaskTitle}</Text>
       </Box>
       <Modal.Root
         opened={opened}
-        onClose={close}
+        onClose={handleTaskUpdate}
         size={"700"}
         trapFocus={false}
+        closeOnEscape={false}
       >
         <Modal.Overlay />
         <Modal.Content>
@@ -227,7 +304,7 @@ function TaskCard({ task }: Props) {
                       width: "420px",
                     }}
                   >
-                    {task.labels.map((label) => {
+                    {taskLabels.map((label) => {
                       return (
                         <div
                           key={label.id}
@@ -258,7 +335,11 @@ function TaskCard({ task }: Props) {
                   新增至卡片
                 </Text>
                 <TaskMemberMenu />
-                <TaskLabelMenu selectedLabels={taskLabelIds} />
+                {/* 目前將選定的labelId跟label改變的event handler當作props傳入 */}
+                <TaskLabelMenu
+                  selectedLabels={taskLabels.map((label) => label.id)}
+                  onLabelChange={handleLabelChange}
+                />
                 <TaskDateMenu />
                 <Text size="xs" c={"gray.6"} fw={600}>
                   動作

@@ -39,7 +39,6 @@
 .hoverCard {
   height: 10px;
   width: 25px;
-  margin: 0px 4px 10px;
   border-radius: 10px;
   text-align: center;
   &:hover {
@@ -72,4 +71,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.editTaskDes {
+  width: 525px;
+  padding: 10px;
+  margin-top: 10px;
+  &:hover {
+    cursor: pointer;
+    background: $gray--light;
+  }
 }

@@ -8,11 +8,9 @@ import com.twoyu.taskifybackend.model.vo.request.UpdateColumnTitleRequest;
 import com.twoyu.taskifybackend.model.vo.response.*;
 import com.twoyu.taskifybackend.model.vo.response.shared.*;
 import com.twoyu.taskifybackend.repository.*;
-import com.twoyu.taskifybackend.repository.projection.TaskLabelsProjection;
 import com.twoyu.taskifybackend.service.IStatusColumnService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.type.SerializationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -130,34 +128,35 @@ public class StatusColumnService implements IStatusColumnService {
             return statusColumnRes;
         }).toList();
         res.setColumns(statusColumnResList);
-        List<TasksLabels> tasksLabels = tasksLabelsRepository.findAllByIdTaskId(boardId);
+        List<TasksLabels> tasksLabels = tasksLabelsRepository.findAllByBoardId(boardId);
         Map<UUID, List<UUID>> map = new HashMap<>();
         for (TasksLabels tasksLabel : tasksLabels) {
             List<UUID> uuids = map.getOrDefault(tasksLabel.getId().getTaskId(), new ArrayList<>());
             uuids.add(tasksLabel.getId().getLabelId());
             map.put(tasksLabel.getId().getTaskId(), uuids);
         }
-        List<Tasks> tasksDTOs =  tasksRepository.findAllByBoardId(boardId);
+        List<Tasks> tasksDTOs =  tasksRepository.findAllByBoardIdOrderByDataIndex(boardId);
         List<TasksResponse> tasksResponses = tasksDTOs.stream().map(task -> {
             TasksResponse tasksResponse = new TasksResponse();
             tasksResponse.setId(task.getId());
             tasksResponse.setName(task.getName());
             tasksResponse.setDataIndex(task.getDataIndex());
             tasksResponse.setDescription(task.getDescription());
-            List<UUID> labelIds = map.get(task.getId());
-            if(labelIds != null) {
-                List<TaskLabelRes> labelsResponses = labelIds.stream().map(labelId -> {
-                    Labels label = labels.get(labelId);
-                    return TaskLabelRes.builder()
-                            .id(label.getId())
-                            .name(label.getName())
-                            .color(label.getColor())
-                            .build();
-                }).toList();
-                tasksResponse.setLabels(labelsResponses);
-            } else {
-                tasksResponse.setLabels(new ArrayList<>());
-            }
+            List<UUID> labelIds = map.getOrDefault(task.getId(), new ArrayList<>());
+            tasksResponse.setLabels(labelIds);
+//            if(labelIds != null) {
+//                List<TaskLabelRes> labelsResponses = labelIds.stream().map(labelId -> {
+//                    Labels label = labels.get(labelId);
+//                    return TaskLabelRes.builder()
+//                            .id(label.getId())
+//                            .name(label.getName())
+//                            .color(label.getColor())
+//                            .build();
+//                }).toList();
+//                tasksResponse.setLabels(labelsResponses);
+//            } else {
+//                tasksResponse.setLabels(new ArrayList<>());
+//            }
             tasksResponse.setColumnId(task.getStatusId());
             return tasksResponse;
         }).toList();

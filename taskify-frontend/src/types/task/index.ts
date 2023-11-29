@@ -1,28 +1,8 @@
-import { TaskLabel } from "../labels";
-
 export type AddTaskReq = {
   name: string;
   dataIndex: number;
   statusColumnId: string;
   boardId: string;
-};
-
-export type TaskMutateRes = {
-  id: string;
-  name: string;
-  description: string;
-  dataIndex: number;
-  statusColumnId: string;
-  labels: TaskLabel[];
-};
-
-export type EditTaskRes = {
-  id: string;
-  name: string;
-  description: string;
-  dataIndex: number;
-  statusColumnId: string;
-  labels: string[];
 };
 
 export type DelTaskRes = {
