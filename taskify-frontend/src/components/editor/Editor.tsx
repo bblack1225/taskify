@@ -5,7 +5,8 @@ import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import { Button, Flex } from "@mantine/core";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import style from "@/components/editor/Editor.module.scss";
 
 // import axios from "axios";
 // import axiosClient from "@/api/axiosClient";
@@ -35,6 +36,8 @@ function Editor({ description, onSave }: Props) {
     content: description ? JSON.parse(description) : "",
   });
 
+  const prevContentRef = useRef(description);
+
   const handleSave = async () => {
     const json = editor?.getJSON();
     const jsonContent = JSON.stringify(json);
@@ -44,12 +47,20 @@ function Editor({ description, onSave }: Props) {
     setIsEditing(false);
   };
 
+  const handleCancel = () => {
+    const prevContent = JSON.parse(prevContentRef.current);
+    editor?.commands.setContent(prevContent);
+    setIsEditing(false);
+  };
+
   return (
     <>
       <RichTextEditor
         w={525}
         mt={10}
         editor={editor}
+        style={{ border: isEditing ? "1px solid #ced4da " : "none" }}
+        className={!isEditing ? style.editTaskDes : ""}
         onClick={() => setIsEditing(true)}
       >
         {isEditing && (
@@ -97,12 +108,7 @@ function Editor({ description, onSave }: Props) {
           <Button w={100} mt={10} onClick={handleSave}>
             save
           </Button>
-          <Button
-            color="gray"
-            w={100}
-            mt={10}
-            onClick={() => setIsEditing(false)}
-          >
+          <Button color="gray" w={100} mt={10} onClick={handleCancel}>
             取消
           </Button>
         </Flex>
