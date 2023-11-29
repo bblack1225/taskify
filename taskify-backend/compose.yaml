@@ -26,6 +26,20 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - taskify-network
+  app:
+    build: .
+    environment:
+      - "SPRING_PROFILES_ACTIVE=test"
+      - "SPRING_DATASOURCE_USERNAME=user"
+      - "SPRING_DATASOURCE_PASSWORD=password"
+      - "SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/taskify"
+    container_name: taskify_backend
+    ports:
+      - "8088:8088"
+    depends_on:
+      - postgres
+    networks:
+      - taskify-network
 
 volumes:
     taskify_db_data:
@@ -34,4 +48,4 @@ volumes:
       external: true
 networks:
     taskify-network:
-        external: true
+        driver: bridge
