@@ -51,14 +51,7 @@ function TaskCard({ task }: Props) {
   const [openDelModal, setOpenDelModal] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
   const [editTaskTitle, setEditTaskTitle] = useState(task.name);
-  const parsedObject = JSON.parse(task.description);
-  // 取得描述文本
-  console.log("parsedObject", parsedObject);
 
-  const taskDescription = parsedObject.content[0].content[0].text;
-  console.log("taskDescription", taskDescription);
-
-  const [editTaskDes, setEditTaskDes] = useState(false);
   const queryClient = useQueryClient();
   const labels = useLabelsData();
 
@@ -332,21 +325,10 @@ function TaskCard({ task }: Props) {
                     描述
                   </Text>
                 </Flex>
-
-                {editTaskDes ? (
-                  <Editor
-                    description={task.description}
-                    onSave={handleSaveDesc}
-                    setEditTaskDes={setEditTaskDes}
-                  />
-                ) : (
-                  <Flex
-                    className={style.editTaskDes}
-                    onClick={() => setEditTaskDes(true)}
-                  >
-                    <Text>{taskDescription}</Text>
-                  </Flex>
-                )}
+                <Editor
+                  description={task.description}
+                  onSave={handleSaveDesc}
+                />
               </Flex>
               <Flex direction={"column"} gap={8}>
                 <Text size="xs" c={"gray.6"} fw={600}>
