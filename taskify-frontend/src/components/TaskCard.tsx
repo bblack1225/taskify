@@ -7,6 +7,7 @@ import {
   Modal,
   Text,
   Textarea,
+  isLightColor,
 } from "@mantine/core";
 import style from "@/components/TaskCard.module.scss";
 import { useDisclosure } from "@mantine/hooks";
@@ -313,7 +314,12 @@ function TaskCard({ task }: Props) {
                           }}
                           className={style.labelDiv}
                         >
-                          <span>{label.name}</span>
+                          <Text
+                            size="xs"
+                            c={isLightColor(label.color) ? "black" : "white"}
+                          >
+                            {label.name}
+                          </Text>
                         </div>
                       );
                     })}

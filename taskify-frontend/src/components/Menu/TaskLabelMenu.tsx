@@ -10,6 +10,7 @@ import {
   Input,
   Flex,
   Loader,
+  isLightColor,
 } from "@mantine/core";
 import {
   IconAlertCircleFilled,
@@ -212,7 +213,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
   //新增空標籤
   const handleAddLabel = () => {
     setCurrentMode(labelMenuMode.ADD);
-    setCurrentLabel({ id: "", name: "", color: "" });
+    setCurrentLabel({ id: "", name: "", color: defaultColor[0] });
   };
 
   const handleLabelNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -332,7 +333,12 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                       className={style.labelContainer}
                       style={{ backgroundColor: `${label.color}` }}
                     >
-                      <span>{label.name}</span>
+                      <Text
+                        size="xs"
+                        c={isLightColor(label.color) ? "black" : "white"}
+                      >
+                        {label.name}
+                      </Text>
                     </label>
                     <div>
                       <IconBallpen
@@ -340,8 +346,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                           handleEditLabelOpen(label);
                         }}
                         style={{
-                          marginLeft: "3px",
-                          marginRight: "8px",
+                          margin: "0 3",
                           cursor: "pointer",
                         }}
                       />
@@ -374,7 +379,12 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                 className={style.isEditingLabelContainer}
                 style={{ background: currentLabel.color }}
               >
-                <span>{currentLabel.name}</span>
+                <Text
+                  size="xs"
+                  c={isLightColor(currentLabel.color) ? "black" : "white"}
+                >
+                  {currentLabel.name}
+                </Text>
               </Center>
             </Box>
             <Center>
