@@ -49,8 +49,12 @@ function Editor({ description, onSave }: Props) {
   };
 
   const handleCancel = () => {
-    const prevContent = JSON.parse(prevContentRef.current);
-    editor?.commands.setContent(prevContent);
+    const prevContent = prevContentRef.current;
+    //這邊是為了如果prevContent是假值就不會進入if內
+    if (prevContent) {
+      const prevContentJSON = JSON.parse(prevContent);
+      editor?.commands.setContent(prevContentJSON);
+    }
     setIsEditing(false);
   };
 

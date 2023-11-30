@@ -13,7 +13,7 @@ function NavBoard() {
     <Box p={20}>
       <Box>
         <div className={style.navTitle}>TwoYu</div>
-        <img src={Avatar} alt="萬聖節快樂" width={"200px"} />
+        <img src={Avatar} alt="關於聖誕節的圖片" width={"200px"} />
       </Box>
       <Stack pt={10}>
         <Button color="#be3144">
