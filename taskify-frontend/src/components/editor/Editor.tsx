@@ -41,6 +41,7 @@ function Editor({ description, onSave }: Props) {
   const handleSave = async () => {
     const json = editor?.getJSON();
     const jsonContent = JSON.stringify(json);
+    prevContentRef.current = JSON.stringify(json);
     // 存description
     onSave(jsonContent);
     // 關閉toolbar
