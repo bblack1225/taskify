@@ -4,6 +4,7 @@ import Highlight from "@tiptap/extension-highlight";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
+import Placeholder from "@tiptap/extension-placeholder";
 import { Button, Flex } from "@mantine/core";
 import { useRef, useState } from "react";
 import style from "@/components/editor/Editor.module.scss";
@@ -32,6 +33,7 @@ function Editor({ description, onSave }: Props) {
       Link,
       Highlight,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
+      Placeholder.configure({ placeholder: "新增更詳細的敘述..." }),
     ],
     content: description ? JSON.parse(description) : "",
   });
