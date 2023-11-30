@@ -22,7 +22,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DelTaskRes, UpdateDescReq, UpdateDescRes } from "@/types/task";
 import { notifications } from "@mantine/notifications";
 import { BaseDataRes, BaseTaskRes } from "@/types/column";
-import { delTask, editTask, updateDesc } from "@/api/tasks";
+import { addTaskLabel, delTask, deleteTaskLabel, editTask, updateDesc } from "@/api/tasks";
 import { useEffect, useRef, useState } from "react";
 import TaskMemberMenu from "./Menu/TaskMemberMenu";
 import TaskLabelMenu from "./Menu/TaskLabelMenu";
@@ -55,7 +55,7 @@ function TaskCard({ task }: Props) {
 
   const queryClient = useQueryClient();
   const labels = useLabelsData();
-
+  
   const [taskLabels, setTaskLabels] = useState<TaskLabel[]>(
     task.labels.map((labelId) => findLabelById(labels, labelId))
   );
@@ -71,6 +71,7 @@ function TaskCard({ task }: Props) {
       );
     }
   }, [labels, task.labels]);
+  
 
   const deleteTaskMutation = useMutation({
     mutationFn: (id: string) => {
@@ -124,7 +125,6 @@ function TaskCard({ task }: Props) {
     mutationFn: (editTaskTitle: {
       id: string;
       name?: string;
-      labels?: string[];
     }) => editTask(editTaskTitle),
     onMutate: async (variables) => {
       await queryClient.cancelQueries({ queryKey: ["tasks"] });
@@ -139,7 +139,6 @@ function TaskCard({ task }: Props) {
               return {
                 ...oldTask,
                 name: variables.name ?? oldTask.name,
-                labels: variables.labels ?? oldTask.labels,
               };
             }
           }),
@@ -170,6 +169,64 @@ function TaskCard({ task }: Props) {
       queryClient.setQueryData(["tasks"], context?.previousTasks);
     },
   });
+
+  const deleteTaskLabelMutation = useMutation({
+    mutationFn: ({ taskId, labelId }: {taskId: string, labelId: string}) => { 
+      return deleteTaskLabel(taskId, labelId); 
+    },
+    onMutate: async ({ taskId, labelId }) => {
+      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+      const previousTasks = queryClient.getQueryData(["tasks"]);
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+        return {
+          ...oldData,
+          tasks: oldData.tasks.map((oldTask) => {
+            if (oldTask.id !== taskId) {
+              return oldTask;
+            } else {
+              return {
+                ...oldTask,
+                labels: oldTask.labels.filter((oldTaskLabel) => oldTaskLabel !== labelId),
+              };
+            }
+          }),
+        };
+      });
+      return { previousTasks };
+    },
+    onError(_err, _variables, context) {
+      queryClient.setQueryData(["tasks"], context?.previousTasks);
+    }
+  })
+
+  const addTaskLabelMutation = useMutation({
+    mutationFn: ({ taskId, labelId }: {taskId: string, labelId: string}) => { 
+      return addTaskLabel(taskId, labelId); 
+    },
+    onMutate: async ({ taskId, labelId }) => {
+      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+      const previousTasks = queryClient.getQueryData(["tasks"]);
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+        return {
+          ...oldData,
+          tasks: oldData.tasks.map((oldTask) => {
+            if (oldTask.id !== taskId) {
+              return oldTask;
+            } else {
+              return {
+                ...oldTask,
+                labels: [...oldTask.labels, labelId],
+              };
+            }
+          }),
+        };
+      });
+      return { previousTasks };
+    },
+    onError(_err, _variables, context) {
+      queryClient.setQueryData(["tasks"], context?.previousTasks);
+    }
+  })
 
   const handleDelTask = (id: string) => {
     deleteTaskMutation.mutate(id);
@@ -204,27 +261,10 @@ function TaskCard({ task }: Props) {
 
   const handleLabelChange = (labelId: string, checked: boolean) => {
     if (checked) {
-      const newLabel = findLabelById(labels, labelId);
-      setTaskLabels((oldTaskLabels) => [...oldTaskLabels, newLabel]);
+      addTaskLabelMutation.mutate({taskId: task.id, labelId});
     } else {
-      setTaskLabels((oldTaskLabels) =>
-        oldTaskLabels.filter((oldTaskLabel) => oldTaskLabel.id !== labelId)
-      );
+      deleteTaskLabelMutation.mutate({taskId: task.id, labelId});
     }
-  };
-
-  const handleTaskUpdate = () => {
-    const allIdsMatch =
-      taskLabels.length === task.labels.length &&
-      taskLabels.every((taskLabel) => task.labels.includes(taskLabel.id));
-
-    if (!allIdsMatch) {
-      editTaskMutation.mutate({
-        id: task.id,
-        labels: taskLabels.map((label) => label.id),
-      });
-    }
-    close();
   };
 
   return (
@@ -270,7 +310,7 @@ function TaskCard({ task }: Props) {
       </Box>
       <Modal.Root
         opened={opened}
-        onClose={handleTaskUpdate}
+        onClose={close}
         size={"700"}
         trapFocus={false}
         closeOnEscape={false}

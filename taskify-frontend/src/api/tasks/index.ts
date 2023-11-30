@@ -29,3 +29,11 @@ export const updateDesc = ({
 }: UpdateDescReq): Promise<UpdateDescRes> => {
   return axiosClient.put(`/tasks/${id}/desc`, { description });
 };
+
+export const addTaskLabel = (taskId: string, labelId: string) => {
+  return axiosClient.post(`/tasks/${taskId}/labels`, { labelId});
+}
+
+export const deleteTaskLabel = (taskId: string, labelId: string) => {
+  return axiosClient.delete(`/tasks/${taskId}/labels/${labelId}`);
+}

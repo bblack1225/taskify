@@ -3,6 +3,7 @@ package com.twoyu.taskifybackend.service.impl;
 
 import com.twoyu.taskifybackend.exception.ServiceException;
 import com.twoyu.taskifybackend.model.entity.*;
+import com.twoyu.taskifybackend.model.vo.request.AddTaskLabelsRequest;
 import com.twoyu.taskifybackend.model.vo.request.AddTaskRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateTaskDescRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateTaskRequest;
@@ -43,14 +44,7 @@ public class TaskService implements ITaskService {
         task.setDescription("");
         task.setBoardId(request.getBoardId());
         task = tasksRepository.save(task);
-        return new TasksResponse(
-                task.getId(),
-                task.getName(),
-                task.getDataIndex(),
-                task.getDescription(),
-                new ArrayList<>(),
-                task.getStatusId()
-               );
+        return TasksResponse.from(task, new ArrayList<>());
     }
 
     @Override
@@ -73,13 +67,7 @@ public class TaskService implements ITaskService {
         }
 
 
-        return new TasksResponse(
-                task.getId(),
-                task.getName(),
-                task.getDataIndex(),
-                task.getDescription(),
-                labelIdRes,
-                task.getStatusId());
+        return TasksResponse.from(task, labelIdRes);
     }
 
     @Override
@@ -97,6 +85,24 @@ public class TaskService implements ITaskService {
         task.setDescription(request.getDescription());
         task = tasksRepository.save(task);
         return new UpdateTaskDescResponse(task.getId(), task.getDescription());
+    }
+
+    @Override
+    public void addTaskLabel(UUID taskId, AddTaskLabelsRequest request) {
+        if(!tasksRepository.existsById(taskId)){
+            throw new ServiceException("Task not found");
+        }
+        UUID labelId = request.getLabelId();
+        TaskLabelsId id = new TaskLabelsId(taskId, labelId);
+        TasksLabels tasksLabels = new TasksLabels(id);
+        tasksLabelsRepository.save(tasksLabels);
+        log.info("Task label added, taskId: {}, labelsId: {}", taskId, labelId);
+    }
+
+    @Override
+    public void deleteTaskLabel(UUID taskId, UUID labelId) {
+        tasksLabelsRepository.deleteById(new TaskLabelsId(taskId, labelId));
+        log.info("Task label deleted, taskId: {}, labelsId: {}", taskId, labelId);
     }
 
     private void updateTaskLabel(Tasks task, List<UUID> labelIds){

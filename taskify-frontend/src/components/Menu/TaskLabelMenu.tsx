@@ -195,8 +195,6 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
     },
   });
 
-  // 這邊是要把props跟change後的值傳回去，可能是值變少(unchecked)，或是值變多(checked)
-  // 邏輯大概是下方註解的樣子，或許push跟filter的方式可以改成更優雅的方式，但我目前不知道
   const handleChange = (checked: boolean, id: string) => {
     onLabelChange(id, checked);
   };

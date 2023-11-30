@@ -1,5 +1,6 @@
 package com.twoyu.taskifybackend.model.vo.response.shared;
 
+import com.twoyu.taskifybackend.model.entity.Tasks;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,4 +26,15 @@ public class TasksResponse {
     @Schema(description = "任務包含的標籤")
     private List<UUID> labels;
     private UUID columnId;
+
+    public static TasksResponse from(Tasks task, List<UUID> labelIds){
+        return TasksResponse.builder()
+                .id(task.getId())
+                .name(task.getName())
+                .dataIndex(task.getDataIndex())
+                .description(task.getDescription())
+                .labels(labelIds)
+                .columnId(task.getStatusId())
+                .build();
+    }
 }
