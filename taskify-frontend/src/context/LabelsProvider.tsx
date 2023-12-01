@@ -12,12 +12,7 @@ export const LabelsProvider = ({ boardId, children }: Props) => {
     return null;
   }
 
-  //new Map : [key, value]
-  const labelsMap = new Map(labels.map((label) => [label.id, label]));
-
   return (
-    <LabelsContext.Provider value={labelsMap}>
-      {children}
-    </LabelsContext.Provider>
+    <LabelsContext.Provider value={labels}>{children}</LabelsContext.Provider>
   );
 };

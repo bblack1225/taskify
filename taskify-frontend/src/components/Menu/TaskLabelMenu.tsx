@@ -306,9 +306,9 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
           <>
             <Box style={{ overflow: "hidden auto", maxHeight: "428px" }}>
               <Box>
-                {Array.from(labels).map(([key, label]) => (
+                {labels.map((label) => (
                   <div
-                    key={key}
+                    key={label.id}
                     style={{
                       display: "flex",
                       margin: "2px",
