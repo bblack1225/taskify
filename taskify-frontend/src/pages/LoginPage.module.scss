@@ -1,0 +1,66 @@
+@import "/src/themes/theme.scss";
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.loginPageContainer {
+  border-radius: 20px;
+  padding: 10px;
+  height: 100vh;
+}
+
+.layerContainer {
+  margin: 5px;
+  background-image: url("https://img.onl/hH2emB");
+  border-radius: 20px;
+  width: 100%;
+  background-size: cover;
+  opacity: 0.8;
+  .layer {
+    margin-left: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-family: "YourDesiredFont", sans-serif;
+    font-size: 36px;
+    color: wheat;
+    letter-spacing: 20px;
+    animation: shake 5s infinite;
+  }
+}
+
+.loginMain {
+  width: 560px;
+  max-width: 100%;
+  padding: 16px;
+  margin: 10px;
+  box-shadow: 0 0 5px 1px #a1a1a1;
+  border-radius: 10px;
+  // loginMain底下的子元素設置
+  & > * {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+}
+
+a {
+  color: #0052cc;
+  text-decoration: none;
+}
+
+.loginText {
+  text-align: center;
+}
