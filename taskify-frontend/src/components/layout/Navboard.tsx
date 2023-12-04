@@ -6,7 +6,9 @@ import {
   IconCalendarSearch,
   IconHeartDown,
 } from "@tabler/icons-react";
+
 import style from "./NavBoard.module.scss";
+import { Link as RouterLink } from "@tanstack/react-router";
 
 function NavBoard() {
   return (
@@ -18,7 +20,9 @@ function NavBoard() {
       <Stack pt={10}>
         <Button color="#be3144">
           <IconAlignBoxBottomCenter />
-          <Box p={5}>看板</Box>
+          <RouterLink to="/taskify/board">
+            <Box p={5}>看板</Box>
+          </RouterLink>
         </Button>
         <Button color="#d55b3e">
           <IconUsers />
