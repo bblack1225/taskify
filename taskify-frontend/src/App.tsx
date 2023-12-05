@@ -7,6 +7,7 @@
 // import { Notifications } from "@mantine/notifications";
 // import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 // import { LabelsProvider } from "@/context/LabelsProvider";
+// import { RouterProvider } from "@tanstack/react-router";
 
 // const queryClient = new QueryClient();
 
@@ -16,7 +17,7 @@
 // });
 
 // const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
-// function App() {
+// function App({ children }: { children: React.ReactNode }) {
 //   return (
 //     <QueryClientProvider client={queryClient}>
 //       <MantineProvider theme={theme}>
@@ -24,11 +25,7 @@
 //           style={{ bottom: "40px", width: "15rem" }}
 //           zIndex={1000}
 //         />
-//         <LabelsProvider boardId={BOARD_ID}>
-//           <MainLayout>
-//             <TaskBoard />
-//           </MainLayout>
-//         </LabelsProvider>
+//         {children}
 //       </MantineProvider>
 //       <ReactQueryDevtools initialIsOpen={false} />
 //     </QueryClientProvider>

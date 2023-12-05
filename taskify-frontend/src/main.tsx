@@ -1,6 +1,7 @@
-import React, { StrictMode } from "react";
+import "./App.scss";
+import "@mantine/core/styles.css";
+import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
 import "@mantine/notifications/styles.css";
 import "@mantine/tiptap/styles.css";
 import {
@@ -9,6 +10,7 @@ import {
   Router,
   Route,
   RootRoute,
+  Navigate,
 } from "@tanstack/react-router";
 import LoginPage from "./pages/LoginPage.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -26,55 +28,69 @@ const theme = createTheme({
   cursorType: "pointer",
 });
 
+// test auth
+const isAuthenicated: boolean = true;
 const rootRoute = new RootRoute({
-  component: () => (
-    <>
-      <LoginPage />
-      <Outlet />
-    </>
-  ),
+  component: () => {
+    if (!isAuthenicated) {
+      return (
+        <>
+          <Navigate to="/login" />
+          <Outlet />
+        </>
+      );
+    }
+    return (
+      <>
+        <Navigate to="/taskify/board" />
+        <Outlet />
+      </>
+    );
+  },
+});
+
+const loginRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/login",
+  component: () => {
+    return <LoginPage />;
+  },
 });
 
 const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
 const indexRoute = new Route({
   getParentRoute: () => rootRoute,
   path: "/taskify/board",
-  component: function App() {
+  component: () => {
     return (
-      <QueryClientProvider client={queryClient}>
-        <MantineProvider theme={theme}>
-          <Notifications
-            style={{ bottom: "40px", width: "15rem" }}
-            zIndex={1000}
-          />
-          <LabelsProvider boardId={BOARD_ID}>
-            <MainLayout>
-              <TaskBoard />
-            </MainLayout>
-          </LabelsProvider>
-        </MantineProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
+      <>
+        <LabelsProvider boardId={BOARD_ID}>
+          <MainLayout>
+            <TaskBoard />
+          </MainLayout>
+        </LabelsProvider>
+      </>
     );
   },
 });
-
-const routeTree = rootRoute.addChildren([indexRoute]);
+export const routeTree = rootRoute.addChildren([indexRoute, loginRoute]);
 const router = new Router({ routeTree });
-console.log("router", router);
-
-declare module "@tanstack/react-router" {
-  interface Register {
-    router: typeof router;
-  }
-}
 
 const rootElement = document.getElementById("app")!;
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <QueryClientProvider client={queryClient}>
+        <MantineProvider theme={theme}>
+          <Notifications
+            style={{ bottom: "40px", width: "15rem" }}
+            zIndex={1000}
+          />
+          <RouterProvider router={router} />
+        </MantineProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
     </StrictMode>
   );
 }
