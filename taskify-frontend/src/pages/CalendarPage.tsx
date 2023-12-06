@@ -1,18 +1,43 @@
-import { Flex, Stack } from "@mantine/core";
+import { Box, Flex, Stack } from "@mantine/core";
 import style from "@/pages/Taskboard.module.scss";
-import { useState } from "react";
-import { DatePicker } from "@mantine/dates";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+
+const events = [{ title: "Meeting", start: new Date() }];
 
 function CalendarPage() {
-  const [value, setValue] = useState<Date | null>(null);
   return (
-    <Stack style={{ overflow: "auto hidden" }}>
+    <Stack
+      style={{
+        width: "100vw",
+        overflowY: "hidden",
+      }}
+    >
       <Flex className={style.container}>
         <Flex>行事曆</Flex>
       </Flex>
-      <Flex w={1000} h={1000}>
-        <DatePicker value={value} onChange={setValue} />
-      </Flex>
+      <Box style={{ overflow: "hidden auto", paddingRight: "10px" }}>
+        <FullCalendar
+          initialView="dayGridMonth"
+          displayEventTime={true}
+          events={events}
+          plugins={[dayGridPlugin]}
+          headerToolbar={{
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth",
+          }}
+
+          // selectable={true}
+          // selectMirror={true}
+          // dayMaxEvents={true}
+          /* you can update a remote database when these fire:
+            eventAdd={function(){}}
+            eventChange={function(){}}
+            eventRemove={function(){}}
+            */
+        />
+      </Box>
     </Stack>
   );
 }
