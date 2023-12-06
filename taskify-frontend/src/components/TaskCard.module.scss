@@ -60,9 +60,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  span {
+  p {
     font-size: small;
     padding: 10px;
+    font-weight: 600;
   }
 }
 
@@ -71,14 +72,4 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.editTaskDes {
-  width: 525px;
-  padding: 10px;
-  margin-top: 10px;
-  &:hover {
-    cursor: pointer;
-    background: $gray--light;
-  }
 }

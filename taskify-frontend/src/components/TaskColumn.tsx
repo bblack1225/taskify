@@ -78,7 +78,7 @@ function TaskColumn() {
         autoClose: 2000,
       });
     },
-    onError(error, variables, context) {
+    onError(_error, _variables, context) {
       queryClient.setQueryData(["tasks"], context?.previousTasks);
     },
   });

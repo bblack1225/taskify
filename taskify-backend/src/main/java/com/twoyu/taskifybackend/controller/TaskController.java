@@ -1,5 +1,6 @@
 package com.twoyu.taskifybackend.controller;
 
+import com.twoyu.taskifybackend.model.vo.request.AddTaskLabelsRequest;
 import com.twoyu.taskifybackend.model.vo.request.AddTaskRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateTaskDescRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateTaskRequest;
@@ -23,7 +24,6 @@ import java.util.UUID;
 public class TaskController {
 
     private final ITaskService taskService;
-    private final TasksRepository tasksRepository;
 
     @PostMapping
     @Operation(summary = "新增一個任務")
@@ -47,6 +47,18 @@ public class TaskController {
     @PutMapping("/{id}/desc")
     public UpdateTaskDescResponse updateTaskDescription(@PathVariable UUID id, @RequestBody @Valid UpdateTaskDescRequest request){
         return taskService.updateDesc(id, request);
+    }
+
+    @PostMapping("/{id}/labels")
+    @Operation(summary = "新增任務的標籤")
+    public void addTaskLabel(@PathVariable UUID id, @RequestBody @Valid AddTaskLabelsRequest request){
+        taskService.addTaskLabel(id, request);
+    }
+
+    @DeleteMapping("/{id}/labels/{labelId}")
+    @Operation(summary = "刪除任務的標籤")
+    public void deleteTaskLabel(@PathVariable UUID id, @PathVariable UUID labelId){
+        taskService.deleteTaskLabel(id, labelId);
     }
 
 }

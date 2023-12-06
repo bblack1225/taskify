@@ -1,5 +1,6 @@
 package com.twoyu.taskifybackend.service;
 
+import com.twoyu.taskifybackend.model.vo.request.AddTaskLabelsRequest;
 import com.twoyu.taskifybackend.model.vo.request.AddTaskRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateTaskDescRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateTaskRequest;
@@ -17,4 +18,8 @@ public interface ITaskService {
     DeleteTaskResponse deleteTask(UUID id);
 
     UpdateTaskDescResponse updateDesc(UUID id, UpdateTaskDescRequest description);
+
+    void addTaskLabel(UUID id, AddTaskLabelsRequest request);
+
+    void deleteTaskLabel(UUID id, UUID labelId);
 }
