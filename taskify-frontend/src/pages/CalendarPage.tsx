@@ -1,22 +1,30 @@
-import { Box, Button, Flex, Stack } from "@mantine/core";
+import { Box, Flex, Stack } from "@mantine/core";
 import style from "@/pages/Taskboard.module.scss";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 const events = [{ title: "Meeting", start: new Date() }];
 
 function CalendarPage() {
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const calendarRef = useRef<InstanceType<typeof FullCalendar> | null>(null);
 
-  const handleClick = () => {
-    const calendarApi = calendarRef?.current?.getApi();
-    console.log("calendarApi", calendarApi);
-
-    if (calendarApi) {
-      calendarApi.updateSize();
+    useEffect(() => {
+    if (containerRef.current === null) {
+      return;
     }
-  };
+    if (calendarRef.current === null) {
+      return;
+    }
+    const calendarApi = calendarRef.current.getApi();
+
+    const resizeObserver = new ResizeObserver(() => calendarApi.updateSize());
+    resizeObserver.observe(containerRef.current);
+
+    return () => resizeObserver.disconnect();
+  }, [calendarRef, containerRef]);
+
   return (
     <Stack
       style={{
@@ -26,19 +34,16 @@ function CalendarPage() {
     >
       <Flex className={style.container}>
         <Flex>行事曆</Flex>
-        <Button onClick={handleClick}>click</Button>
       </Flex>
       <Box
+      ref={containerRef}
         style={{
-          // maxWidth: "100%",
           height: "100%",
           overflow: "hidden",
           paddingRight: "10px",
         }}
       >
         <FullCalendar
-          windowResize={() => console.log("resize")}
-          handleWindowResize={true}
           ref={calendarRef}
           windowResizeDelay={0}
           height="100%"
@@ -47,9 +52,8 @@ function CalendarPage() {
           events={events}
           plugins={[dayGridPlugin]}
           headerToolbar={{
-            left: "prev,next today",
-            center: "title",
-            right: "dayGridMonth",
+            left: "title",
+            right: "prev,today,next",
           }}
 
           // selectable={true}
