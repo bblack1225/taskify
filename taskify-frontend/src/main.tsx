@@ -20,6 +20,8 @@ import { LabelsProvider } from "./context/LabelsProvider.tsx";
 import MainLayout from "./components/layout/MainLayout.tsx";
 import TaskBoard from "./pages/Taskboard.tsx";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import CalendarPage from "./pages/CalendarPage.tsx";
+import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 
 const queryClient = new QueryClient();
 
@@ -42,8 +44,9 @@ const rootRoute = new RootRoute({
     }
     return (
       <>
-        <Navigate to="/taskify/board" />
+        <Navigate to="/board" />
         <Outlet />
+        <TanStackRouterDevtools />
       </>
     );
   },
@@ -60,20 +63,37 @@ const loginRoute = new Route({
 const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
 const indexRoute = new Route({
   getParentRoute: () => rootRoute,
-  path: "/taskify/board",
+  path: "/board",
   component: () => {
     return (
-      <>
-        <LabelsProvider boardId={BOARD_ID}>
-          <MainLayout>
-            <TaskBoard />
-          </MainLayout>
-        </LabelsProvider>
-      </>
+      <LabelsProvider boardId={BOARD_ID}>
+        <MainLayout>
+          <TaskBoard />
+        </MainLayout>
+      </LabelsProvider>
     );
   },
 });
-export const routeTree = rootRoute.addChildren([indexRoute, loginRoute]);
+
+const calendarRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/calendar",
+  component: () => {
+    return (
+      <LabelsProvider boardId={BOARD_ID}>
+        <MainLayout>
+          <CalendarPage />
+        </MainLayout>
+      </LabelsProvider>
+    );
+  },
+});
+
+export const routeTree = rootRoute.addChildren([
+  loginRoute,
+  indexRoute,
+  calendarRoute,
+]);
 const router = new Router({ routeTree });
 
 const rootElement = document.getElementById("app")!;
