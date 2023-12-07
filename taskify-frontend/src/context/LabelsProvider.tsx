@@ -1,5 +1,5 @@
 import useLabels from "@/hooks/useLabels";
-import { LabelsComponent } from "./useLabelsData";
+import { LabelsContext } from "./useLabelsData";
 
 type Props = {
   boardId: string;
@@ -12,6 +12,7 @@ export const LabelsProvider = ({ boardId, children }: Props) => {
     return null;
   }
 
-  const labelsMap = new Map(labels.map((label) => [label.id, label]));
-  return <LabelsComponent value={labelsMap}>{children}</LabelsComponent>;
+  return (
+    <LabelsContext.Provider value={labels}>{children}</LabelsContext.Provider>
+  );
 };

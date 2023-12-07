@@ -10,6 +10,7 @@ import {
   Input,
   Flex,
   Loader,
+  isLightColor,
 } from "@mantine/core";
 import {
   IconAlertCircleFilled,
@@ -194,8 +195,6 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
     },
   });
 
-  // 這邊是要把props跟change後的值傳回去，可能是值變少(unchecked)，或是值變多(checked)
-  // 邏輯大概是下方註解的樣子，或許push跟filter的方式可以改成更優雅的方式，但我目前不知道
   const handleChange = (checked: boolean, id: string) => {
     onLabelChange(id, checked);
   };
@@ -212,7 +211,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
   //新增空標籤
   const handleAddLabel = () => {
     setCurrentMode(labelMenuMode.ADD);
-    setCurrentLabel({ id: "", name: "", color: "" });
+    setCurrentLabel({ id: "", name: "", color: defaultColor[0] });
   };
 
   const handleLabelNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -307,9 +306,9 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
           <>
             <Box style={{ overflow: "hidden auto", maxHeight: "428px" }}>
               <Box>
-                {Array.from(labels).map(([key, label]) => (
+                {labels.map((label) => (
                   <div
-                    key={key}
+                    key={label.id}
                     style={{
                       display: "flex",
                       margin: "2px",
@@ -332,7 +331,12 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                       className={style.labelContainer}
                       style={{ backgroundColor: `${label.color}` }}
                     >
-                      <span>{label.name}</span>
+                      <Text
+                        size="xs"
+                        c={isLightColor(label.color) ? "black" : "white"}
+                      >
+                        {label.name}
+                      </Text>
                     </label>
                     <div>
                       <IconBallpen
@@ -340,8 +344,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                           handleEditLabelOpen(label);
                         }}
                         style={{
-                          marginLeft: "3px",
-                          marginRight: "8px",
+                          margin: "0 3",
                           cursor: "pointer",
                         }}
                       />
@@ -374,7 +377,12 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                 className={style.isEditingLabelContainer}
                 style={{ background: currentLabel.color }}
               >
-                <span>{currentLabel.name}</span>
+                <Text
+                  size="xs"
+                  c={isLightColor(currentLabel.color) ? "black" : "white"}
+                >
+                  {currentLabel.name}
+                </Text>
               </Center>
             </Box>
             <Center>

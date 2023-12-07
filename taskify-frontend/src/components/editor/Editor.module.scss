@@ -1,0 +1,8 @@
+@import "/src/themes/theme.scss";
+
+.editTaskDes {
+  &:hover {
+    cursor: pointer;
+    outline: 1px solid #ced4da;
+  }
+}

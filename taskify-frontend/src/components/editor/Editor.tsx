@@ -4,24 +4,17 @@ import Highlight from "@tiptap/extension-highlight";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
+import Placeholder from "@tiptap/extension-placeholder";
 import { Button, Flex } from "@mantine/core";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import style from "@/components/editor/Editor.module.scss";
 
-// import axios from "axios";
-// import axiosClient from "@/api/axiosClient";
-// import Superscript from "@tiptap/extension-superscript";
-// import SubScript from "@tiptap/extension-subscript";
-
-// const content = '<h2 style="text-align: center;">Welcome to Taskify</h2>';
 type Props = {
   description: string;
   onSave: (description: string) => void;
 };
 
 function Editor({ description, onSave }: Props) {
-  // description 會是空的，所以不能直接JSON.parse
-  // console.log("description", description);
-  // console.log("content!!", JSON.parse(description));
   const [isEditing, setIsEditing] = useState(false);
 
   const editor = useEditor({
@@ -31,16 +24,30 @@ function Editor({ description, onSave }: Props) {
       Link,
       Highlight,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
+      Placeholder.configure({ placeholder: "新增更詳細的敘述..." }),
     ],
     content: description ? JSON.parse(description) : "",
   });
 
+  const prevContentRef = useRef(description);
+
   const handleSave = async () => {
     const json = editor?.getJSON();
     const jsonContent = JSON.stringify(json);
+    prevContentRef.current = JSON.stringify(json);
     // 存description
     onSave(jsonContent);
     // 關閉toolbar
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    const prevContent = prevContentRef.current;
+    //這邊是為了如果prevContent是假值就不會進入if內
+    if (prevContent) {
+      const prevContentJSON = JSON.parse(prevContent);
+      editor?.commands.setContent(prevContentJSON);
+    }
     setIsEditing(false);
   };
 
@@ -50,7 +57,14 @@ function Editor({ description, onSave }: Props) {
         w={525}
         mt={10}
         editor={editor}
-        onClick={() => setIsEditing(true)}
+        style={{ border: isEditing ? "1px solid #ced4da " : "none" }}
+        className={!isEditing ? style.editTaskDes : ""}
+        onClick={() => {
+          if (!isEditing) {
+            setIsEditing(true);
+            editor?.chain().focus();
+          }
+        }}
       >
         {isEditing && (
           <RichTextEditor.Toolbar sticky stickyOffset={60}>
@@ -76,33 +90,21 @@ function Editor({ description, onSave }: Props) {
               <RichTextEditor.BulletList />
               <RichTextEditor.OrderedList />
             </RichTextEditor.ControlsGroup>
-            {/* 
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.Link />
-          <RichTextEditor.Unlink />
-        </RichTextEditor.ControlsGroup> */}
-            {/* 
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.AlignLeft />
-          <RichTextEditor.AlignCenter />
-          <RichTextEditor.AlignJustify />
-          <RichTextEditor.AlignRight />
-        </RichTextEditor.ControlsGroup> */}
+
+            {/* <RichTextEditor.ControlsGroup>
+              <RichTextEditor.Link />
+              <RichTextEditor.Unlink />
+            </RichTextEditor.ControlsGroup> */}
           </RichTextEditor.Toolbar>
         )}
-        <RichTextEditor.Content />
+        <RichTextEditor.Content style={{ minHeight: "100px" }} />
       </RichTextEditor>
       {isEditing && (
         <Flex gap={15}>
           <Button w={100} mt={10} onClick={handleSave}>
             save
           </Button>
-          <Button
-            color="gray"
-            w={100}
-            mt={10}
-            onClick={() => setIsEditing(false)}
-          >
+          <Button color="gray" w={100} mt={10} onClick={handleCancel}>
             取消
           </Button>
         </Flex>
