@@ -4,13 +4,13 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import { useEffect, useRef } from "react";
 
-const events = [{ title: "Meeting", start: new Date() }];
+// const events = [{ title: "Meeting", start: new Date() }];
 
 function CalendarPage() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const calendarRef = useRef<InstanceType<typeof FullCalendar> | null>(null);
 
-    useEffect(() => {
+  useEffect(() => {
     if (containerRef.current === null) {
       return;
     }
@@ -36,7 +36,7 @@ function CalendarPage() {
         <Flex>行事曆</Flex>
       </Flex>
       <Box
-      ref={containerRef}
+        ref={containerRef}
         style={{
           height: "100%",
           overflow: "hidden",
@@ -49,7 +49,7 @@ function CalendarPage() {
           height="100%"
           initialView="dayGridMonth"
           displayEventTime={true}
-          events={events}
+          // events={events}
           plugins={[dayGridPlugin]}
           headerToolbar={{
             left: "title",

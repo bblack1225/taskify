@@ -11,6 +11,11 @@
       color: $white;
     }
   }
+  .fc-button-group button {
+    color: black !important;
+    background: none !important;
+    border: none !important;
+  }
   .fc tr {
     .fc-daygrid-day-number {
       margin: 5px;
