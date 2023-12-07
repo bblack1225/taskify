@@ -1,20 +1,25 @@
-import { Menu, Button, Text, rem, Center, CloseButton } from "@mantine/core";
 import {
-  IconSettings,
-  IconSearch,
-  IconPhoto,
-  IconMessageCircle,
-  IconTrash,
-  IconArrowsLeftRight,
-  IconCalendarStats,
-} from "@tabler/icons-react";
+  Menu,
+  Button,
+  Center,
+  CloseButton,
+  Text,
+  Flex,
+  Container,
+} from "@mantine/core";
+import { DatePicker } from "@mantine/dates";
+import { IconCalendarStats } from "@tabler/icons-react";
+import "@mantine/dates/styles.css";
 import { useState } from "react";
 
 function TaskDateMenu() {
   const [opened, setOpened] = useState(false);
+  const [value, setValue] = useState<[Date | null, Date | null]>([null, null]);
+
+  console.log("value", value);
 
   return (
-    <Menu shadow="md" width={250} opened={opened} onChange={setOpened}>
+    <Menu shadow="md" width={300} opened={opened} onChange={setOpened}>
       <Menu.Target>
         <Button color={"#A9A9A9"} leftSection={<IconCalendarStats />}>
           日期
@@ -31,58 +36,23 @@ function TaskDateMenu() {
             style={{ gridColumn: "3/3" }}
           />
         </Menu.Label>
-        <Menu.Item
-          leftSection={
-            <IconSettings style={{ width: rem(14), height: rem(14) }} />
-          }
-        >
-          Settings
-        </Menu.Item>
-        <Menu.Item
-          leftSection={
-            <IconMessageCircle style={{ width: rem(14), height: rem(14) }} />
-          }
-        >
-          Messages
-        </Menu.Item>
-        <Menu.Item
-          leftSection={
-            <IconPhoto style={{ width: rem(14), height: rem(14) }} />
-          }
-        >
-          Gallery
-        </Menu.Item>
-        <Menu.Item
-          leftSection={
-            <IconSearch style={{ width: rem(14), height: rem(14) }} />
-          }
-          rightSection={
-            <Text size="xs" c="dimmed">
-              ⌘K
-            </Text>
-          }
-        >
-          Search
-        </Menu.Item>
-
-        <Menu.Divider />
-
-        <Menu.Label>Danger zone</Menu.Label>
-        <Menu.Item
-          leftSection={
-            <IconArrowsLeftRight style={{ width: rem(14), height: rem(14) }} />
-          }
-        >
-          Transfer my data
-        </Menu.Item>
-        <Menu.Item
-          color="red"
-          leftSection={
-            <IconTrash style={{ width: rem(14), height: rem(14) }} />
-          }
-        >
-          Delete my account
-        </Menu.Item>
+        <Text ta={"center"} size="xs" c={"blue"}>
+          請選擇『起始日期』及『截止日期』
+        </Text>
+        <Container mt={10} mb={10}>
+          <Flex direction={"column"} align={"center"}>
+            <DatePicker
+              defaultDate={new Date()}
+              type="range"
+              allowSingleDateInRange
+              value={value}
+              onChange={setValue}
+            />
+          </Flex>
+          <Button mt={3} ml={7}>
+            儲存
+          </Button>
+        </Container>
       </Menu.Dropdown>
     </Menu>
   );

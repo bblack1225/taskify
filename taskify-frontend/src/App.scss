@@ -1,6 +1,44 @@
+@import "./themes/theme.scss";
+
 * {
   letter-spacing: 0.8px;
   box-sizing: border-box;
+  //在ig文章看到這個css覺得很可愛><
+  caret-color: orange;
+  .fc-col-header-cell {
+    background-color: $primary--red;
+    a {
+      color: $white;
+    }
+  }
+  .fc-button-group button {
+    color: black !important;
+    background: none !important;
+    border: none !important;
+  }
+  .fc tr {
+    .fc-daygrid-day-number {
+      margin: 5px;
+      color: $primary--red;
+      border-radius: 50%;
+      font-size: small;
+      font-weight: 600;
+    }
+    .fc-day-today {
+      background-color: transparent !important;
+      .fc-daygrid-day-number {
+        margin: 5px;
+        width: 30px;
+        height: 30px;
+        text-align: center;
+        color: $white;
+        background-color: $primary--red;
+        border-radius: 50%;
+        font-size: small;
+        font-weight: 600;
+      }
+    }
+  }
 }
 
 ::-webkit-scrollbar {
