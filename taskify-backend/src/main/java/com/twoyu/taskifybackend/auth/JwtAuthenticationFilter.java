@@ -28,6 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
         if(authHeader == null || !authHeader.startsWith(TOKEN_PREFIX)) {
+            // 交給下一步，但如果額外配置 AuthenticationEntryPoint 才會回401
             filterChain.doFilter(request, response);
             return;
         }
