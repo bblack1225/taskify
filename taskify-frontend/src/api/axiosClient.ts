@@ -1,5 +1,15 @@
 import { notifications } from "@mantine/notifications";
-import axios from "axios";
+import axios, { InternalAxiosRequestConfig } from "axios";
+
+// const MOCK_TOKEN = 'eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJibGFjazYwMTM3QGdtYWlsLmNvbSIsImV4cCI6MTcwMjc5MTAwNH0.J4KDh6obQ_wv1v9GvDJqru_kM8EoIfSIeUop_-zL5JCuvpsqo0f_KaUnn1nJ041H'
+function authRequestInterceptor(config: InternalAxiosRequestConfig) {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization= `Bearer ${token}`;
+  }
+  return config;
+}
+
 const axiosClient = axios.create({
   baseURL: "/api",
   headers: {
@@ -12,7 +22,9 @@ type ErrorType = {
   errorMessage: string;
 }
 
-//攔截器
+// setting up request interceptor
+axiosClient.interceptors.request.use(authRequestInterceptor);
+// setting up response interceptor
 axiosClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
