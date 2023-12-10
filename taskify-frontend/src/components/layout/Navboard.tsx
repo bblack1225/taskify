@@ -11,7 +11,7 @@ import {
 } from "@tabler/icons-react";
 
 import style from "./NavBoard.module.scss";
-import { Link } from "@tanstack/react-router";
+import {  NavLink, useNavigate } from "react-router-dom";
 
 type Props = {
   isNavBoardOpen: boolean;
@@ -19,6 +19,7 @@ type Props = {
 };
 
 function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
+  const navigate = useNavigate();
   return (
     <>
       {isNavBoardOpen ? (
@@ -40,36 +41,29 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
           </Box>
           <Flex h={"60%"} direction={"column"} justify={"space-between"}>
             <Stack pt={10}>
-              <Link
+              <NavLink
                 to="/board"
-                activeProps={{
-                  style: {
-                    borderBottom: "2px solid black",
-                  },
-                }}
+                className={({ isActive}) =>  isActive ? style.active : ''}
               >
                 <Button color="#be3144" w={"200px"}>
                   <IconAlignBoxBottomCenter />
                   <Box p={5}>看板</Box>
                 </Button>
-              </Link>
+              </NavLink>
               <Button color="#d55b3e">
                 <IconUsers />
                 <Box p={5}>成員</Box>
               </Button>
-              <Link
+              <NavLink
                 to="/calendar"
-                activeProps={{
-                  style: {
-                    borderBottom: "2px solid black",
-                  },
-                }}
+                className={({ isActive}) =>  isActive ? style.active : ''}
+             
               >
                 <Button color="#be3144" w={"200px"}>
                   <IconCalendarSearch />
                   <Box p={5}>行事曆</Box>
                 </Button>
-              </Link>
+              </NavLink>
               <Button color="#d55b3e">
                 <IconHeartDown />
                 <Box p={5}>你的看板</Box>
@@ -83,6 +77,10 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
                   from: "rgba(255, 171, 171, 1)",
                   to: "rgba(145, 199, 255, 1)",
                   deg: 300,
+                }}
+                onClick={() => {
+                  localStorage.removeItem("token");
+                  navigate('login')
                 }}
               >
                 <IconLogout />
