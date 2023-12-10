@@ -7,6 +7,7 @@ import {
   IconHeartDown,
   IconChevronLeft,
   IconChevronRight,
+  IconLogout,
 } from "@tabler/icons-react";
 
 import style from "./NavBoard.module.scss";
@@ -21,7 +22,7 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
   return (
     <>
       {isNavBoardOpen ? (
-        <Box p={20}>
+        <Box p={20} h={"100vh"}>
           <Box>
             <Flex justify={"space-between"} align={"center"} mb={20}>
               <Flex className={style.navTitle}>TwoYu</Flex>
@@ -37,42 +38,58 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
               width={"200px"}
             />
           </Box>
-          <Stack pt={10}>
-            <Link
-              to="/board"
-              activeProps={{
-                style: {
-                  borderBottom: "2px solid black",
-                },
-              }}
-            >
-              <Button color="#be3144" w={"200px"}>
-                <IconAlignBoxBottomCenter />
-                <Box p={5}>看板</Box>
+          <Flex h={"60%"} direction={"column"} justify={"space-between"}>
+            <Stack pt={10}>
+              <Link
+                to="/board"
+                activeProps={{
+                  style: {
+                    borderBottom: "2px solid black",
+                  },
+                }}
+              >
+                <Button color="#be3144" w={"200px"}>
+                  <IconAlignBoxBottomCenter />
+                  <Box p={5}>看板</Box>
+                </Button>
+              </Link>
+              <Button color="#d55b3e">
+                <IconUsers />
+                <Box p={5}>成員</Box>
               </Button>
-            </Link>
-            <Button color="#d55b3e">
-              <IconUsers />
-              <Box p={5}>成員</Box>
-            </Button>
-            <Link
-              to="/calendar"
-              activeProps={{
-                style: {
-                  borderBottom: "2px solid black",
-                },
-              }}
-            >
-              <Button color="#be3144" w={"200px"}>
-                <IconCalendarSearch />
-                <Box p={5}>行事曆</Box>
+              <Link
+                to="/calendar"
+                activeProps={{
+                  style: {
+                    borderBottom: "2px solid black",
+                  },
+                }}
+              >
+                <Button color="#be3144" w={"200px"}>
+                  <IconCalendarSearch />
+                  <Box p={5}>行事曆</Box>
+                </Button>
+              </Link>
+              <Button color="#d55b3e">
+                <IconHeartDown />
+                <Box p={5}>你的看板</Box>
               </Button>
-            </Link>
-            <Button color="#d55b3e">
-              <IconHeartDown />
-              <Box p={5}>你的看板</Box>
-            </Button>
-          </Stack>
+            </Stack>
+            <Flex>
+              <Button
+                fullWidth={true}
+                variant="gradient"
+                gradient={{
+                  from: "rgba(255, 171, 171, 1)",
+                  to: "rgba(145, 199, 255, 1)",
+                  deg: 300,
+                }}
+              >
+                <IconLogout />
+                <Box p={5}>登出</Box>
+              </Button>
+            </Flex>
+          </Flex>
         </Box>
       ) : (
         <Box w={25}>

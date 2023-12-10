@@ -47,7 +47,7 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
       });
       return { optimisticColumn };
     },
-    onSuccess: (resData: ColumnMutateRes, variables, context) => {
+    onSuccess: (resData: ColumnMutateRes, _variables, context) => {
       const newData = {
         id: resData.id,
         title: resData.title,
@@ -71,7 +71,7 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
       });
       setNewTitle("");
     },
-    onError: (err, variables, context) => {
+    onError: (_err, _variables, context) => {
       queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         return {
           ...oldData,
