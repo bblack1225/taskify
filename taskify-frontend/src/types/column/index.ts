@@ -38,4 +38,6 @@ export type BaseTaskRes = {
   description: string;
   labels: string[];
   columnId: string;
+  startDate?: string;
+  dueDate?: string;
 };
