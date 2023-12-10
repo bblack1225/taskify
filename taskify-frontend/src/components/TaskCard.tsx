@@ -331,7 +331,7 @@ function TaskCard({ task }: Props) {
           <Modal.Body>
             <Flex justify={"space-between"}>
               <Flex direction={"column"}>
-                <Flex>
+                <Flex style={{ flexWrap: "wrap" }} gap={15}>
                   <Text className={style.tagText} c={"gray.6"} fw={600}>
                     標籤
                   </Text>
@@ -340,26 +340,56 @@ function TaskCard({ task }: Props) {
                       flexDirection: "row",
                       flexWrap: "wrap",
                       width: "420px",
+                      alignItems: "center",
                     }}
                   >
-                    {taskLabels.map((label) => {
-                      return (
-                        <div
-                          key={label.id}
-                          style={{
-                            backgroundColor: `${label.color}`,
-                          }}
-                          className={style.labelDiv}
-                        >
-                          <Text
-                            size="xs"
-                            c={isLightColor(label.color) ? "black" : "white"}
+                    {taskLabels.length === 0 ? (
+                      <Flex>
+                        <Text size="xs" c={"gray.5"} fw={600} ml={5}>
+                          [點擊右側標籤按鈕即可新增]
+                        </Text>
+                      </Flex>
+                    ) : (
+                      taskLabels.map((label) => {
+                        return (
+                          <Flex
+                            key={label.id}
+                            style={{
+                              backgroundColor: `${label.color}`,
+                            }}
+                            className={style.labelDiv}
                           >
-                            {label.name}
-                          </Text>
-                        </div>
-                      );
-                    })}
+                            <Text
+                              size="xs"
+                              c={isLightColor(label.color) ? "black" : "white"}
+                            >
+                              {label.name}
+                            </Text>
+                          </Flex>
+                        );
+                      })
+                    )}
+                  </Flex>
+                  <Text className={style.tagText} c={"gray.6"} fw={600}>
+                    日期
+                  </Text>
+                  <Flex
+                    style={{
+                      flexDirection: "row",
+                      flexWrap: "wrap",
+                      width: "420px",
+                      alignItems: "center",
+                    }}
+                  >
+                    {task.startDate || task.dueDate ? (
+                      <Text size="xs" fw={600} ml={5}>
+                        {`${task.startDate} - ${task.dueDate}`}
+                      </Text>
+                    ) : (
+                      <Text size="xs" fw={600} c={"gray.5"} ml={5}>
+                        [點擊右側日期按鈕即可新增]
+                      </Text>
+                    )}
                   </Flex>
                 </Flex>
                 <Flex mt={15}>
@@ -383,7 +413,7 @@ function TaskCard({ task }: Props) {
                   selectedLabels={taskLabels.map((label) => label.id)}
                   onLabelChange={handleLabelChange}
                 />
-                <TaskDateMenu />
+                <TaskDateMenu task={task} />
                 <Text size="xs" c={"gray.6"} fw={600}>
                   動作
                 </Text>
