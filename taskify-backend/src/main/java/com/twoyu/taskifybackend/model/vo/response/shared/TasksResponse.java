@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,6 +27,9 @@ public class TasksResponse {
     @Schema(description = "任務包含的標籤")
     private List<UUID> labels;
     private UUID columnId;
+    private LocalDateTime startDate;
+    private LocalDateTime dueDate;
+
 
     public static TasksResponse from(Tasks task, List<UUID> labelIds){
         return TasksResponse.builder()

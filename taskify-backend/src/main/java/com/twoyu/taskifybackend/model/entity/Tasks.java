@@ -74,6 +74,12 @@ public class Tasks implements Serializable {
     @Column(name = "is_delete")
     private boolean isDelete;
 
+    @Column(name = "start_date")
+    private LocalDateTime startDate;
+
+    @Column(name = "due_date")
+    private LocalDateTime dueDate;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
