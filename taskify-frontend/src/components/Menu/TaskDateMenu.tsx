@@ -6,7 +6,6 @@ import {
   Text,
   Flex,
   Container,
-  Indicator,
 } from "@mantine/core";
 import { DatePicker, DatePickerProps } from "@mantine/dates";
 import { IconCalendarStats } from "@tabler/icons-react";
@@ -18,7 +17,10 @@ import dayjs from "dayjs";
 
 function TaskDateMenu({ task }: { task: BaseTaskRes }) {
   const [opened, setOpened] = useState(false);
-  const [value, setValue] = useState<[Date | null, Date | null]>([null, null]);
+  const [value, setValue] = useState<[Date | null, Date | null]>([
+    new Date(),
+    null,
+  ]);
 
   const queryClient = useQueryClient();
 
@@ -26,11 +28,8 @@ function TaskDateMenu({ task }: { task: BaseTaskRes }) {
   // const now = new Date().toISOString();
 
   const handleDatePicker = () => {
-    if (value[0] === null || value[1] === null) {
-      return;
-    }
-    const start = value[0].toLocaleDateString();
-    const end = value[1].toLocaleDateString();
+    const start = dayjs(value[0]).format("YYYY-MM-DD");
+    const end = value[1] ? dayjs(value[1]).format("YYYY-MM-DD") : "";
     setOpened(false);
     queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
       return {
@@ -92,8 +91,8 @@ function TaskDateMenu({ task }: { task: BaseTaskRes }) {
           />
         </Menu.Label>
         <Text ta={"center"} size="xs" c={"blue"}>
-          {value[0] ? value[0].toLocaleDateString() : "未選擇"} - {""}
-          {value[1] ? value[1].toLocaleDateString() : "未選擇"}
+          {value[0] ? dayjs(value[0]).format("YYYY-MM-DD") : "未選擇"} ~ {""}
+          {value[1] ? dayjs(value[1]).format("YYYY-MM-DD") : "未選擇"}
         </Text>
         <Container mt={10} mb={10}>
           <Flex direction={"column"} align={"center"}>

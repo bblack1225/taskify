@@ -12,14 +12,7 @@ function CalendarPage() {
   const queryClient = useQueryClient();
   const data = queryClient.getQueryData<BaseDataRes>(["tasks"]);
 
-  const DateData = data?.tasks.find(
-    (task) => task.startDate !== null && task.dueDate !== null
-  );
   const dateData = data?.tasks.filter((task) => task.startDate || task.dueDate);
-
-  // console.log("dateData!!!", dateData);
-
-  // console.log("DateData", DateData?.startDate, DateData?.dueDate);
 
   const events = dateData?.map((data) => {
     return {
@@ -28,7 +21,6 @@ function CalendarPage() {
       end: `${data.dueDate?.substring(0, 10)}T23:59:59`,
     };
   });
-  console.log("events", events);
 
   useEffect(() => {
     if (containerRef.current === null) {
@@ -68,7 +60,7 @@ function CalendarPage() {
           windowResizeDelay={0}
           height="100%"
           initialView="dayGridMonth"
-          displayEventTime={true}
+          displayEventTime={false}
           events={events}
           plugins={[dayGridPlugin]}
           headerToolbar={{

@@ -381,9 +381,10 @@ function TaskCard({ task }: Props) {
                       alignItems: "center",
                     }}
                   >
-                    {task.startDate || task.dueDate ? (
+                    {task.startDate ? (
                       <Text size="xs" fw={600} ml={5}>
-                        {`${task.startDate} - ${task.dueDate}`}
+                        {task.startDate?.substring(0, 10)}
+                        {task.dueDate && `~${task.dueDate?.substring(0, 10)}`}
                       </Text>
                     ) : (
                       <Text size="xs" fw={600} c={"gray.5"} ml={5}>
