@@ -5,7 +5,7 @@ import axios, { InternalAxiosRequestConfig } from "axios";
 function authRequestInterceptor(config: InternalAxiosRequestConfig) {
   const token = localStorage.getItem("token");
   if (token) {
-    config.headers.Authorization= `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 }
@@ -20,7 +20,7 @@ const axiosClient = axios.create({
 type ErrorType = {
   errorCode: number;
   errorMessage: string;
-}
+};
 
 // setting up request interceptor
 axiosClient.interceptors.request.use(authRequestInterceptor);
@@ -29,13 +29,14 @@ axiosClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
     const res = error.response.data as ErrorType;
-    // TODO 針對特定error code做處理
-    notifications.show({
-      title: `Service Error ${res.errorCode}`,
-      message: res.errorMessage,
-      color: "red",
-    
-    })
+    // 401 後續要做redirect login 或是login fail的處理
+    if (res.errorCode !== 401) {
+      notifications.show({
+        title: `Service Error ${res.errorCode}`,
+        message: res.errorMessage,
+        color: "red",
+      });
+    }
     return Promise.reject(error);
   }
 );
