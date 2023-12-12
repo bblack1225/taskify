@@ -305,150 +305,159 @@ function TaskCard({ task }: Props) {
         )}
         <Text style={{ marginLeft: "4px" }}>{editTaskTitle}</Text>
       </Box>
-      <Modal.Root
-        opened={opened}
-        onClose={close}
-        size={"700"}
-        trapFocus={false}
-        closeOnEscape={false}
-      >
-        <Modal.Overlay />
-        <Modal.Content>
-          <Modal.Header>
-            <IconBallpen />
-            <Textarea
-              className={style.taskTitleTextarea}
-              value={editTaskTitle}
-              autosize
-              onBlur={handleBlur}
-              onKeyDown={(e) => handleKeyDown(e)}
-              onCompositionStart={() => setIsComposing(true)}
-              onCompositionEnd={() => setIsComposing(false)}
-              onChange={(e) => setEditTaskTitle(e.target.value)}
-            />
-            <Modal.CloseButton />
-          </Modal.Header>
-          <Modal.Body>
-            <Flex justify={"space-between"}>
-              <Flex direction={"column"}>
-                <Flex style={{ flexWrap: "wrap" }} gap={15}>
-                  <Text className={style.tagText} c={"gray.6"} fw={600}>
-                    標籤
-                  </Text>
-                  <Flex
-                    style={{
-                      flexDirection: "row",
-                      flexWrap: "wrap",
-                      width: "420px",
-                      alignItems: "center",
-                    }}
-                  >
-                    {taskLabels.length === 0 ? (
-                      <Flex>
-                        <Text size="xs" c={"gray.5"} fw={600} ml={5}>
-                          [點擊右側標籤按鈕即可新增]
-                        </Text>
-                      </Flex>
-                    ) : (
-                      taskLabels.map((label) => {
-                        return (
-                          <Flex
-                            key={label.id}
-                            style={{
-                              backgroundColor: `${label.color}`,
-                            }}
-                            className={style.labelDiv}
-                          >
-                            <Text
-                              size="xs"
-                              c={isLightColor(label.color) ? "black" : "white"}
-                            >
-                              {label.name}
+      {opened && (
+        <>
+          <Modal.Root
+            opened={opened}
+            onClose={close}
+            size={"700"}
+            trapFocus={false}
+            closeOnEscape={false}
+          >
+            <Modal.Overlay />
+            <Modal.Content>
+              <Modal.Header>
+                <IconBallpen />
+                <Textarea
+                  className={style.taskTitleTextarea}
+                  value={editTaskTitle}
+                  autosize
+                  onBlur={handleBlur}
+                  onKeyDown={(e) => handleKeyDown(e)}
+                  onCompositionStart={() => setIsComposing(true)}
+                  onCompositionEnd={() => setIsComposing(false)}
+                  onChange={(e) => setEditTaskTitle(e.target.value)}
+                />
+                <Modal.CloseButton />
+              </Modal.Header>
+              <Modal.Body>
+                <Flex justify={"space-between"}>
+                  <Flex direction={"column"}>
+                    <Flex style={{ flexWrap: "wrap" }} gap={15}>
+                      <Text className={style.tagText} c={"gray.6"} fw={600}>
+                        標籤
+                      </Text>
+                      <Flex
+                        style={{
+                          flexDirection: "row",
+                          flexWrap: "wrap",
+                          width: "420px",
+                          alignItems: "center",
+                        }}
+                      >
+                        {taskLabels.length === 0 ? (
+                          <Flex>
+                            <Text size="xs" c={"gray.5"} fw={600} ml={5}>
+                              [點擊右側標籤按鈕即可新增]
                             </Text>
                           </Flex>
-                        );
-                      })
-                    )}
+                        ) : (
+                          taskLabels.map((label) => {
+                            return (
+                              <Flex
+                                key={label.id}
+                                style={{
+                                  backgroundColor: `${label.color}`,
+                                }}
+                                className={style.labelDiv}
+                              >
+                                <Text
+                                  size="xs"
+                                  c={
+                                    isLightColor(label.color)
+                                      ? "black"
+                                      : "white"
+                                  }
+                                >
+                                  {label.name}
+                                </Text>
+                              </Flex>
+                            );
+                          })
+                        )}
+                      </Flex>
+                      <Text className={style.tagText} c={"gray.6"} fw={600}>
+                        日期
+                      </Text>
+                      <Flex
+                        style={{
+                          flexDirection: "row",
+                          flexWrap: "wrap",
+                          width: "420px",
+                          alignItems: "center",
+                        }}
+                      >
+                        {task.startDate ? (
+                          <Text size="xs" fw={600} ml={5}>
+                            {task.startDate?.substring(0, 10)}
+                            {task.dueDate &&
+                              `~${task.dueDate?.substring(0, 10)}`}
+                          </Text>
+                        ) : (
+                          <Text size="xs" fw={600} c={"gray.5"} ml={5}>
+                            [點擊右側日期按鈕即可新增]
+                          </Text>
+                        )}
+                      </Flex>
+                    </Flex>
+                    <Flex mt={15}>
+                      <IconAlignBoxLeftStretch />
+                      <Text ml={10} c={"gray.6"} fw={600}>
+                        描述
+                      </Text>
+                    </Flex>
+                    <Editor
+                      description={task.description}
+                      onSave={handleSaveDesc}
+                    />
                   </Flex>
-                  <Text className={style.tagText} c={"gray.6"} fw={600}>
-                    日期
-                  </Text>
-                  <Flex
-                    style={{
-                      flexDirection: "row",
-                      flexWrap: "wrap",
-                      width: "420px",
-                      alignItems: "center",
-                    }}
-                  >
-                    {task.startDate ? (
-                      <Text size="xs" fw={600} ml={5}>
-                        {task.startDate?.substring(0, 10)}
-                        {task.dueDate && `~${task.dueDate?.substring(0, 10)}`}
-                      </Text>
-                    ) : (
-                      <Text size="xs" fw={600} c={"gray.5"} ml={5}>
-                        [點擊右側日期按鈕即可新增]
-                      </Text>
-                    )}
+                  <Flex direction={"column"} gap={8}>
+                    <Text size="xs" c={"gray.6"} fw={600}>
+                      新增至卡片
+                    </Text>
+                    <TaskMemberMenu />
+                    {/* 目前將選定的labelId跟label改變的event handler當作props傳入 */}
+                    <TaskLabelMenu
+                      selectedLabels={taskLabels.map((label) => label.id)}
+                      onLabelChange={handleLabelChange}
+                    />
+                    <TaskDateMenu task={task} />
+                    <Text size="xs" c={"gray.6"} fw={600}>
+                      動作
+                    </Text>
+                    <Button
+                      color="red"
+                      leftSection={<IconAirBalloon />}
+                      onClick={() => setOpenDelModal(true)}
+                    >
+                      刪除任務
+                    </Button>
                   </Flex>
                 </Flex>
-                <Flex mt={15}>
-                  <IconAlignBoxLeftStretch />
-                  <Text ml={10} c={"gray.6"} fw={600}>
-                    描述
-                  </Text>
-                </Flex>
-                <Editor
-                  description={task.description}
-                  onSave={handleSaveDesc}
-                />
-              </Flex>
-              <Flex direction={"column"} gap={8}>
-                <Text size="xs" c={"gray.6"} fw={600}>
-                  新增至卡片
-                </Text>
-                <TaskMemberMenu />
-                {/* 目前將選定的labelId跟label改變的event handler當作props傳入 */}
-                <TaskLabelMenu
-                  selectedLabels={taskLabels.map((label) => label.id)}
-                  onLabelChange={handleLabelChange}
-                />
-                <TaskDateMenu task={task} />
-                <Text size="xs" c={"gray.6"} fw={600}>
-                  動作
-                </Text>
-                <Button
-                  color="red"
-                  leftSection={<IconAirBalloon />}
-                  onClick={() => setOpenDelModal(true)}
-                >
-                  刪除任務
-                </Button>
-              </Flex>
-            </Flex>
-          </Modal.Body>
-        </Modal.Content>
-      </Modal.Root>
-      <Modal
-        opened={openDelModal}
-        onClose={() => setOpenDelModal(false)}
-        radius={10}
-        size="xs"
-        title="請問確定要刪除此任務嗎？"
-        overlayProps={{
-          backgroundOpacity: 0.1,
-          blur: 2,
-        }}
-      >
-        <Button
-          color="red"
-          leftSection={<IconAirBalloon />}
-          onClick={() => handleDelTask(task.id)}
-        >
-          刪除任務
-        </Button>
-      </Modal>
+              </Modal.Body>
+            </Modal.Content>
+          </Modal.Root>
+          <Modal
+            opened={openDelModal}
+            onClose={() => setOpenDelModal(false)}
+            radius={10}
+            size="xs"
+            title="請問確定要刪除此任務嗎？"
+            overlayProps={{
+              backgroundOpacity: 0.1,
+              blur: 2,
+            }}
+          >
+            <Button
+              color="red"
+              leftSection={<IconAirBalloon />}
+              onClick={() => handleDelTask(task.id)}
+            >
+              刪除任務
+            </Button>
+          </Modal>
+        </>
+      )}
     </>
   );
 }

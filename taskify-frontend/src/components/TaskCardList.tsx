@@ -4,6 +4,7 @@ import TaskCard from "./TaskCard";
 import { BaseTaskRes, ColumnResType } from "@/types/column";
 import { useState } from "react";
 import style from "./TaskCardList.module.scss";
+import ModalsManager from "./modal/ModalManager";
 
 type Props = {
   column: ColumnResType;
@@ -16,6 +17,9 @@ const TaskCardList = ({ column }: Props) => {
       <Stack className={style.taskContainer}>
         {column.tasks.map((task: BaseTaskRes) => (
           <TaskCard key={task.id} task={task} />
+        ))}
+        {column.tasks.map((task: BaseTaskRes) => (
+          <ModalsManager key={task.id} task={task} />
         ))}
         <AddTask
           column={column}
