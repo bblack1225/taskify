@@ -5,8 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Notifications } from "@mantine/notifications";
 import { ContextModalProps, ModalsProvider } from "@mantine/modals";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { RouterProvider } from "react-router-dom";
-import { router } from "./routes/AppRoute";
+import { BrowserRouter, RouterProvider } from "react-router-dom";
+import { AppRoute, router } from "./routes/AppRoute";
 const queryClient = new QueryClient();
 
 //為了讓tag的checkbox的cursor可以pointer
@@ -37,7 +37,9 @@ function App() {
             zIndex={1000}
           />
           {/* <RouterProvider router={router}  /> */}
-          <RouterProvider router={router} />
+          <BrowserRouter>
+            <AppRoute />
+          </BrowserRouter>
         </ModalsProvider>
       </MantineProvider>
 

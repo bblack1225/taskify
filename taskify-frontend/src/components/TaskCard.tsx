@@ -35,6 +35,7 @@ import TaskLabelMenu from "./Menu/TaskLabelMenu";
 import TaskDateMenu from "./Menu/TaskDateMenu";
 import { TaskLabel } from "@/types/labels";
 import { useLabelsData } from "@/context/useLabelsData";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type Props = {
   task: BaseTaskRes;
@@ -48,6 +49,8 @@ function findLabelsByLabelIds(
 }
 
 function TaskCard({ task }: Props) {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [opened, { open, close }] = useDisclosure(false);
   const [openDelModal, setOpenDelModal] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
@@ -266,7 +269,14 @@ function TaskCard({ task }: Props) {
 
   return (
     <>
-      <Box onClick={open} className={style.taskContainer}>
+      <Box
+        onClick={() =>
+          navigate(`/board/card/${task.id}`, {
+            state: { background: location },
+          })
+        }
+        className={style.taskContainer}
+      >
         {taskLabels.length > 0 && (
           <Flex
             style={{
