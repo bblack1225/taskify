@@ -2,12 +2,13 @@ import { AppShell } from "@mantine/core";
 import style from "./MainLayout.module.scss";
 import NavBoard from "./Navboard";
 import { useState } from "react";
+import { Outlet } from "react-router-dom";
 
 type Props = {
   children: React.ReactNode;
 };
 
-function MainLayout({ children }: Props) {
+function MainLayout() {
   const [isNavBoardOpen, setIsNavBoardOpen] = useState(true);
   return (
     <AppShell header={{ height: 60 }} padding="md">
@@ -21,7 +22,7 @@ function MainLayout({ children }: Props) {
         />
       </AppShell.Navbar>
       <AppShell.Main className={isNavBoardOpen ? style.main : style.mainClose}>
-        {children}
+        <Outlet />
       </AppShell.Main>
     </AppShell>
   );

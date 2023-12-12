@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -108,8 +109,6 @@ public class StatusColumnService implements IStatusColumnService {
 
     @Override
     public QueryBaseDataResponse queryBaseData(UUID boardId) {
-        Map<UUID, Labels> labels = labelsRepository.findAllByBoardId(boardId)
-                .stream().collect(Collectors.toMap(Labels::getId, label -> label));
 
     // TODO 待重構
         QueryBaseDataResponse res = new QueryBaseDataResponse();
@@ -142,21 +141,11 @@ public class StatusColumnService implements IStatusColumnService {
             tasksResponse.setName(task.getName());
             tasksResponse.setDataIndex(task.getDataIndex());
             tasksResponse.setDescription(task.getDescription());
+            tasksResponse.setStartDate(task.getStartDate());
+            tasksResponse.setDueDate(task.getDueDate());
+
             List<UUID> labelIds = map.getOrDefault(task.getId(), new ArrayList<>());
             tasksResponse.setLabels(labelIds);
-//            if(labelIds != null) {
-//                List<TaskLabelRes> labelsResponses = labelIds.stream().map(labelId -> {
-//                    Labels label = labels.get(labelId);
-//                    return TaskLabelRes.builder()
-//                            .id(label.getId())
-//                            .name(label.getName())
-//                            .color(label.getColor())
-//                            .build();
-//                }).toList();
-//                tasksResponse.setLabels(labelsResponses);
-//            } else {
-//                tasksResponse.setLabels(new ArrayList<>());
-//            }
             tasksResponse.setColumnId(task.getStatusId());
             return tasksResponse;
         }).toList();

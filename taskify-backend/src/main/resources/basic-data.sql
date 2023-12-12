@@ -1,0 +1,4 @@
+insert into public.users (id, name, email, password, avatar, created_at, modified_at)
+values  ('5dbb8e46-9668-11ee-b9d1-0242ac120002', 'user1', 'user1@example.com', '$2a$10$bFGgEba3SUXVwd7k0cgRc.RgKqlAttnS3lq63MuA3K5E5ff2mOf8e', null, '2023-12-09 07:56:08.385573', null),
+        ('38bcaefe-9668-11ee-b9d1-0242ac120002', 'Blake', 'black60137@gmail.com', '$2a$10$S74V9zmoBx859E9bESJGOeYJ5Vl./q9I4TE7UM8G1XORhWFEJYnGW', null, '2023-12-09 07:55:00.966155', null),
+        ('6b4e7b18-9668-11ee-b9d1-0242ac120002', 'Keely', 'hellennnnn1@gmail.com@gmail.com', '$2a$10$KPDENIqtULMDa5EAwqeSGO1U0Gxk5.Bm7BbCsEIYl2jusY8DO2IwC', null, '2023-12-09 07:56:54.841804', null);

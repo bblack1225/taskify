@@ -3,12 +3,24 @@ import style from "@/pages/Taskboard.module.scss";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import { useEffect, useRef } from "react";
-
-// const events = [{ title: "Meeting", start: new Date() }];
+import { useQueryClient } from "@tanstack/react-query";
+import { BaseDataRes } from "@/types/column";
 
 function CalendarPage() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const calendarRef = useRef<InstanceType<typeof FullCalendar> | null>(null);
+  const queryClient = useQueryClient();
+  const data = queryClient.getQueryData<BaseDataRes>(["tasks"]);
+
+  const dateData = data?.tasks.filter((task) => task.startDate || task.dueDate);
+
+  const events = dateData?.map((data) => {
+    return {
+      title: data.name,
+      start: data?.startDate,
+      end: `${data.dueDate?.substring(0, 10)}T23:59:59`,
+    };
+  });
 
   useEffect(() => {
     if (containerRef.current === null) {
@@ -48,8 +60,8 @@ function CalendarPage() {
           windowResizeDelay={0}
           height="100%"
           initialView="dayGridMonth"
-          displayEventTime={true}
-          // events={events}
+          displayEventTime={false}
+          events={events}
           plugins={[dayGridPlugin]}
           headerToolbar={{
             left: "title",

@@ -49,6 +49,8 @@
   margin: 10px;
   box-shadow: 0 0 5px 1px #a1a1a1;
   border-radius: 10px;
+  display: flex;
+  flex-direction: column;
   // loginMain底下的子元素設置
   & > * {
     margin-top: 10px;
