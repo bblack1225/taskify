@@ -117,8 +117,6 @@ function TaskCard({ task }: Props) {
   });
 
   const editTaskMutation = useMutation({
-    // 因為name或labels的修改是使用同個api，所以可以擇一傳入，但一定要傳其中一個
-    // 瞭改（日語）
     mutationFn: (editTaskTitle: { id: string; name?: string }) =>
       editTask(editTaskTitle),
     onMutate: async (variables) => {

@@ -7,7 +7,6 @@ import com.twoyu.taskifybackend.model.vo.request.UpdateTaskRequest;
 import com.twoyu.taskifybackend.model.vo.response.DeleteTaskResponse;
 import com.twoyu.taskifybackend.model.vo.response.UpdateTaskDescResponse;
 import com.twoyu.taskifybackend.model.vo.response.shared.TasksResponse;
-import com.twoyu.taskifybackend.repository.TasksRepository;
 import com.twoyu.taskifybackend.service.ITaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -60,5 +59,4 @@ public class TaskController {
     public void deleteTaskLabel(@PathVariable UUID id, @PathVariable UUID labelId){
         taskService.deleteTaskLabel(id, labelId);
     }
-
 }

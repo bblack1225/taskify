@@ -18,18 +18,18 @@ import dayjs from "dayjs";
 function TaskDateMenu({ task }: { task: BaseTaskRes }) {
   const [opened, setOpened] = useState(false);
   const [value, setValue] = useState<[Date | null, Date | null]>([
-    new Date(),
-    null,
+    dayjs(task.startDate).toDate(),
+    dayjs(task.dueDate).toDate(),
   ]);
 
   const queryClient = useQueryClient();
 
-  //now是要傳回給後端的
-  // const now = new Date().toISOString();
-
+  // TODO: call edit task api
+  // editTask api 在TaskCard，所以可以新增一個props方法，在這邊把日期整理好，傳回給TaskCard
   const handleDatePicker = () => {
     const start = dayjs(value[0]).format("YYYY-MM-DD");
     const end = value[1] ? dayjs(value[1]).format("YYYY-MM-DD") : "";
+
     setOpened(false);
     queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
       return {

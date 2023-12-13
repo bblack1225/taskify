@@ -15,6 +15,11 @@ public class UpdateTaskRequest {
     @Size(max = 50)
     @Schema(description = "任務名稱")
     private String name;
-    @Schema(description = "任務含有的標籤")
-    private List<UUID> labels;
+
+    @Schema(description = "任務開始時間")
+    private String startDate;
+
+    @Schema(description = "任務截止時間")
+    private String dueDate;
+
 }

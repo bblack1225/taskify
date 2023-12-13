@@ -18,7 +18,6 @@ export const delTask = (id: string): Promise<DelTaskRes> => {
 export const editTask = (editTask: {
   id: string;
   name?: string;
-  labels?: string[];
 }): Promise<BaseTaskRes> => {
   return axiosClient.put(`/tasks/${editTask.id}`, editTask);
 };
@@ -31,9 +30,9 @@ export const updateDesc = ({
 };
 
 export const addTaskLabel = (taskId: string, labelId: string) => {
-  return axiosClient.post(`/tasks/${taskId}/labels`, { labelId});
-}
+  return axiosClient.post(`/tasks/${taskId}/labels`, { labelId });
+};
 
 export const deleteTaskLabel = (taskId: string, labelId: string) => {
   return axiosClient.delete(`/tasks/${taskId}/labels/${labelId}`);
-}
+};
