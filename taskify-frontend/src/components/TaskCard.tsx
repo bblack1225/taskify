@@ -122,8 +122,12 @@ function TaskCard({ task }: Props) {
   });
 
   const editTaskMutation = useMutation({
-    mutationFn: (editTaskTitle: { id: string; name?: string }) =>
-      editTask(editTaskTitle),
+    mutationFn: (taskEdit: {
+      id: string;
+      name?: string;
+      startDate?: string;
+      dueDate?: string;
+    }) => editTask(taskEdit),
     onMutate: async (variables) => {
       await queryClient.cancelQueries({ queryKey: ["tasks"] });
       const previousTasks = queryClient.getQueryData(["tasks"]);
@@ -137,6 +141,8 @@ function TaskCard({ task }: Props) {
               return {
                 ...oldTask,
                 name: variables.name ?? oldTask.name,
+                startDate: variables.startDate ?? oldTask.startDate,
+                dueDate: variables.dueDate ?? oldTask.dueDate,
               };
             }
           }),
@@ -145,11 +151,6 @@ function TaskCard({ task }: Props) {
       return { previousTasks };
     },
     onSuccess: (resData: BaseTaskRes) => {
-      notifications.show({
-        icon: <IconMoodCheck />,
-        message: "更新成功",
-        autoClose: 2000,
-      });
       queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         return {
           ...oldData,
@@ -228,35 +229,8 @@ function TaskCard({ task }: Props) {
     },
   });
 
-  const updateTaskDateMutation = useMutation({
-    mutationFn: ({ id, startDate, dueDate }: UpdateDateReq) => {
-      return editTask({ id, startDate, dueDate });
-    },
-    onMutate: async ({ id, startDate, dueDate }) => {
-      await queryClient.cancelQueries({ queryKey: ["tasks"] });
-      const previousTasks = queryClient.getQueryData(["tasks"]);
-      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
-        return {
-          ...oldData,
-          tasks: oldData.tasks.map((oldTask) => {
-            if (oldTask.id !== id) {
-              return oldTask;
-            } else {
-              return {
-                ...oldTask,
-                startDate,
-                dueDate,
-              };
-            }
-          }),
-        };
-      });
-      return { previousTasks };
-    },
-  });
-
   const handleUpdateDate = (data: UpdateDateReq) => {
-    updateTaskDateMutation.mutate({
+    editTaskMutation.mutate({
       id: data.id,
       startDate: data.startDate,
       dueDate: data.dueDate,
