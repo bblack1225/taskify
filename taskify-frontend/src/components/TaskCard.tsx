@@ -19,7 +19,12 @@ import {
 } from "@tabler/icons-react";
 import Editor from "./editor/Editor";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { DelTaskRes, UpdateDescReq, UpdateDescRes } from "@/types/task";
+import {
+  DelTaskRes,
+  UpdateDateReq,
+  UpdateDescReq,
+  UpdateDescRes,
+} from "@/types/task";
 import { notifications } from "@mantine/notifications";
 import { BaseDataRes, BaseTaskRes } from "@/types/column";
 import {
@@ -223,6 +228,40 @@ function TaskCard({ task }: Props) {
     },
   });
 
+  const updateTaskDateMutation = useMutation({
+    mutationFn: ({ id, startDate, dueDate }: UpdateDateReq) => {
+      return editTask({ id, startDate, dueDate });
+    },
+    onMutate: async ({ id, startDate, dueDate }) => {
+      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+      const previousTasks = queryClient.getQueryData(["tasks"]);
+      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+        return {
+          ...oldData,
+          tasks: oldData.tasks.map((oldTask) => {
+            if (oldTask.id !== id) {
+              return oldTask;
+            } else {
+              return {
+                ...oldTask,
+                startDate,
+                dueDate,
+              };
+            }
+          }),
+        };
+      });
+      return { previousTasks };
+    },
+  });
+
+  const handleUpdateDate = (data: UpdateDateReq) => {
+    updateTaskDateMutation.mutate({
+      id: data.id,
+      startDate: data.startDate,
+      dueDate: data.dueDate,
+    });
+  };
   const handleDelTask = (id: string) => {
     deleteTaskMutation.mutate(id);
     setOpenDelModal(false);
@@ -412,7 +451,7 @@ function TaskCard({ task }: Props) {
                   selectedLabels={taskLabels.map((label) => label.id)}
                   onLabelChange={handleLabelChange}
                 />
-                <TaskDateMenu task={task} />
+                <TaskDateMenu task={task} handleUpdateDate={handleUpdateDate} />
                 <Text size="xs" c={"gray.6"} fw={600}>
                   動作
                 </Text>

@@ -11,43 +11,32 @@ import { DatePicker, DatePickerProps } from "@mantine/dates";
 import { IconCalendarStats } from "@tabler/icons-react";
 import "@mantine/dates/styles.css";
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { BaseDataRes, BaseTaskRes } from "@/types/column";
+import { BaseTaskRes } from "@/types/column";
 import dayjs from "dayjs";
+import { UpdateDateReq } from "@/types/task";
 
-function TaskDateMenu({ task }: { task: BaseTaskRes }) {
+type Props = {
+  handleUpdateDate: (data: UpdateDateReq) => void;
+  task: BaseTaskRes;
+};
+function TaskDateMenu({ handleUpdateDate, task }: Props) {
   const [opened, setOpened] = useState(false);
   const [value, setValue] = useState<[Date | null, Date | null]>([
     dayjs(task.startDate).toDate(),
     dayjs(task.dueDate).toDate(),
   ]);
 
-  const queryClient = useQueryClient();
-
-  // TODO: call edit task api
-  // editTask api 在TaskCard，所以可以新增一個props方法，在這邊把日期整理好，傳回給TaskCard
   const handleDatePicker = () => {
     const start = dayjs(value[0]).format("YYYY-MM-DD");
     const end = value[1] ? dayjs(value[1]).format("YYYY-MM-DD") : "";
 
-    setOpened(false);
-    queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
-      return {
-        ...oldData,
-        tasks: oldData.tasks.map((oldTask) => {
-          if (oldTask.id !== task.id) {
-            return oldTask;
-          } else {
-            return {
-              ...oldTask,
-              startDate: start,
-              dueDate: end,
-            };
-          }
-        }),
-      };
+    handleUpdateDate({
+      id: task.id,
+      startDate: start,
+      dueDate: end,
     });
-    return { start, end };
+
+    setOpened(false);
   };
 
   const getDayProps: DatePickerProps["getDayProps"] = (date) => {

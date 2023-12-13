@@ -18,3 +18,9 @@ export type UpdateDescRes = {
   id: string;
   description: string;
 };
+
+export type UpdateDateReq = {
+  id: string;
+  startDate: string;
+  dueDate: string;
+};
