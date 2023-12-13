@@ -56,6 +56,7 @@ function CalendarPage() {
         }}
       >
         <FullCalendar
+          eventColor="#4592af"
           ref={calendarRef}
           windowResizeDelay={0}
           height="100%"
@@ -67,15 +68,6 @@ function CalendarPage() {
             left: "title",
             right: "prev,today,next",
           }}
-
-          // selectable={true}
-          // selectMirror={true}
-          // dayMaxEvents={true}
-          /* you can update a remote database when these fire:
-            eventAdd={function(){}}
-            eventChange={function(){}}
-            eventRemove={function(){}}
-            */
         />
       </Box>
     </Stack>
