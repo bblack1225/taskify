@@ -8,12 +8,13 @@ import {
   Container,
 } from "@mantine/core";
 import { DatePicker, DatePickerProps } from "@mantine/dates";
-import { IconCalendarStats } from "@tabler/icons-react";
+import { IconCalendarStats, IconMoodCheck } from "@tabler/icons-react";
 import "@mantine/dates/styles.css";
 import { useState } from "react";
 import { BaseTaskRes } from "@/types/column";
 import dayjs from "dayjs";
 import { UpdateDateReq } from "@/types/task";
+import { notifications } from "@mantine/notifications";
 
 type Props = {
   handleUpdateDate: (data: UpdateDateReq) => void;
@@ -22,13 +23,22 @@ type Props = {
 function TaskDateMenu({ handleUpdateDate, task }: Props) {
   const [opened, setOpened] = useState(false);
   const [value, setValue] = useState<[Date | null, Date | null]>([
-    dayjs(task.startDate).toDate(),
-    dayjs(task.dueDate).toDate(),
+    task.startDate ? dayjs(task.startDate).toDate() : null,
+    task.dueDate ? dayjs(task.dueDate).toDate() : null,
   ]);
 
   const handleDatePicker = () => {
-    const start = dayjs(value[0]).format("YYYY-MM-DD");
+    const start = value[0] ? dayjs(value[0]).format("YYYY-MM-DD") : "";
     const end = value[1] ? dayjs(value[1]).format("YYYY-MM-DD") : "";
+
+    if (!end && !start) {
+      notifications.show({
+        message: "尚未指定日期",
+        autoClose: 2000,
+      });
+      setOpened(false);
+      return;
+    }
 
     handleUpdateDate({
       id: task.id,
@@ -38,7 +48,19 @@ function TaskDateMenu({ handleUpdateDate, task }: Props) {
 
     setOpened(false);
   };
-
+  const handleCancelDate = () => {
+    setValue([null, null]);
+    if (!task.startDate && !task.dueDate) {
+      setOpened(false);
+      return;
+    }
+    handleUpdateDate({
+      id: task.id,
+      startDate: "",
+      dueDate: "",
+    });
+    setOpened(false);
+  };
   const getDayProps: DatePickerProps["getDayProps"] = (date) => {
     if (
       dayjs(value[0]).isSame(dayjs(date), "date") ||
@@ -74,10 +96,7 @@ function TaskDateMenu({ handleUpdateDate, task }: Props) {
           style={{ display: "grid", gridTemplateColumns: "20px 1fr 20px" }}
         >
           <Center style={{ gridColumn: "2/3" }}>日期</Center>
-          <CloseButton
-            onClick={() => setOpened(false)}
-            style={{ gridColumn: "3/3" }}
-          />
+          <CloseButton style={{ gridColumn: "3/3" }} />
         </Menu.Label>
         <Text ta={"center"} size="xs" c={"blue"}>
           {value[0] ? dayjs(value[0]).format("YYYY-MM-DD") : "未選擇"} ~ {""}
@@ -93,9 +112,14 @@ function TaskDateMenu({ handleUpdateDate, task }: Props) {
               onChange={setValue}
             />
           </Flex>
-          <Button mt={3} ml={7} onClick={handleDatePicker}>
-            儲存
-          </Button>
+          <Flex justify={"space-between"}>
+            <Button mt={3} ml={7} onClick={handleDatePicker}>
+              儲存
+            </Button>
+            <Button mt={3} ml={7} onClick={handleCancelDate}>
+              取消
+            </Button>
+          </Flex>
         </Container>
       </Menu.Dropdown>
     </Menu>
