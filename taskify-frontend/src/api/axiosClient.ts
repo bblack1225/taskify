@@ -28,9 +28,11 @@ axiosClient.interceptors.request.use(authRequestInterceptor);
 axiosClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    const res = error.response.data as ErrorType;
+    const res = error.response;
+    console.log("error", res);
+
     // 401 後續要做redirect login 或是login fail的處理
-    if (res.errorCode !== 401) {
+    if (res.status !== 401) {
       notifications.show({
         title: `Service Error ${res.errorCode}`,
         message: res.errorMessage,

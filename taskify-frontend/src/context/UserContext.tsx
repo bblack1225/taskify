@@ -11,6 +11,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     queryFn: getUserInfo,
     // user info is not going to change often
     staleTime: 1000 * 60 * 60 * 24,
+    throwOnError: true,
   });
 
   if (isPending) {
