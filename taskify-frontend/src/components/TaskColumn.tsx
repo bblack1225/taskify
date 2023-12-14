@@ -11,8 +11,8 @@ import {
 import style from "@/components/TaskColumn.module.scss";
 import { useMemo, useState } from "react";
 import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { delColumn, editColumn, getBaseData } from "@/api/column";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { delColumn, editColumn } from "@/api/column";
 import { ColumnDeleteRes, ColumnResType, BaseDataRes } from "@/types/column";
 import AddColumn from "./AddColumn";
 import { notifications } from "@mantine/notifications";
@@ -20,10 +20,10 @@ import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
 import { useDisclosure } from "@mantine/hooks";
 import TaskCardList from "./TaskCardList";
 import { calculateDataIndex } from "@/utils";
+import { useTasks } from "@/hooks/useTasks";
 
 // 先寫死
 const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
-// const BOARD_ID = "37d5162d-3aee-4e88-b9c4-4490a512031e";
 
 function selectColumnsWithTasks(data: BaseDataRes): ColumnResType[] {
   return data.columns.map((column) => ({
@@ -36,10 +36,7 @@ function TaskColumn() {
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
 
-  const { isPending, data, error } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: () => getBaseData(BOARD_ID),
-  });
+  const { isPending, data, error } = useTasks(BOARD_ID);
 
   const columnsWithTasks = useMemo(() => {
     if (!data) {

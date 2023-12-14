@@ -8,7 +8,7 @@ import {
   Container,
 } from "@mantine/core";
 import { DatePicker, DatePickerProps } from "@mantine/dates";
-import { IconCalendarStats, IconMoodCheck } from "@tabler/icons-react";
+import { IconCalendarStats } from "@tabler/icons-react";
 import "@mantine/dates/styles.css";
 import { useState } from "react";
 import { BaseTaskRes } from "@/types/column";
