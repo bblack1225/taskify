@@ -2,16 +2,16 @@ import { Box, Button, Flex, Stack } from "@mantine/core";
 import Avatar from "/public/lazy.png";
 import {
   IconAlignBoxBottomCenter,
-  IconUsers,
+  // IconUsers,
   IconCalendarSearch,
-  IconHeartDown,
+  // IconHeartDown,
   IconChevronLeft,
   IconChevronRight,
   IconLogout,
 } from "@tabler/icons-react";
 
 import style from "./NavBoard.module.scss";
-import {  NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 type Props = {
   isNavBoardOpen: boolean;
@@ -43,31 +43,30 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
             <Stack pt={10}>
               <NavLink
                 to="/board"
-                className={({ isActive}) =>  isActive ? style.active : ''}
+                className={({ isActive }) => (isActive ? style.active : "")}
               >
                 <Button color="#be3144" w={"200px"}>
                   <IconAlignBoxBottomCenter />
                   <Box p={5}>看板</Box>
                 </Button>
               </NavLink>
-              <Button color="#d55b3e">
+              {/* <Button color="#d55b3e">
                 <IconUsers />
                 <Box p={5}>成員</Box>
-              </Button>
+              </Button> */}
               <NavLink
                 to="/calendar"
-                className={({ isActive}) =>  isActive ? style.active : ''}
-             
+                className={({ isActive }) => (isActive ? style.active : "")}
               >
                 <Button color="#be3144" w={"200px"}>
                   <IconCalendarSearch />
                   <Box p={5}>行事曆</Box>
                 </Button>
               </NavLink>
-              <Button color="#d55b3e">
+              {/* <Button color="#d55b3e">
                 <IconHeartDown />
                 <Box p={5}>你的看板</Box>
-              </Button>
+              </Button> */}
             </Stack>
             <Flex>
               <Button
@@ -80,7 +79,7 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
                 }}
                 onClick={() => {
                   localStorage.removeItem("token");
-                  navigate('login')
+                  navigate("login");
                 }}
               >
                 <IconLogout />

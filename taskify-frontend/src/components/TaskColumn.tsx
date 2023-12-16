@@ -1,25 +1,25 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Stack,
-  ActionIcon,
-  Loader,
-  Menu,
-  Modal,
-} from "@mantine/core";
-import style from "@/components/TaskColumn.module.scss";
+import { Button, Flex, Loader, Modal, Stack } from "@mantine/core";
+import styles from "@/components/TaskColumn.module.scss";
 import { useMemo, useState } from "react";
-import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
+import { IconMoodCheck } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { delColumn, editColumn, getBaseData } from "@/api/column";
 import { ColumnDeleteRes, ColumnResType, BaseDataRes } from "@/types/column";
 import AddColumn from "./AddColumn";
 import { notifications } from "@mantine/notifications";
-import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
+
 import { useDisclosure } from "@mantine/hooks";
-import TaskCardList from "./TaskCardList";
+
 import { calculateDataIndex } from "@/utils";
+import {
+  DndContext,
+  DragEndEvent,
+  DragMoveEvent,
+  DragOverlay,
+  DragStartEvent,
+} from "@dnd-kit/core";
+import { SortableContext } from "@dnd-kit/sortable";
+import TaskColumnItem from "./TaskColumnItem";
 
 // 先寫死
 const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
@@ -35,6 +35,8 @@ function selectColumnsWithTasks(data: BaseDataRes): ColumnResType[] {
 function TaskColumn() {
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
+  const [activeColumnItem, setActiveColumnItem] =
+    useState<ColumnResType | null>(null);
 
   const { isPending, data, error } = useQuery({
     queryKey: ["tasks"],
@@ -47,6 +49,12 @@ function TaskColumn() {
     }
     return selectColumnsWithTasks(data);
   }, [data]);
+
+  const columnsWithTasksId = useMemo(
+    () => columnsWithTasks.map((column) => column.id),
+    [columnsWithTasks]
+  );
+  console.log("columnsWithTasksId", columnsWithTasksId);
 
   const queryClient = useQueryClient();
   const updateMutation = useMutation({
@@ -129,68 +137,70 @@ function TaskColumn() {
     setCurrentDelId("");
   };
 
+  const handleDragStart = (event: DragStartEvent) => {
+    if (event.active.data.current?.id) {
+      setActiveColumnItem(event.active.data.current?.id);
+    }
+    console.log("handleDragStart", event);
+  };
+  const handleDragEnd = (event: DragEndEvent) => {
+    console.log("handleDragEnd", event);
+  };
+  const handleDragMove = (event: DragMoveEvent) => {
+    console.log("handleDragMove", event);
+  };
+  console.log("columnsWithTasks", columnsWithTasks);
+
   return (
-    <Flex className={style.container}>
-      {columnsWithTasks.map((column: ColumnResType) => (
-        <Flex style={{ flexShrink: 0 }} key={column.id}>
-          <Box>
-            <Stack className={style.columnContainer}>
-              <Flex className={style.titleContainer}>
-                <ColumnTitleTextarea
-                  id={column.id}
-                  title={column.title}
-                  onSave={handleEditTitle}
-                />
-                <Menu shadow="md" width={200}>
-                  <Menu.Target>
-                    <ActionIcon
-                      className={style.actionIcon}
-                      variant="transparent"
-                      aria-label="Settings"
-                      color="white"
-                      size={"lg"}
-                    >
-                      <IconDots size="1.125rem" />
-                    </ActionIcon>
-                  </Menu.Target>
-                  <Menu.Dropdown>
-                    <Menu.Label>列表動作</Menu.Label>
-                    <Menu.Divider />
-                    <Menu.Item
-                      color="red"
-                      leftSection={<IconTrash />}
-                      onClick={() => {
-                        open();
-                        setCurrentDelId(column.id);
-                      }}
-                    >
-                      刪除列表
-                    </Menu.Item>
-                  </Menu.Dropdown>
-                </Menu>
-              </Flex>
-              <TaskCardList column={column} />
-            </Stack>
-          </Box>
+    <DndContext
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragMove={handleDragMove}
+    >
+      <DragOverlay>
+        {activeColumnItem && (
+          <Stack
+            style={{ border: "1px solid pink" }}
+            className={styles.columnContainer}
+          >
+            12
+          </Stack>
+        )}
+      </DragOverlay>
+      <SortableContext items={columnsWithTasks.map((column) => column.id)}>
+        <Flex className={styles.container}>
+          {columnsWithTasks.map((column: ColumnResType) => (
+            <TaskColumnItem
+              open={open}
+              key={column.id}
+              handleEditTitle={handleEditTitle}
+              setCurrentDelId={setCurrentDelId}
+              column={column}
+            />
+          ))}
+
+          <AddColumn
+            boardId={BOARD_ID}
+            currentColDataIndex={currentColDataIndex}
+          />
+          <Modal
+            opened={opened}
+            onClose={close}
+            radius={10}
+            size="xs"
+            title="請問確定要刪除此列表嗎？"
+            overlayProps={{
+              backgroundOpacity: 0.1,
+              blur: 2,
+            }}
+          >
+            <Button color="red" onClick={handleDelColumn}>
+              確定刪除
+            </Button>
+          </Modal>
         </Flex>
-      ))}
-      <AddColumn boardId={BOARD_ID} currentColDataIndex={currentColDataIndex} />
-      <Modal
-        opened={opened}
-        onClose={close}
-        radius={10}
-        size="xs"
-        title="請問確定要刪除此列表嗎？"
-        overlayProps={{
-          backgroundOpacity: 0.1,
-          blur: 2,
-        }}
-      >
-        <Button color="red" onClick={handleDelColumn}>
-          確定刪除
-        </Button>
-      </Modal>
-    </Flex>
+      </SortableContext>
+    </DndContext>
   );
 }
 

@@ -9,6 +9,8 @@ import {
   Textarea,
   isLightColor,
 } from "@mantine/core";
+import { CSS } from "@dnd-kit/utilities";
+
 import style from "@/components/TaskCard.module.scss";
 import { useDisclosure } from "@mantine/hooks";
 import {
@@ -35,11 +37,12 @@ import {
   updateDesc,
 } from "@/api/tasks";
 import { useEffect, useRef, useState } from "react";
-import TaskMemberMenu from "./Menu/TaskMemberMenu";
+// import TaskMemberMenu from "./Menu/TaskMemberMenu";
 import TaskLabelMenu from "./Menu/TaskLabelMenu";
 import TaskDateMenu from "./Menu/TaskDateMenu";
 import { TaskLabel } from "@/types/labels";
 import { useLabelsData } from "@/context/useLabelsData";
+import { useSortable } from "@dnd-kit/sortable";
 
 type Props = {
   task: BaseTaskRes;
@@ -53,6 +56,13 @@ function findLabelsByLabelIds(
 }
 
 function TaskCard({ task }: Props) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: task.id });
+
+  const styles = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
   const [opened, { open, close }] = useDisclosure(false);
   const [openDelModal, setOpenDelModal] = useState(false);
   const [isComposing, setIsComposing] = useState(false);
@@ -277,7 +287,14 @@ function TaskCard({ task }: Props) {
 
   return (
     <>
-      <Box onClick={open} className={style.taskContainer}>
+      <Box
+        onClick={open}
+        className={style.taskContainer}
+        ref={setNodeRef}
+        style={styles}
+        {...attributes}
+        {...listeners}
+      >
         {taskLabels.length > 0 && (
           <Flex
             style={{
@@ -419,7 +436,7 @@ function TaskCard({ task }: Props) {
                 <Text size="xs" c={"gray.6"} fw={600}>
                   新增至卡片
                 </Text>
-                <TaskMemberMenu />
+                {/* <TaskMemberMenu /> */}
                 {/* 目前將選定的labelId跟label改變的event handler當作props傳入 */}
                 <TaskLabelMenu
                   selectedLabels={taskLabels.map((label) => label.id)}

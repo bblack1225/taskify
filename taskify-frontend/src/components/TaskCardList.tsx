@@ -4,6 +4,7 @@ import TaskCard from "./TaskCard";
 import { BaseTaskRes, ColumnResType } from "@/types/column";
 import { useState } from "react";
 import style from "./TaskCardList.module.scss";
+import { SortableContext } from "@dnd-kit/sortable";
 
 type Props = {
   column: ColumnResType;
@@ -15,7 +16,12 @@ const TaskCardList = ({ column }: Props) => {
     <>
       <Stack className={style.taskContainer}>
         {column.tasks.map((task: BaseTaskRes) => (
-          <TaskCard key={task.id} task={task} />
+          <SortableContext
+            key={task.id}
+            items={column.tasks.map((task) => task.id)}
+          >
+            <TaskCard task={task} />
+          </SortableContext>
         ))}
         <AddTask
           column={column}
