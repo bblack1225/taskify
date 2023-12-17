@@ -30,7 +30,6 @@ import {
   updateDesc,
 } from "@/api/tasks";
 import { useEffect, useRef, useState } from "react";
-import TaskMemberMenu from "./Menu/TaskMemberMenu";
 import TaskLabelMenu from "./Menu/TaskLabelMenu";
 import TaskDateMenu from "./Menu/TaskDateMenu";
 import { TaskLabel } from "@/types/labels";

@@ -1,5 +1,7 @@
 export type UserInfo = {
   id: string;
   email: string;
-  username: string;
+  name: string;
+  boardId: string;
+  boardName: string;
 };

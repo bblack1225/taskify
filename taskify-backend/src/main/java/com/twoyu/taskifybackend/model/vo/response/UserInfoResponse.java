@@ -1,5 +1,7 @@
 package com.twoyu.taskifybackend.model.vo.response;
 
-public record UserInfoResponse(String name, String email) {
+import java.util.UUID;
+
+public record UserInfoResponse(UUID id, String name, String email, UUID boardId, String boardName) {
 
 }

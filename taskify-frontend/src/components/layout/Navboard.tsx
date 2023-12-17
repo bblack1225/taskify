@@ -2,9 +2,7 @@ import { Box, Button, Flex, Stack } from "@mantine/core";
 import Avatar from "/public/lazy.png";
 import {
   IconAlignBoxBottomCenter,
-  IconUsers,
   IconCalendarSearch,
-  IconHeartDown,
   IconChevronLeft,
   IconChevronRight,
   IconLogout,
@@ -12,6 +10,7 @@ import {
 
 import style from "./NavBoard.module.scss";
 import {  NavLink, useNavigate } from "react-router-dom";
+import { useUser } from "@/hooks/useUser";
 
 type Props = {
   isNavBoardOpen: boolean;
@@ -20,13 +19,15 @@ type Props = {
 
 function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
   const navigate = useNavigate();
+  const userInfo = useUser();
+  
   return (
     <>
       {isNavBoardOpen ? (
         <Box p={20} h={"100vh"}>
           <Box>
             <Flex justify={"space-between"} align={"center"} mb={20}>
-              <Flex className={style.navTitle}>TwoYu</Flex>
+              <Flex className={style.navTitle}>{userInfo.name}</Flex>
               <IconChevronLeft
                 style={{ cursor: "pointer" }}
                 onClick={() => setIsNavBoardOpen(false)}

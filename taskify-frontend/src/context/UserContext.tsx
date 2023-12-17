@@ -3,7 +3,7 @@ import { UserInfo } from "@/types/user";
 import { useQuery } from "@tanstack/react-query";
 import { createContext } from "react";
 
-export const UserContext = createContext<UserInfo | null>(null);
+export const UserContext = createContext<UserInfo>({id: "", email:"", name: "", boardId: "", boardName: ""});
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: userInfo, isPending } = useQuery({
@@ -19,7 +19,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!userInfo) {
-    throw new Error("userInfo is null");
+    throw new Error("User info is not found");
   }
 
   return (
