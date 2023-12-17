@@ -11,6 +11,7 @@ import {
 import style from "./NavBoard.module.scss";
 import {  NavLink, useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks/useUser";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Props = {
   isNavBoardOpen: boolean;
@@ -20,6 +21,7 @@ type Props = {
 function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
   const navigate = useNavigate();
   const userInfo = useUser();
+  const queryClient = useQueryClient();
   
   return (
     <>
@@ -81,6 +83,7 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
                 }}
                 onClick={() => {
                   localStorage.removeItem("token");
+                  queryClient.clear();
                   navigate('login')
                 }}
               >
