@@ -21,7 +21,6 @@ function App() {
           style={{ bottom: "40px", width: "15rem" }}
           zIndex={1000}
         />
-        {/* <RouterProvider router={router}  /> */}
         <RouterProvider router={router} />
       </MantineProvider>
       <ReactQueryDevtools initialIsOpen={false} />

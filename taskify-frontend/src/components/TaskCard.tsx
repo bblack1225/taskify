@@ -30,7 +30,6 @@ import {
   updateDesc,
 } from "@/api/tasks";
 import { useEffect, useRef, useState } from "react";
-import TaskMemberMenu from "./Menu/TaskMemberMenu";
 import TaskLabelMenu from "./Menu/TaskLabelMenu";
 import TaskDateMenu from "./Menu/TaskDateMenu";
 import { TaskLabel } from "@/types/labels";
@@ -408,7 +407,7 @@ function TaskCard({ task }: Props) {
                 <Text size="xs" c={"gray.6"} fw={600}>
                   新增至卡片
                 </Text>
-                <TaskMemberMenu />
+                {/* <TaskMemberMenu /> */}
                 {/* 目前將選定的labelId跟label改變的event handler當作props傳入 */}
                 <TaskLabelMenu
                   selectedLabels={taskLabels.map((label) => label.id)}

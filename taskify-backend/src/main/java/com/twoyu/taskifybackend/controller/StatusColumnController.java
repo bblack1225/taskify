@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -47,6 +49,8 @@ public class StatusColumnController {
     @Operation(summary = "取得所有狀態列表")
     @GetMapping("/v2/all/{boardId}")
     public QueryBaseDataResponse getBaseData(@PathVariable("boardId") UUID boardId){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println(authentication.getName());
         return statusColumnService.queryBaseData(boardId);
     }
 

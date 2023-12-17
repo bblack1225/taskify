@@ -4,10 +4,6 @@ import NavBoard from "./Navboard";
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 
-type Props = {
-  children: React.ReactNode;
-};
-
 function MainLayout() {
   const [isNavBoardOpen, setIsNavBoardOpen] = useState(true);
   return (
