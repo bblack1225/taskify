@@ -50,10 +50,10 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
                   <Box p={5}>看板</Box>
                 </Button>
               </NavLink>
-              <Button color="#d55b3e">
+              {/* <Button color="#d55b3e">
                 <IconUsers />
                 <Box p={5}>成員</Box>
-              </Button>
+              </Button> */}
               <NavLink
                 to="/calendar"
                 className={({ isActive}) =>  isActive ? style.active : ''}
@@ -64,10 +64,10 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
                   <Box p={5}>行事曆</Box>
                 </Button>
               </NavLink>
-              <Button color="#d55b3e">
+              {/* <Button color="#d55b3e">
                 <IconHeartDown />
                 <Box p={5}>你的看板</Box>
-              </Button>
+              </Button> */}
             </Stack>
             <Flex>
               <Button
