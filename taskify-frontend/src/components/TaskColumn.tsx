@@ -21,9 +21,7 @@ import { useDisclosure } from "@mantine/hooks";
 import TaskCardList from "./TaskCardList";
 import { calculateDataIndex } from "@/utils";
 import { useTasks } from "@/hooks/useTasks";
-
-// 先寫死
-const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
+import { useUser } from "@/hooks/useUser";
 
 function selectColumnsWithTasks(data: BaseDataRes): ColumnResType[] {
   return data.columns.map((column) => ({
@@ -35,8 +33,12 @@ function selectColumnsWithTasks(data: BaseDataRes): ColumnResType[] {
 function TaskColumn() {
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
+  const userInfo = useUser();
+  console.log('userInfo',userInfo);
+  
 
   const { isPending, data, error } = useTasks(BOARD_ID);
+
 
   const columnsWithTasks = useMemo(() => {
     if (!data) {
@@ -171,7 +173,7 @@ function TaskColumn() {
           </Box>
         </Flex>
       ))}
-      <AddColumn boardId={BOARD_ID} currentColDataIndex={currentColDataIndex} />
+      <AddColumn boardId={userInfo.boardId} currentColDataIndex={currentColDataIndex} />
       <Modal
         opened={opened}
         onClose={close}

@@ -2,9 +2,7 @@ import { Box, Button, Flex, Stack } from "@mantine/core";
 import Avatar from "/public/lazy.png";
 import {
   IconAlignBoxBottomCenter,
-  IconUsers,
   IconCalendarSearch,
-  IconHeartDown,
   IconChevronLeft,
   IconChevronRight,
   IconLogout,
@@ -12,6 +10,8 @@ import {
 
 import style from "./NavBoard.module.scss";
 import {  NavLink, useNavigate } from "react-router-dom";
+import { useUser } from "@/hooks/useUser";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Props = {
   isNavBoardOpen: boolean;
@@ -20,13 +20,16 @@ type Props = {
 
 function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
   const navigate = useNavigate();
+  const userInfo = useUser();
+  const queryClient = useQueryClient();
+  
   return (
     <>
       {isNavBoardOpen ? (
-        <Box p={20} h={"100vh"}>
+        <Stack p={20} h={"100vh"}>
           <Box>
             <Flex justify={"space-between"} align={"center"} mb={20}>
-              <Flex className={style.navTitle}>TwoYu</Flex>
+              <Flex className={style.navTitle}>{userInfo.name}</Flex>
               <IconChevronLeft
                 style={{ cursor: "pointer" }}
                 onClick={() => setIsNavBoardOpen(false)}
@@ -39,7 +42,7 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
               width={"200px"}
             />
           </Box>
-          <Flex h={"60%"} direction={"column"} justify={"space-between"}>
+          <Flex style={{flex:1}} direction={"column"} justify={"space-between"}>
             <Stack pt={10}>
               <NavLink
                 to="/board"
@@ -50,10 +53,10 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
                   <Box p={5}>看板</Box>
                 </Button>
               </NavLink>
-              <Button color="#d55b3e">
+              {/* <Button color="#d55b3e">
                 <IconUsers />
                 <Box p={5}>成員</Box>
-              </Button>
+              </Button> */}
               <NavLink
                 to="/calendar"
                 className={({ isActive}) =>  isActive ? style.active : ''}
@@ -64,10 +67,10 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
                   <Box p={5}>行事曆</Box>
                 </Button>
               </NavLink>
-              <Button color="#d55b3e">
+              {/* <Button color="#d55b3e">
                 <IconHeartDown />
                 <Box p={5}>你的看板</Box>
-              </Button>
+              </Button> */}
             </Stack>
             <Flex>
               <Button
@@ -80,6 +83,7 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
                 }}
                 onClick={() => {
                   localStorage.removeItem("token");
+                  queryClient.clear();
                   navigate('login')
                 }}
               >
@@ -88,7 +92,7 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
               </Button>
             </Flex>
           </Flex>
-        </Box>
+        </Stack>
       ) : (
         <Box w={25}>
           <IconChevronRight
