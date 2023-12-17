@@ -29,17 +29,22 @@ axiosClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
     const res = error.response;
-    console.log("error", res);
-
-    // 401 後續要做redirect login 或是login fail的處理
-    if (res.status !== 401) {
-      notifications.show({
+    if (res.status === 401) {
+      const data = res.data as ErrorType;
+      // token 無效轉跳 login
+      if(data.errorMessage === 'Invalid Token'){
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+    }else {
+           notifications.show({
         title: `Service Error ${res.errorCode}`,
         message: res.errorMessage,
         color: "red",
       });
     }
-    return Promise.reject(error);
+      return Promise.reject(error);
+
   }
 );
 

@@ -5,22 +5,22 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
   isRouteErrorResponse,
+  useNavigate,
   useRouteError,
 } from "react-router-dom";
 import { ProtectedRoute } from "./ProtectedRoute";
 import TaskBoard from "@/pages/Taskboard";
 import CalendarPage from "@/pages/CalendarPage";
 
-function RootBoundary() {
-  const error = useRouteError();
-  console.log("error", error);
-  console.log("typeof error", typeof error);
+// function RootBoundary() {
+//   // const error = useRouteError() as Response;
+//   // const navigate = useNavigate();
+//   // console.log("error!!!", error);
 
-  if (isRouteErrorResponse(error))
-    if (error.status === 401) {
-      return <div>401</div>;
-    }
-}
+//     if (error.status === 401) {
+//       navigate("/login");
+//     }
+// }
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -29,7 +29,7 @@ export const router = createBrowserRouter(
       <Route
         path="/"
         element={<ProtectedRoute />}
-        errorElement={<RootBoundary />}
+        // errorElement={<RootBoundary />}
       >
         <Route path="/" element={<Navigate replace to={"/board"} />} />
         <Route path="/board" element={<TaskBoard />} />
