@@ -1,7 +1,6 @@
 import { notifications } from "@mantine/notifications";
 import axios, { InternalAxiosRequestConfig } from "axios";
 
-// const MOCK_TOKEN = 'eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJibGFjazYwMTM3QGdtYWlsLmNvbSIsImV4cCI6MTcwMjc5MTAwNH0.J4KDh6obQ_wv1v9GvDJqru_kM8EoIfSIeUop_-zL5JCuvpsqo0f_KaUnn1nJ041H'
 function authRequestInterceptor(config: InternalAxiosRequestConfig) {
   const token = localStorage.getItem("token");
   if (token) {
