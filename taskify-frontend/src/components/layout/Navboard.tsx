@@ -24,7 +24,7 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
   return (
     <>
       {isNavBoardOpen ? (
-        <Box p={20} h={"100vh"}>
+        <Stack p={20} h={"100vh"}>
           <Box>
             <Flex justify={"space-between"} align={"center"} mb={20}>
               <Flex className={style.navTitle}>{userInfo.name}</Flex>
@@ -40,7 +40,7 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
               width={"200px"}
             />
           </Box>
-          <Flex h={"60%"} direction={"column"} justify={"space-between"}>
+          <Flex style={{flex:1}} direction={"column"} justify={"space-between"}>
             <Stack pt={10}>
               <NavLink
                 to="/board"
@@ -89,7 +89,7 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
               </Button>
             </Flex>
           </Flex>
-        </Box>
+        </Stack>
       ) : (
         <Box w={25}>
           <IconChevronRight
