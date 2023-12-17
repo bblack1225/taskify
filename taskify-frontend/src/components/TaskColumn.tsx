@@ -34,10 +34,8 @@ function TaskColumn() {
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
   const userInfo = useUser();
-  console.log('userInfo',userInfo);
-  
 
-  const { isPending, data, error } = useTasks(BOARD_ID);
+  const { isPending, data, error } = useTasks(userInfo.boardId);
 
 
   const columnsWithTasks = useMemo(() => {
