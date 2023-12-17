@@ -1,6 +1,13 @@
-import { Button, Flex, Loader, Modal, Stack } from "@mantine/core";
+import {
+  Button,
+  Flex,
+  Loader,
+  LoadingOverlay,
+  Modal,
+  Stack,
+} from "@mantine/core";
 import styles from "@/components/TaskColumn.module.scss";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IconMoodCheck } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { delColumn, editColumn, getBaseData } from "@/api/column";
@@ -17,9 +24,13 @@ import {
   DragMoveEvent,
   DragOverlay,
   DragStartEvent,
+  MouseSensor,
+  useSensor,
+  useSensors,
 } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 import TaskColumnItem from "./TaskColumnItem";
+import { createPortal } from "react-dom";
 
 // 先寫死
 const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
@@ -35,8 +46,13 @@ function selectColumnsWithTasks(data: BaseDataRes): ColumnResType[] {
 function TaskColumn() {
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
-  const [activeColumnItem, setActiveColumnItem] =
-    useState<ColumnResType | null>(null);
+  const [activeColumn, setActiveColumn] = useState(null);
+  const [containerSize, setContainerSize] = useState({
+    width: 0,
+    height: 0,
+    x: 0,
+    y: 0,
+  });
 
   const { isPending, data, error } = useQuery({
     queryKey: ["tasks"],
@@ -50,12 +66,17 @@ function TaskColumn() {
     return selectColumnsWithTasks(data);
   }, [data]);
 
-  const columnsWithTasksId = useMemo(
+  const columnsId = useMemo(
     () => columnsWithTasks.map((column) => column.id),
     [columnsWithTasks]
   );
-  console.log("columnsWithTasksId", columnsWithTasksId);
 
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: {
+      distance: 5,
+    },
+  });
+  const sensors = useSensors(mouseSensor);
   const queryClient = useQueryClient();
   const updateMutation = useMutation({
     mutationFn: (editTitle: { id: string; title: string }) =>
@@ -138,39 +159,52 @@ function TaskColumn() {
   };
 
   const handleDragStart = (event: DragStartEvent) => {
-    if (event.active.data.current?.id) {
-      setActiveColumnItem(event.active.data.current?.id);
+    console.log("eventSTART", event);
+
+    const container = document.querySelector(`[data-id="${event.active.id}"]`);
+
+    if (container) {
+      setContainerSize({
+        width: container.getBoundingClientRect().width,
+        height: container.getBoundingClientRect().height,
+        x: container.getBoundingClientRect().x,
+        y: container.getBoundingClientRect().y,
+      });
     }
-    console.log("handleDragStart", event);
+    console.log("containerSize", containerSize);
+
+    if (event.active.data.current?.type === "Column") {
+      setActiveColumn(event.active.data.current?.column);
+    }
   };
+
   const handleDragEnd = (event: DragEndEvent) => {
-    console.log("handleDragEnd", event);
+    // const { active, over } = event;
+    // if (active.id !== over?.id) {
+    //   console.log("active.id", active.id);
+    //   console.log("over.id", over?.id);
+    // }
   };
   const handleDragMove = (event: DragMoveEvent) => {
-    console.log("handleDragMove", event);
+    console.log("event", event);
+
+    // console.log("handleDragMove", event);
   };
-  console.log("columnsWithTasks", columnsWithTasks);
+  // console.log("columnsWithTasks", columnsWithTasks);
 
   return (
     <DndContext
+      sensors={sensors}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragMove={handleDragMove}
     >
-      <DragOverlay>
-        {activeColumnItem && (
-          <Stack
-            style={{ border: "1px solid pink" }}
-            className={styles.columnContainer}
-          >
-            12
-          </Stack>
-        )}
-      </DragOverlay>
-      <SortableContext items={columnsWithTasks.map((column) => column.id)}>
+      <SortableContext items={columnsId}>
         <Flex className={styles.container}>
           {columnsWithTasks.map((column: ColumnResType) => (
             <TaskColumnItem
+              clientHeight={containerSize.height}
+              clientWidth={containerSize.width}
               open={open}
               key={column.id}
               handleEditTitle={handleEditTitle}
@@ -200,6 +234,16 @@ function TaskColumn() {
           </Modal>
         </Flex>
       </SortableContext>
+      {createPortal(
+        <DragOverlay>
+          {activeColumn && (
+            <Flex className={styles.container}>
+              <TaskColumnItem column={activeColumn} />
+            </Flex>
+          )}
+        </DragOverlay>,
+        document.body
+      )}
     </DndContext>
   );
 }
