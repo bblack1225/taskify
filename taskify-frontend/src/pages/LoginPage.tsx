@@ -17,7 +17,6 @@ function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (resData) => {
-      // TODO set to auth context
       localStorage.setItem("token", resData.token);
       const redirectTo = location.state ? location.state.from.to : "/board";
       navigate(redirectTo);
@@ -34,8 +33,18 @@ function LoginPage() {
     },
 
     validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
-      password: (value) => (value.length > 0 ? null : "Password is required"),
+      email: (value) => {
+        if(/^\S+@\S+$/.test(value)){
+          return null;
+        }else {
+          if(value.length === 0){
+            return "請輸入Email";
+          }else {
+            return "無效的Email";
+          }
+        }
+      },
+      password: (value) => (value.length > 0 ? null : "請輸入密碼"),
     },
   });
   const token = localStorage.getItem("token");
@@ -46,7 +55,7 @@ function LoginPage() {
   return (
     <Flex className={style.loginPageContainer}>
       <Flex className={style.layerContainer}>
-        <div className={style.layer}>TODO LIST</div>
+        <div className={style.layer}>SIMPLIFY YOUR DAY</div>
       </Flex>
       <form
         className={style.loginMain}
@@ -73,14 +82,14 @@ function LoginPage() {
           登入
         </Button>
         {/* </form> */}
-        <Text className={style.loginText} style={{ fontSize: "12px" }}>
+        {/* <Text className={style.loginText} style={{ fontSize: "12px" }}>
           或是
         </Text>
         <Button className={style.loginButton}>使用Google登入</Button>
         <Flex justify={"space-evenly"}>
           <a href="">無法登入？</a>
           <a href="">建立帳戶</a>
-        </Flex>
+        </Flex> */}
       </form>
     </Flex>
   );
