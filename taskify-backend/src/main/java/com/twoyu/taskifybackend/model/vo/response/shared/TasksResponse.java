@@ -39,6 +39,8 @@ public class TasksResponse {
                 .description(task.getDescription())
                 .labels(labelIds)
                 .columnId(task.getStatusId())
+                .startDate(task.getStartDate())
+                .dueDate(task.getDueDate())
                 .build();
     }
 }

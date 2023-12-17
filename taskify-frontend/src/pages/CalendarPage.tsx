@@ -1,16 +1,16 @@
-import { Box, Flex, Stack } from "@mantine/core";
+import { Box, Flex, Loader, Stack } from "@mantine/core";
 import style from "@/pages/Taskboard.module.scss";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import { useEffect, useRef } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { BaseDataRes } from "@/types/column";
+import { useTasks } from "@/hooks/useTasks";
 
+// 到時候會從後端拿
+const BOARD_ID = "296a0423-d062-43d7-ad2c-b5be1012af96";
 function CalendarPage() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const calendarRef = useRef<InstanceType<typeof FullCalendar> | null>(null);
-  const queryClient = useQueryClient();
-  const data = queryClient.getQueryData<BaseDataRes>(["tasks"]);
+  const { isPending, data, error } = useTasks(BOARD_ID);
 
   const dateData = data?.tasks.filter((task) => task.startDate || task.dueDate);
 
@@ -37,6 +37,15 @@ function CalendarPage() {
     return () => resizeObserver.disconnect();
   }, [calendarRef, containerRef]);
 
+  if (isPending)
+    return (
+      <div style={{ margin: "0 auto" }}>
+        <Loader color="#4592af" type="dots" />
+      </div>
+    );
+
+  if (error) return "An error has occurred: " + error.message;
+
   return (
     <Stack
       style={{
@@ -56,6 +65,7 @@ function CalendarPage() {
         }}
       >
         <FullCalendar
+          eventColor="#4592af"
           ref={calendarRef}
           windowResizeDelay={0}
           height="100%"
@@ -67,15 +77,6 @@ function CalendarPage() {
             left: "title",
             right: "prev,today,next",
           }}
-
-          // selectable={true}
-          // selectMirror={true}
-          // dayMaxEvents={true}
-          /* you can update a remote database when these fire:
-            eventAdd={function(){}}
-            eventChange={function(){}}
-            eventRemove={function(){}}
-            */
         />
       </Box>
     </Stack>

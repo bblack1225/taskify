@@ -19,7 +19,12 @@ import {
 } from "@tabler/icons-react";
 import Editor from "./editor/Editor";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { DelTaskRes, UpdateDescReq, UpdateDescRes } from "@/types/task";
+import {
+  DelTaskRes,
+  UpdateDateReq,
+  UpdateDescReq,
+  UpdateDescRes,
+} from "@/types/task";
 import { notifications } from "@mantine/notifications";
 import { BaseDataRes, BaseTaskRes } from "@/types/column";
 import {
@@ -116,10 +121,12 @@ function TaskCard({ task }: Props) {
   });
 
   const editTaskMutation = useMutation({
-    // 因為name或labels的修改是使用同個api，所以可以擇一傳入，但一定要傳其中一個
-    // 瞭改（日語）
-    mutationFn: (editTaskTitle: { id: string; name?: string }) =>
-      editTask(editTaskTitle),
+    mutationFn: (taskEdit: {
+      id: string;
+      name?: string;
+      startDate?: string;
+      dueDate?: string;
+    }) => editTask(taskEdit),
     onMutate: async (variables) => {
       await queryClient.cancelQueries({ queryKey: ["tasks"] });
       const previousTasks = queryClient.getQueryData(["tasks"]);
@@ -133,6 +140,8 @@ function TaskCard({ task }: Props) {
               return {
                 ...oldTask,
                 name: variables.name ?? oldTask.name,
+                startDate: variables.startDate ?? oldTask.startDate,
+                dueDate: variables.dueDate ?? oldTask.dueDate,
               };
             }
           }),
@@ -141,11 +150,6 @@ function TaskCard({ task }: Props) {
       return { previousTasks };
     },
     onSuccess: (resData: BaseTaskRes) => {
-      notifications.show({
-        icon: <IconMoodCheck />,
-        message: "更新成功",
-        autoClose: 2000,
-      });
       queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
         return {
           ...oldData,
@@ -224,6 +228,13 @@ function TaskCard({ task }: Props) {
     },
   });
 
+  const handleUpdateDate = (data: UpdateDateReq) => {
+    editTaskMutation.mutate({
+      id: data.id,
+      startDate: data.startDate,
+      dueDate: data.dueDate,
+    });
+  };
   const handleDelTask = (id: string) => {
     deleteTaskMutation.mutate(id);
     setOpenDelModal(false);
@@ -413,7 +424,7 @@ function TaskCard({ task }: Props) {
                   selectedLabels={taskLabels.map((label) => label.id)}
                   onLabelChange={handleLabelChange}
                 />
-                <TaskDateMenu task={task} />
+                <TaskDateMenu task={task} handleUpdateDate={handleUpdateDate} />
                 <Text size="xs" c={"gray.6"} fw={600}>
                   動作
                 </Text>

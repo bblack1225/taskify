@@ -1,7 +1,7 @@
 package com.twoyu.taskifybackend.service.impl;
 
 
-import com.twoyu.taskifybackend.exception.ServiceException;
+import com.twoyu.taskifybackend.exception.TaskNotFoundException;
 import com.twoyu.taskifybackend.model.entity.*;
 import com.twoyu.taskifybackend.model.vo.request.AddTaskLabelsRequest;
 import com.twoyu.taskifybackend.model.vo.request.AddTaskRequest;
@@ -10,21 +10,20 @@ import com.twoyu.taskifybackend.model.vo.request.UpdateTaskRequest;
 import com.twoyu.taskifybackend.model.vo.response.DeleteTaskResponse;
 import com.twoyu.taskifybackend.model.vo.response.UpdateTaskDescResponse;
 import com.twoyu.taskifybackend.model.vo.response.shared.TasksResponse;
-import com.twoyu.taskifybackend.repository.LabelsRepository;
 import com.twoyu.taskifybackend.repository.TasksLabelsRepository;
 import com.twoyu.taskifybackend.repository.TasksRepository;
 import com.twoyu.taskifybackend.service.ITaskService;
+import com.twoyu.taskifybackend.util.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -33,7 +32,6 @@ import java.util.stream.Collectors;
 public class TaskService implements ITaskService {
 
     private final TasksRepository tasksRepository;
-    private final LabelsRepository labelsRepository;
     private final TasksLabelsRepository tasksLabelsRepository;
     @Override
     public TasksResponse addTask(AddTaskRequest request) {
@@ -50,21 +48,23 @@ public class TaskService implements ITaskService {
     @Override
     public TasksResponse updateTask(UUID taskId, UpdateTaskRequest request) {
         Tasks task = tasksRepository.findById(taskId)
-                .orElseThrow(() -> new ServiceException("Task not found"));
+                .orElseThrow(TaskNotFoundException::new);
         if(StringUtils.isNotBlank(request.getName())){
             task.setName(request.getName());
-            task = tasksRepository.save(task);
         }
 
-        // update labels
-        List<UUID> labelIds =  request.getLabels();
-        List<UUID> labelIdRes;
-        if(labelIds != null){
-            updateTaskLabel(task, labelIds);
-            labelIdRes = labelIds;
-        }else {
-            labelIdRes = tasksLabelsRepository.getLabelIdsByTaskId(taskId);
+        if(request.getStartDate() != null){
+            LocalDateTime startDate = DateUtils.dateStrToLocalDateTime(request.getStartDate());
+            task.setStartDate(startDate);
         }
+
+        if(request.getDueDate() != null){
+            LocalDateTime dueDate = DateUtils.dateStrToLocalDateTime(request.getDueDate());
+            task.setDueDate(dueDate);
+        }
+        task = tasksRepository.save(task);
+
+        List<UUID> labelIdRes = tasksLabelsRepository.getLabelIdsByTaskId(taskId);
 
 
         return TasksResponse.from(task, labelIdRes);
@@ -81,7 +81,7 @@ public class TaskService implements ITaskService {
     @Override
     public UpdateTaskDescResponse updateDesc(UUID id, UpdateTaskDescRequest request) {
         Tasks task = tasksRepository.findById(id)
-                .orElseThrow(() -> new ServiceException("Task not found"));
+                .orElseThrow(TaskNotFoundException::new);
         task.setDescription(request.getDescription());
         task = tasksRepository.save(task);
         return new UpdateTaskDescResponse(task.getId(), task.getDescription());
@@ -90,7 +90,7 @@ public class TaskService implements ITaskService {
     @Override
     public void addTaskLabel(UUID taskId, AddTaskLabelsRequest request) {
         if(!tasksRepository.existsById(taskId)){
-            throw new ServiceException("Task not found");
+            throw new TaskNotFoundException();
         }
         UUID labelId = request.getLabelId();
         TaskLabelsId id = new TaskLabelsId(taskId, labelId);
