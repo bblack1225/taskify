@@ -118,7 +118,10 @@ function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
   return (
     <>
       {isAddingTask && (
-        <Stack className={style.addButtonContainer}>
+        <Stack
+          className={style.addButtonContainer}
+          onMouseDown={(e) => e.preventDefault()}
+        >
           <Textarea
             autoFocus
             className={style.addTaskTextarea}
