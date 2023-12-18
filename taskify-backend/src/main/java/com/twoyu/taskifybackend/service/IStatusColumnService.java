@@ -8,8 +8,6 @@ import java.util.UUID;
 
 public interface IStatusColumnService {
  AddColumnResponse addColumn(AddColumnRequest addColumnRequest);
- QueryAllColumnResponse queryAll(UUID boardId);
-
  UpdateColumnTitleResponse updateTitle(UUID id, UpdateColumnTitleRequest request);
 
  DeleteColumnResponse delete(UUID id);
