@@ -97,10 +97,8 @@ public class StatusColumnService implements IStatusColumnService {
 
     @Override
     public DeleteColumnResponse delete(UUID id) {
-//        List<Tasks> updatedTasks = tasksRepository
-//                .findAllByStatusId(id)
-//                .stream().peek(task -> task.setDelete(true)).toList();
-//        tasksRepository.saveAll(updatedTasks);
+        List<TasksLabels> tasksLabels = tasksLabelsRepository.findAllByColumnId(id);
+        tasksLabelsRepository.deleteAll(tasksLabels);
         tasksRepository.deleteAllByStatusId(id);
         statusColumnRepository.deleteById(id);
         log.info("Delete status column id success:{}", id);

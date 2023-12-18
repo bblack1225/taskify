@@ -13,6 +13,16 @@ import java.util.UUID;
 
 public interface TasksLabelsRepository extends JpaRepository<TasksLabels, TaskLabelsId>, JpaSpecificationExecutor<TasksLabels> {
     void deleteAllByIdTaskId(UUID taskId);
+
+    @Query(nativeQuery = true,
+            value = """
+            select tl.* FROM TASKS_LABELS tl
+            join tasks t on tl.task_id = t.id
+            where t.status_id = :columnId
+            """)
+    List<TasksLabels> findAllByColumnId(UUID columnId);
+
+
     @Query(nativeQuery = true,
             value = """
             SELECT tl.* as labelId FROM TASKS_LABELS tl 
