@@ -1,6 +1,5 @@
 package com.twoyu.taskifybackend.model.vo.response;
 
-import com.twoyu.taskifybackend.model.vo.response.shared.LabelsResponse;
 import com.twoyu.taskifybackend.model.vo.response.shared.StatusColumnResponse;
 import com.twoyu.taskifybackend.model.vo.response.shared.TasksResponse;
 import lombok.Data;

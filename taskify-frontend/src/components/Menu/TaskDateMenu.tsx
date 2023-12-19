@@ -96,7 +96,10 @@ function TaskDateMenu({ handleUpdateDate, task }: Props) {
           style={{ display: "grid", gridTemplateColumns: "20px 1fr 20px" }}
         >
           <Center style={{ gridColumn: "2/3" }}>日期</Center>
-          <CloseButton style={{ gridColumn: "3/3" }} />
+          <CloseButton
+            style={{ gridColumn: "3/3" }}
+            onClick={() => setOpened(false)}
+          />
         </Menu.Label>
         <Text ta={"center"} size="xs" c={"blue"}>
           {value[0] ? dayjs(value[0]).format("YYYY-MM-DD") : "未選擇"} ~ {""}
@@ -113,11 +116,11 @@ function TaskDateMenu({ handleUpdateDate, task }: Props) {
             />
           </Flex>
           <Flex justify={"space-between"}>
-            <Button mt={3} ml={7} onClick={handleDatePicker}>
+            <Button mt={3} onClick={handleDatePicker}>
               儲存
             </Button>
-            <Button mt={3} ml={7} onClick={handleCancelDate}>
-              取消
+            <Button mt={3} onClick={handleCancelDate}>
+              清除日期
             </Button>
           </Flex>
         </Container>

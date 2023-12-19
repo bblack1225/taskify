@@ -41,12 +41,6 @@ public class StatusColumnController {
     }
 
     @Operation(summary = "取得所有狀態列表")
-    @GetMapping("/all/{boardId}")
-    public QueryAllColumnResponse getAll(@PathVariable("boardId") UUID boardId){
-        return statusColumnService.queryAll(boardId);
-    }
-
-    @Operation(summary = "取得所有狀態列表")
     @GetMapping("/v2/all/{boardId}")
     public QueryBaseDataResponse getBaseData(@PathVariable("boardId") UUID boardId){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -80,6 +80,7 @@ function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
   });
 
   const handleAddTask = (name: string, statusColumnId: string) => {
+    setNewTask("");
     if (!newTask) {
       toggleAddingTask(false);
     } else if (newTask) {
@@ -118,7 +119,10 @@ function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
   return (
     <>
       {isAddingTask && (
-        <Stack className={style.addButtonContainer}>
+        <Stack
+          className={style.addButtonContainer}
+          onMouseDown={(e) => e.preventDefault()}
+        >
           <Textarea
             autoFocus
             className={style.addTaskTextarea}

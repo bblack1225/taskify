@@ -1,7 +1,6 @@
 package com.twoyu.taskifybackend.service.impl;
 
 import com.twoyu.taskifybackend.exception.ServiceException;
-import com.twoyu.taskifybackend.model.dto.TasksDto;
 import com.twoyu.taskifybackend.model.entity.*;
 import com.twoyu.taskifybackend.model.vo.request.AddColumnRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateColumnTitleRequest;
@@ -14,9 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +23,6 @@ public class StatusColumnService implements IStatusColumnService {
 
     private final StatusColumnRepository statusColumnRepository;
     private final TasksRepository tasksRepository;
-    private final LabelsRepository labelsRepository;
     private final BoardRepository boardRepository;
     private final TasksLabelsRepository tasksLabelsRepository;
     @Override
@@ -43,45 +39,6 @@ public class StatusColumnService implements IStatusColumnService {
                 statusColumn.getDataIndex()
         );
     }
-
-    @Override
-    public QueryAllColumnResponse queryAll(UUID boardId) {
-        QueryAllColumnResponse response = new QueryAllColumnResponse();
-        Board board = boardRepository.findById(boardId).orElseThrow(() -> new ServiceException("Board id not found:" + boardId));
-        response.setBoardId(boardId);
-        response.setBoardName(board.getName());
-        List<TasksDto> tasksDtos =  tasksRepository.getAllTasksWithLabelsId(boardId)
-                .stream().map(TasksDto::fromProjection).toList();
-        log.info("tasksDtos: {}", tasksDtos);
-//        List<Labels> labels = labelsRepository.findAllByBoardId(boardId);
-//        List<LabelsResponse> labelsResponses = LabelsResponse.from(labels);
-//        response.setLabels(labelsResponses);
-
-        List<StatusColumn> statusColumns = statusColumnRepository.findAllByBoardIdOrderByDataIndex(boardId);
-        List<TaskColumnRes> taskColumnResList = statusColumns.stream().map(statusColumn -> {
-            TaskColumnRes taskColumnRes = new TaskColumnRes();
-            taskColumnRes.setId(statusColumn.getId());
-            taskColumnRes.setTitle(statusColumn.getTitle());
-            taskColumnRes.setColor(statusColumn.getColor());
-            taskColumnRes.setDataIndex(statusColumn.getDataIndex());
-            List<Tasks> tasksByStatusId = tasksRepository.findAllByStatusId(statusColumn.getId());
-            List<TasksResponse> tasksResponses = tasksByStatusId.stream().map(
-                    task -> TasksResponse.builder()
-                            .id(task.getId())
-                            .name(task.getName())
-                            .dataIndex(task.getDataIndex())
-                            .description(task.getDescription())
-                            .labels(new ArrayList<>())
-                            .build()
-            ).toList();
-            taskColumnRes.setTasks(tasksResponses);
-            // TODO labels
-            return taskColumnRes;
-        }).toList();
-        response.setColumns(taskColumnResList);
-        return response;
-    }
-
     @Override
     public UpdateColumnTitleResponse updateTitle(UUID id, UpdateColumnTitleRequest request) {
         StatusColumn statusColumn = statusColumnRepository
@@ -97,10 +54,8 @@ public class StatusColumnService implements IStatusColumnService {
 
     @Override
     public DeleteColumnResponse delete(UUID id) {
-//        List<Tasks> updatedTasks = tasksRepository
-//                .findAllByStatusId(id)
-//                .stream().peek(task -> task.setDelete(true)).toList();
-//        tasksRepository.saveAll(updatedTasks);
+        List<TasksLabels> tasksLabels = tasksLabelsRepository.findAllByColumnId(id);
+        tasksLabelsRepository.deleteAll(tasksLabels);
         tasksRepository.deleteAllByStatusId(id);
         statusColumnRepository.deleteById(id);
         log.info("Delete status column id success:{}", id);

@@ -1,9 +1,16 @@
 import { getUserInfo } from "@/api/user";
 import { UserInfo } from "@/types/user";
+import { Loader } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { createContext } from "react";
 
-export const UserContext = createContext<UserInfo>({id: "", email:"", name: "", boardId: "", boardName: ""});
+export const UserContext = createContext<UserInfo>({
+  id: "",
+  email: "",
+  name: "",
+  boardId: "",
+  boardName: "",
+});
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: userInfo, isPending } = useQuery({
@@ -15,7 +22,19 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   if (isPending) {
-    return null;
+    return (
+      <div
+        style={{
+          width: "100vw",
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Loader color="blue" type="bars" />
+      </div>
+    );
   }
 
   if (!userInfo) {
