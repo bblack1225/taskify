@@ -3,4 +3,4 @@ spring:
     username: root
     password: T0dc5IsGFhX3xLbAe9S18oM764Z2ztrn
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://hkg1.clusters.zeabur.com:31687/taskify_db
+    url: jdbc:postgresql://postgresql.zeabur.internal:5432/taskify_db
