@@ -10,7 +10,7 @@ function authRequestInterceptor(config: InternalAxiosRequestConfig) {
 }
 
 const axiosClient = axios.create({
-  baseURL: "https://taskify-api.zeabur.app/api",
+  baseURL: import.meta.env.VITE_API_URL_PREFIX,
   headers: {
     "Content-Type": "application/json",
   },
