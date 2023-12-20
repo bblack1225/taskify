@@ -10,7 +10,7 @@ function authRequestInterceptor(config: InternalAxiosRequestConfig) {
 }
 
 const axiosClient = axios.create({
-  baseURL: "https://taskify.zeabur.internal/api",
+  baseURL: "https://taskify-api.zeabur.app/api",
   headers: {
     "Content-Type": "application/json",
   },
