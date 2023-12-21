@@ -1,11 +1,36 @@
-# taskify
-Todo project 
-### 專案介紹
+# Taskify
+
 這是一個基於Trello啟發的練習專案，雖然Todolist是一個老主題，但我們認為有很多延伸的主題可以去發揮與實作，我們期許透過此專案的實作經驗來加深對於React的熟悉度。
 
+## 使用技術
+
+### 前端
+- React
+- TypeScript
+- React Router
+- React Query
+- Mantine
+- Sass
+
+### 後端
+- Spring Boot
+- Spring Security
+- Spring Data jpa
+
+### DB
+- Postgres
+
+### 部署平台
+- zeabur
+  
+## 頁面介紹
+
+### 登入
 ![登入頁](taskify-frontend/public/登入頁.png)
 - 測試帳號:user1@example.com 
 - 測試密碼:user
+
+### 任務看板
 
 ![首頁看板](taskify-frontend/public/看板首頁.png)
 - 首頁看板：新增卡片、新增任務、編輯卡片、刪除看板、刪除任務等。
@@ -18,9 +43,12 @@ Todo project
   
 ![選取日期](taskify-frontend/public/選取日期.png)
 - 點擊任務後打開modal，可以新增任務的日期區間。
-  
+
+### 行事曆
 ![日期同步行事曆](taskify-frontend/public/打開navbar行事曆.png)
 - 新增任務日期後，同步到行事曆Page，一目瞭然整個月的任務目標。
   
 ![關閉navbar](taskify-frontend/public/關閉navbar行事曆.png)
 - 可以關閉navbar，展開右側page畫面。
+
+## 待完成功能
