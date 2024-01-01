@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CopyButton,
   Flex,
   PasswordInput,
   Text,
@@ -81,6 +82,34 @@ function LoginPage() {
         <Button className={style.loginButton} type="submit">
           登入
         </Button>
+
+        <Flex direction={"column"} style={{ marginTop: "50px", gap: "10px" }}>
+          <Flex justify={"space-between"} align={"center"}>
+            <Flex>
+              <Text c={"dimmed"} style={{ fontSize: "14px" }}>
+                測試帳號：user1@example.com
+              </Text>
+            </Flex>
+            <Flex>
+              <CopyButton value="user1@example.com">
+                {({ copied, copy }) => (
+                  <Button
+                    w={100}
+                    h={30}
+                    color={copied ? "teal" : "yellow"}
+                    onClick={copy}
+                  >
+                    {copied ? "複製成功" : "複製帳號"}
+                  </Button>
+                )}
+              </CopyButton>
+            </Flex>
+          </Flex>
+          <Text c={"dimmed"} style={{ fontSize: "14px" }}>
+            測試密碼：user
+          </Text>
+        </Flex>
+
         {/* </form> */}
         {/* <Text className={style.loginText} style={{ fontSize: "12px" }}>
           或是

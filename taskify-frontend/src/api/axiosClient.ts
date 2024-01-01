@@ -10,7 +10,7 @@ function authRequestInterceptor(config: InternalAxiosRequestConfig) {
 }
 
 const axiosClient = axios.create({
-  baseURL: "/api",
+  baseURL: import.meta.env.VITE_API_URL_PREFIX,
   headers: {
     "Content-Type": "application/json",
   },
@@ -31,19 +31,18 @@ axiosClient.interceptors.response.use(
     if (res.status === 401) {
       const data = res.data as ErrorType;
       // token 無效轉跳 login
-      if(data.errorMessage === 'Invalid Token'){
+      if (data.errorMessage === "Invalid Token") {
         localStorage.removeItem("token");
         window.location.href = "/login";
       }
-    }else {
-           notifications.show({
+    } else {
+      notifications.show({
         title: `Service Error ${res.errorCode}`,
         message: res.errorMessage,
         color: "red",
       });
     }
-      return Promise.reject(error);
-
+    return Promise.reject(error);
   }
 );
 
