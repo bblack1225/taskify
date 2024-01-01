@@ -2,8 +2,10 @@ package com.twoyu.taskifybackend.controller;
 
 import com.twoyu.taskifybackend.model.vo.request.CheckEmailExistRequest;
 import com.twoyu.taskifybackend.model.vo.request.LoginRequest;
+import com.twoyu.taskifybackend.model.vo.request.RegisterRequest;
 import com.twoyu.taskifybackend.model.vo.response.CheckEmailExistResponse;
 import com.twoyu.taskifybackend.model.vo.response.LoginResponse;
+import com.twoyu.taskifybackend.model.vo.response.RegisterResponse;
 import com.twoyu.taskifybackend.service.impl.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,11 @@ public class AuthController {
     @PostMapping("/check-email")
     public CheckEmailExistResponse checkEmailExist(@RequestBody @Valid CheckEmailExistRequest request){
         return authService.checkEmailExist(request);
+    }
+
+    @PostMapping("/register")
+    public RegisterResponse register(@RequestBody @Valid RegisterRequest request){
+        return authService.register(request);
     }
 
 }
