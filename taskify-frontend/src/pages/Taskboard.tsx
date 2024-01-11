@@ -3,7 +3,7 @@ import TaskColumn from "@/components/TaskColumn";
 import style from "@/pages/Taskboard.module.scss";
 import { useUser } from "@/hooks/useUser";
 
-function TaskBoard() { 
+function TaskBoard() {
   const userInfo = useUser();
   return (
     <Stack w={"2000px"} style={{ overflow: "auto hidden" }}>
