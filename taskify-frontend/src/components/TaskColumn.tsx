@@ -51,7 +51,6 @@ function TaskColumn() {
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
   const userInfo = useUser();
-  //TODO
   const [activeTaskId, setActiveTaskId] = useState<null | string>(null);
 
   const { isPending, data, error } = useTasks(userInfo.boardId);
@@ -171,65 +170,59 @@ function TaskColumn() {
 
   const handleDragOver = ({ active, over }: DragOverEvent) => {
     const activeContainer = active.data.current?.sortable.containerId;
-    // console.log("activeContainer", activeContainer);
-
+    //active的containerId
     const overContainer = over?.data.current?.sortable.containerId;
-    // console.log("overContainer", overContainer);
+    //over的containerId
+    const activeId = task?.id;
 
-    if (
-      !activeContainer ||
-      !overContainer ||
-      activeContainer === overContainer
-    ) {
+    if (!activeContainer || !overContainer) {
       return;
     }
+    // active的taskId;
 
-    if (activeContainer !== overContainer) {
-      const activeId = task?.id;
-      // console.log("activeIndex", activeIndex);
+    // if (activeContainer) {
+    //   columnsWithTasks.forEach((col) => {
+    //     col.tasks.forEach((colTask, taskIndex) => {
+    //       if (colTask.id !== activeId) {
+    //         return;
+    //       } else if (colTask.id === activeId) {
+    //         col.tasks.splice(taskIndex, 1);
+    //         columnsWithTasks.find((col) => {
+    //           if (col.id === overContainer) {
+    //             const overInner = over?.data.current?.sortable.items;
+    //             col.tasks.splice(overInner.indexOf(activeId), 0, colTask);
+    //           }
+    //         });
+    //       }
+    //     });
+    //   });
+    // }
 
-      const overId = over?.data.current?.sortable.items;
+    const sourceColumn = columnsWithTasks.find(
+      (col) => col.id === activeContainer
+    );
+    const sourceColumnCopy = { ...sourceColumn };
+    // console.log("sourceColumnCopy", sourceColumnCopy);
 
-      columnsWithTasks.forEach((col) => {
-        col.tasks.forEach((colTask, taskIndex) => {
-          // console.log("task", task);
-          // console.log("taskIndex", taskIndex);
-          if (colTask.id === activeId) {
-            col.tasks.splice(taskIndex, 1);
-            columnsWithTasks.find((col) => {
-              console.log("overId.indexOf(activeId)", overId.indexOf(activeId));
+    // console.log("sourceColumn", sourceColumn);
 
-              if (col.id === overContainer) {
-                const overInner = overId.slice();
-                console.log("overInner", overInner);
+    const targetColumn = columnsWithTasks.find(
+      (col) => col.id === overContainer
+    );
 
-                col.tasks.splice(overInner, 0, colTask);
-              }
+    const targetColumnCopy = { ...targetColumn };
+    // console.log("targetColumn", targetColumn);
 
-              console.log(
-                "overId.indexOf(activeId)mjhjh",
-                overId.indexOf(activeId)
-              );
-            });
-          }
-        });
-      });
-
-      // const insertIndex = overIndex.indexOf(over?.data.current?.sortable.item);
-      // console.log("insertIndex", insertIndex);
-
-      // const newColumns = overIndex.splice(
-      //   overIndex.indexOf(activeIndex),
-      //   0,
-      //   task?.id
-      // );
-
-      // overIndex.splice(insertIndex, 0, activeIndex);
-      // console.log("oe", overIndex.indexOf(activeIndex));
-
-      // console.log("newColumns", newColumns);
-
-      // console.log("overIndex", overIndex);
+    if (sourceColumn && targetColumn) {
+      const taskToMove = sourceColumn.tasks.find(
+        (task) => task.id === activeId
+      );
+      sourceColumnCopy.tasks.splice(sourceColumn.tasks.indexOf(taskToMove), 1);
+      targetColumnCopy.tasks.splice(
+        targetColumn.tasks.indexOf(taskToMove),
+        0,
+        taskToMove
+      );
     }
   };
 
@@ -238,11 +231,58 @@ function TaskColumn() {
   };
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    // console.log("active", active);
+    // console.log("over", over);
+
     const activeContainer = active.data.current?.containerId;
-    const overContainer = over?.data.current?.containerId;
-    if (activeContainer !== overContainer) {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    const overContainer = over?.data.current?.sortable.containerId;
+    //over的containerId
+    // const activeId = task?.id;
+
+    if (!activeContainer || !overContainer) {
+      return;
     }
+    // active的taskId;
+
+    // if (activeContainer) {
+    //   columnsWithTasks.forEach((col) => {
+    //     col.tasks.forEach((colTask, taskIndex) => {
+    //       if (colTask.id !== activeId) {
+    //         return;
+    //       } else if (colTask.id === activeId) {
+    //         col.tasks.splice(taskIndex, 1);
+    //         columnsWithTasks.find((col) => {
+    //           if (col.id === overContainer) {
+    //             const overInner = over?.data.current?.sortable.items;
+    //             col.tasks.splice(overInner.indexOf(activeId), 0, colTask);
+    //           }
+    //         });
+    //       }
+    //     });
+    //   });
+    // }
+
+    // const sourceColumn = columnsWithTasks.find(
+    //   (col) => col.id === activeContainer
+    // );
+    // // console.log("sourceColumn", sourceColumn);
+
+    // const targetColumn = columnsWithTasks.find(
+    //   (col) => col.id === overContainer
+    // );
+    // // console.log("targetColumn", targetColumn);
+
+    // if (sourceColumn && targetColumn) {
+    //   const taskToMove = sourceColumn.tasks.find(
+    //     (task) => task.id === activeId
+    //   );
+    //   sourceColumn.tasks.splice(sourceColumn.tasks.indexOf(taskToMove), 1);
+    //   targetColumn.tasks.splice(0, 0, taskToMove);
+    // }
+
+    // if (activeContainer) {
+    //   queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    // }
   };
   return (
     <Flex className={style.container}>
