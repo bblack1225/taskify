@@ -5,7 +5,9 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 
 function MainLayout() {
-  const [isNavBoardOpen, setIsNavBoardOpen] = useState(true);
+  const [isNavBoardOpen, setIsNavBoardOpen] = useState(
+    localStorage.getItem("isNavBoardOpen") === "false" ? false : true
+  );
   return (
     <AppShell header={{ height: 60 }} padding="md">
       <AppShell.Header className={style.header}>Taskify</AppShell.Header>

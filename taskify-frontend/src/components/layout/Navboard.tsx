@@ -9,7 +9,7 @@ import {
 } from "@tabler/icons-react";
 
 import style from "./NavBoard.module.scss";
-import {  NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useUser } from "@/hooks/useUser";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -22,7 +22,9 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
   const navigate = useNavigate();
   const userInfo = useUser();
   const queryClient = useQueryClient();
-  
+
+  localStorage.setItem("isNavBoardOpen", String(isNavBoardOpen));
+
   return (
     <>
       {isNavBoardOpen ? (
@@ -42,11 +44,15 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
               width={"200px"}
             />
           </Box>
-          <Flex style={{flex:1}} direction={"column"} justify={"space-between"}>
+          <Flex
+            style={{ flex: 1 }}
+            direction={"column"}
+            justify={"space-between"}
+          >
             <Stack pt={10}>
               <NavLink
                 to="/board"
-                className={({ isActive}) =>  isActive ? style.active : ''}
+                className={({ isActive }) => (isActive ? style.active : "")}
               >
                 <Button color="#be3144" w={"200px"}>
                   <IconAlignBoxBottomCenter />
@@ -59,8 +65,7 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
               </Button> */}
               <NavLink
                 to="/calendar"
-                className={({ isActive}) =>  isActive ? style.active : ''}
-             
+                className={({ isActive }) => (isActive ? style.active : "")}
               >
                 <Button color="#be3144" w={"200px"}>
                   <IconCalendarSearch />
@@ -84,7 +89,7 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
                 onClick={() => {
                   localStorage.removeItem("token");
                   queryClient.clear();
-                  navigate('login')
+                  navigate("login");
                 }}
               >
                 <IconLogout />
