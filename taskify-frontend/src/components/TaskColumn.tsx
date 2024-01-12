@@ -37,7 +37,6 @@ function TaskColumn() {
 
   const { isPending, data, error } = useTasks(userInfo.boardId);
 
-
   const columnsWithTasks = useMemo(() => {
     if (!data) {
       return [];
@@ -171,7 +170,10 @@ function TaskColumn() {
           </Box>
         </Flex>
       ))}
-      <AddColumn boardId={userInfo.boardId} currentColDataIndex={currentColDataIndex} />
+      <AddColumn
+        boardId={userInfo.boardId}
+        currentColDataIndex={currentColDataIndex}
+      />
       <Modal
         opened={opened}
         onClose={close}
