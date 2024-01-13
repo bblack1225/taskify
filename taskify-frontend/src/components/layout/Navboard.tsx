@@ -23,8 +23,6 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
   const userInfo = useUser();
   const queryClient = useQueryClient();
 
-  localStorage.setItem("isNavBoardOpen", String(isNavBoardOpen));
-
   return (
     <>
       {isNavBoardOpen ? (
