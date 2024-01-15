@@ -10,12 +10,29 @@ type Props = {
 };
 const TaskCardList = ({ column }: Props) => {
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const [openedTasks, setOpenedTasks] = useState<string[]>([]);
+
+  const handleTaskOpen = (taskId: string) => {
+    setOpenedTasks((prevOpenedTasks) => [...prevOpenedTasks, taskId]);
+  };
+
+  const handleTaskClose = (taskId: string) => {
+    setOpenedTasks((prevOpenedTasks) =>
+      prevOpenedTasks.filter((id) => id !== taskId)
+    );
+  };
 
   return (
     <>
       <Stack className={style.taskContainer}>
         {column.tasks.map((task: BaseTaskRes) => (
-          <TaskCard key={task.id} task={task} />
+          <TaskCard
+            key={task.id}
+            task={task}
+            opened={openedTasks.includes(task.id)}
+            open={() => handleTaskOpen(task.id)}
+            close={() => handleTaskClose(task.id)}
+          />
         ))}
         <AddTask
           column={column}
