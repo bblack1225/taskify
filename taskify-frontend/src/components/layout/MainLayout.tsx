@@ -1,11 +1,14 @@
 import { AppShell } from "@mantine/core";
 import style from "./MainLayout.module.scss";
 import NavBoard from "./Navboard";
-import { useState } from "react";
 import { Outlet } from "react-router-dom";
+import { useLocalStorage } from "@mantine/hooks";
 
 function MainLayout() {
-  const [isNavBoardOpen, setIsNavBoardOpen] = useState(true);
+    const [isNavBoardOpen, setIsNavBoardOpen] = useLocalStorage({
+    key: "isNavOpen",
+    defaultValue: true,
+  })
   return (
     <AppShell header={{ height: 60 }} padding="md">
       <AppShell.Header className={style.header}>Taskify</AppShell.Header>

@@ -356,7 +356,7 @@ function TaskColumn() {
           </Button>
         </Modal>
         <DragOverlay dropAnimation={dropAnimation}>
-          {task ? <TaskCard task={task} /> : null}
+          {task ? <TaskCard task={task} open={open} close={close} opened={opened} /> : null}
         </DragOverlay>
       </DndContext>
     </Flex>

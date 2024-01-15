@@ -16,6 +16,17 @@ type Props = {
 };
 const TaskCardList = ({ column }: Props) => {
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const [openedTasks, setOpenedTasks] = useState<string[]>([]);
+
+  const handleTaskOpen = (taskId: string) => {
+    setOpenedTasks((prevOpenedTasks) => [...prevOpenedTasks, taskId]);
+  };
+
+  const handleTaskClose = (taskId: string) => {
+    setOpenedTasks((prevOpenedTasks) =>
+      prevOpenedTasks.filter((id) => id !== taskId)
+    );
+  };
 
   const { setNodeRef } = useDroppable({
     id: column.id,
@@ -31,7 +42,13 @@ const TaskCardList = ({ column }: Props) => {
         <Stack className={style.taskContainer} ref={setNodeRef}>
           {column.tasks.map((task: BaseTaskRes) => (
             <SortableTaskItem key={task.id} id={task.id}>
-              <TaskCard task={task} />
+              <TaskCard
+            key={task.id}
+            task={task}
+            opened={openedTasks.includes(task.id)}
+            open={() => handleTaskOpen(task.id)}
+            close={() => handleTaskClose(task.id)}
+          />
             </SortableTaskItem>
           ))}
 
