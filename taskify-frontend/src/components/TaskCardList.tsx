@@ -4,14 +4,12 @@ import TaskCard from "./TaskCard";
 import { BaseTaskRes, ColumnResType } from "@/types/column";
 import { useState } from "react";
 import style from "./TaskCardList.module.scss";
-import { useDisclosure } from "@mantine/hooks";
 
 type Props = {
   column: ColumnResType;
 };
 const TaskCardList = ({ column }: Props) => {
   const [isAddingTask, setIsAddingTask] = useState(false);
-  const [opened, { open, close }] = useDisclosure(false);
   const [openedTasks, setOpenedTasks] = useState<string[]>([]);
 
   const handleTaskOpen = (taskId: string) => {
