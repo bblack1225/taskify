@@ -9,7 +9,7 @@ import {
   Modal,
 } from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { delColumn, editColumn } from "@/api/column";
@@ -71,13 +71,21 @@ function TaskColumn() {
   });
 
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
+  const [columnsWithTasks, setColumnsWithTasks] = useState<Array<ColumnResType>>([]);
 
-  const columnsWithTasks = useMemo(() => {
+  useEffect(() => {
     if (!data) {
-      return [];
+      return;
     }
-    return selectColumnsWithTasks(data);
-  }, [data]);
+    setColumnsWithTasks(selectColumnsWithTasks(data));
+  },[data])
+
+  // const columnsWithTasks = useMemo(() => {
+  //   if (!data) {
+  //     return [];
+  //   }
+  //   return selectColumnsWithTasks(data);
+  // }, [data]);
 
   const queryClient = useQueryClient();
   const updateMutation = useMutation({
@@ -168,62 +176,75 @@ function TaskColumn() {
     ? data?.tasks.find((task) => task.id === activeTaskId)
     : null;
 
-  const handleDragOver = ({ active, over }: DragOverEvent) => {
-    const activeContainer = active.data.current?.sortable.containerId;
-    //active的containerId
-    const overContainer = over?.data.current?.sortable.containerId;
-    //over的containerId
-    const activeId = task?.id;
+  const findContainerId = (id: string, columnsWithTasks: ColumnResType[]) => {
+    const index = columnsWithTasks.findIndex((col) => col.id === id);
+    if(index == -1) {
+      return id;
+    }
+    return columnsWithTasks[index].id;
 
-    if (!activeContainer || !overContainer) {
+  }
+    
+
+  const handleDragOver = ({ active, over }: DragOverEvent) => {
+
+    
+    const activeId = active.id;
+    const overId = over?.id;
+    const activeContainerId = findContainerId(activeId as string, columnsWithTasks);
+    const overContainerId = findContainerId(overId as string, columnsWithTasks);
+    console.log('activeId',activeId);
+    console.log('overId',overId);
+      
+    
+
+
+    if (!activeContainerId || !overContainerId || overContainerId === activeContainerId) {
       return;
     }
-    // active的taskId;
 
-    // if (activeContainer) {
-    //   columnsWithTasks.forEach((col) => {
-    //     col.tasks.forEach((colTask, taskIndex) => {
-    //       if (colTask.id !== activeId) {
-    //         return;
-    //       } else if (colTask.id === activeId) {
-    //         col.tasks.splice(taskIndex, 1);
-    //         columnsWithTasks.find((col) => {
-    //           if (col.id === overContainer) {
-    //             const overInner = over?.data.current?.sortable.items;
-    //             col.tasks.splice(overInner.indexOf(activeId), 0, colTask);
-    //           }
-    //         });
-    //       }
-    //     });
-    //   });
-    // }
+    setColumnsWithTasks((prevColumnsWithTasks) => {
+      console.log('prevColumnsWithTasks',prevColumnsWithTasks);
+      
+      
+      
+      const activeTasks = prevColumnsWithTasks.find((col) => col.id === activeContainerId)?.tasks;
+      const overTasks = prevColumnsWithTasks.find((col) => col.id === overContainerId)?.tasks;
+      
+      const activeTaskIndex = activeTasks?.findIndex((task) => task.id === activeId);
+      const overTaskIndex = overTasks?.findIndex((task) => task.id === overId);
+      const currentTask = activeTasks?.find((task) => task.id === activeId);
+      console.log('activeTasks',activeTasks);
+      console.log('activeTaskIndex',activeTaskIndex);
+      
+      
+      const newVal = prevColumnsWithTasks.map((col) => {
+        if(col.id === activeContainerId) {
+          const newTasks = col.tasks.filter((task) => task.id !== activeId);
+          return {
+            ...col,
+            tasks: newTasks,
+          }
+        }
+        if(col.id === overContainerId) {
+          const newTasks = [
+            ...col.tasks.slice(0, overTaskIndex),
+            currentTask,
+            ...col.tasks.slice(overTaskIndex, col.tasks.length),
+          ];
+          return {
+            ...col,
+            tasks: newTasks,
+          }
+        }
 
-    const sourceColumn = columnsWithTasks.find(
-      (col) => col.id === activeContainer
-    );
-    const sourceColumnCopy = { ...sourceColumn };
-    // console.log("sourceColumnCopy", sourceColumnCopy);
-
-    // console.log("sourceColumn", sourceColumn);
-
-    const targetColumn = columnsWithTasks.find(
-      (col) => col.id === overContainer
-    );
-
-    const targetColumnCopy = { ...targetColumn };
-    // console.log("targetColumn", targetColumn);
-
-    if (sourceColumn && targetColumn) {
-      const taskToMove = sourceColumn.tasks.find(
-        (task) => task.id === activeId
-      );
-      sourceColumnCopy.tasks.splice(sourceColumn.tasks.indexOf(taskToMove), 1);
-      targetColumnCopy.tasks.splice(
-        targetColumn.tasks.indexOf(taskToMove),
-        0,
-        taskToMove
-      );
-    }
+        return col;
+      })
+      console.log('??? newVal', newVal);
+      
+      return newVal;
+    })
+    
   };
 
   const dropAnimation: DropAnimation = {
