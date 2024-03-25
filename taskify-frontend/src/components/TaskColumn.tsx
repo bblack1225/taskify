@@ -1,22 +1,20 @@
 import {
+  ActionIcon,
   Box,
   Button,
   Flex,
-  Stack,
-  ActionIcon,
   Loader,
-  Menu,
   Modal,
+  Stack,
 } from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
-import { useEffect, useMemo, useState } from "react";
-import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
+import { IconDots, IconMoodCheck } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { delColumn, editColumn } from "@/api/column";
 import { ColumnDeleteRes, ColumnResType, BaseDataRes } from "@/types/column";
 import AddColumn from "./AddColumn";
 import { notifications } from "@mantine/notifications";
-import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
 import { useDisclosure } from "@mantine/hooks";
 import TaskCardList from "./TaskCardList";
 import { calculateDataIndex } from "@/utils";
@@ -37,8 +35,14 @@ import {
   MouseSensor,
   TouchSensor,
 } from "@dnd-kit/core";
-import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import TaskCard from "./TaskCard";
+import DroppableContainer from "./DroppableContainer";
+import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
 
 function selectColumnsWithTasks(data: BaseDataRes): ColumnResType[] {
   return data.columns.map((column) => ({
@@ -51,7 +55,7 @@ function TaskColumn() {
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
   const userInfo = useUser();
-  const [activeTaskId, setActiveTaskId] = useState<null | string>(null);
+  const [activeItemId, setActiveItemId] = useState<null | string>(null);
 
   const { isPending, data, error } = useTasks(userInfo.boardId);
 
@@ -71,14 +75,28 @@ function TaskColumn() {
   });
 
   const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
-  const [columnsWithTasks, setColumnsWithTasks] = useState<Array<ColumnResType>>([]);
+  const [columnsWithTasks, setColumnsWithTasks] = useState<
+    Array<ColumnResType>
+  >([]);
+  const [containers, setContainers] = useState<string[]>([]);
+  const [taskItems, setTaskItems] = useState<Record<string, ColumnResType>>({});
 
   useEffect(() => {
     if (!data) {
       return;
     }
-    setColumnsWithTasks(selectColumnsWithTasks(data));
-  },[data])
+    const columnsWithTasks = selectColumnsWithTasks(data);
+    setColumnsWithTasks(columnsWithTasks);
+    const containers = data.columns.map((col) => col.id);
+    setContainers(containers);
+    const taskItems = containers.reduce((obj, key) => {
+      return {
+        ...obj,
+        [key]: columnsWithTasks.find((col) => col.id === key),
+      };
+    }, {});
+    setTaskItems(taskItems);
+  }, [data]);
 
   // const columnsWithTasks = useMemo(() => {
   //   if (!data) {
@@ -169,82 +187,89 @@ function TaskColumn() {
   };
 
   const handleDragStart = ({ active }: DragStartEvent) => {
-    setActiveTaskId(active.id as string);
+    console.log("active", active.id);
+
+    setActiveItemId(active.id as string);
   };
 
-  const task = activeTaskId
-    ? data?.tasks.find((task) => task.id === activeTaskId)
+  const task = activeItemId
+    ? data?.tasks.find((task) => task.id === activeItemId)
     : null;
 
   const findContainerId = (id: string, columnsWithTasks: ColumnResType[]) => {
     const index = columnsWithTasks.findIndex((col) => col.id === id);
-    if(index == -1) {
+    if (index == -1) {
       return id;
     }
     return columnsWithTasks[index].id;
-
-  }
-    
+  };
 
   const handleDragOver = ({ active, over }: DragOverEvent) => {
-
-    
     const activeId = active.id;
     const overId = over?.id;
-    const activeContainerId = findContainerId(activeId as string, columnsWithTasks);
+    const activeContainerId = findContainerId(
+      activeId as string,
+      columnsWithTasks
+    );
     const overContainerId = findContainerId(overId as string, columnsWithTasks);
-    console.log('activeId',activeId);
-    console.log('overId',overId);
-      
-    
+    console.log("activeId", activeId);
+    console.log("overId", overId);
 
-
-    if (!activeContainerId || !overContainerId || overContainerId === activeContainerId) {
+    if (
+      !activeContainerId ||
+      !overContainerId ||
+      overContainerId === activeContainerId
+    ) {
       return;
     }
 
-    setColumnsWithTasks((prevColumnsWithTasks) => {
-      console.log('prevColumnsWithTasks',prevColumnsWithTasks);
-      
-      
-      
-      const activeTasks = prevColumnsWithTasks.find((col) => col.id === activeContainerId)?.tasks;
-      const overTasks = prevColumnsWithTasks.find((col) => col.id === overContainerId)?.tasks;
-      
-      const activeTaskIndex = activeTasks?.findIndex((task) => task.id === activeId);
-      const overTaskIndex = overTasks?.findIndex((task) => task.id === overId);
-      const currentTask = activeTasks?.find((task) => task.id === activeId);
-      console.log('activeTasks',activeTasks);
-      console.log('activeTaskIndex',activeTaskIndex);
-      
-      
-      const newVal = prevColumnsWithTasks.map((col) => {
-        if(col.id === activeContainerId) {
-          const newTasks = col.tasks.filter((task) => task.id !== activeId);
-          return {
-            ...col,
-            tasks: newTasks,
-          }
-        }
-        if(col.id === overContainerId) {
-          const newTasks = [
-            ...col.tasks.slice(0, overTaskIndex),
-            currentTask,
-            ...col.tasks.slice(overTaskIndex, col.tasks.length),
-          ];
-          return {
-            ...col,
-            tasks: newTasks,
-          }
-        }
+    // setColumnsWithTasks(
+    //   (prevColumnsWithTasks: ColumnResType[]): ColumnResType[] => {
+    //     console.log("prevColumnsWithTasks", prevColumnsWithTasks);
 
-        return col;
-      })
-      console.log('??? newVal', newVal);
-      
-      return newVal;
-    })
-    
+    //     const activeTasks = prevColumnsWithTasks.find(
+    //       (col) => col.id === activeContainerId
+    //     )?.tasks;
+    //     const overTasks = prevColumnsWithTasks.find(
+    //       (col) => col.id === overContainerId
+    //     )?.tasks;
+
+    //     const activeTaskIndex = activeTasks?.findIndex(
+    //       (task) => task.id === activeId
+    //     );
+    //     const overTaskIndex = overTasks?.findIndex(
+    //       (task) => task.id === overId
+    //     );
+    //     const currentTask = activeTasks?.find((task) => task.id === activeId);
+    //     console.log("activeTasks", activeTasks);
+    //     console.log("activeTaskIndex", activeTaskIndex);
+
+    //     const newVal = prevColumnsWithTasks.map((col) => {
+    //       if (col.id === activeContainerId) {
+    //         const newTasks = col.tasks.filter((task) => task.id !== activeId);
+    //         return {
+    //           ...col,
+    //           tasks: newTasks,
+    //         };
+    //       }
+    //       if (col.id === overContainerId) {
+    //         const newTasks = [
+    //           ...col.tasks.slice(0, overTaskIndex),
+    //           currentTask,
+    //           ...col.tasks.slice(overTaskIndex, col.tasks.length),
+    //         ];
+    //         return {
+    //           ...col,
+    //           tasks: newTasks,
+    //         };
+    //       }
+
+    //       return col;
+    //     });
+
+    //     return newVal as ColumnResType[];
+    //   }
+    // );
   };
 
   const dropAnimation: DropAnimation = {
@@ -305,6 +330,48 @@ function TaskColumn() {
     //   queryClient.invalidateQueries({ queryKey: ["tasks"] });
     // }
   };
+
+  const handleOpenDelMenu = (containerId: string) => {
+    open();
+    setCurrentDelId(containerId);
+  };
+
+  const renderColumnOverlay = (column: ColumnResType) => {
+    return (
+      <div style={{ flexShrink: 0, display: "flex", height: "100%" }}>
+        <Flex style={{ height: "100%" }}>
+          <Box
+            style={{
+              height: "100%",
+            }}
+          >
+            <Stack className={style.columnContainer}>
+              <Flex className={style.titleContainer}>
+                <ColumnTitleTextarea
+                  id={column.id}
+                  title={column.title}
+                  onSave={handleEditTitle}
+                />
+                <ActionIcon
+                  className={style.actionIcon}
+                  variant="transparent"
+                  aria-label="Settings"
+                  color="white"
+                  size={"lg"}
+                >
+                  <IconDots size="1.125rem" />
+                </ActionIcon>
+              </Flex>
+              <TaskCardList
+                columnId={column.id}
+                tasks={taskItems[column.id].tasks}
+              />
+            </Stack>
+          </Box>
+        </Flex>
+      </div>
+    );
+  };
   return (
     <Flex className={style.container}>
       <DndContext
@@ -314,49 +381,27 @@ function TaskColumn() {
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        {columnsWithTasks.map((column: ColumnResType) => (
-          <Flex style={{ flexShrink: 0 }} key={column.id}>
-            <Box>
-              <Stack className={style.columnContainer}>
-                <Flex className={style.titleContainer}>
-                  <ColumnTitleTextarea
-                    id={column.id}
-                    title={column.title}
-                    onSave={handleEditTitle}
-                  />
-                  <Menu shadow="md" width={200}>
-                    <Menu.Target>
-                      <ActionIcon
-                        className={style.actionIcon}
-                        variant="transparent"
-                        aria-label="Settings"
-                        color="white"
-                        size={"lg"}
-                      >
-                        <IconDots size="1.125rem" />
-                      </ActionIcon>
-                    </Menu.Target>
-                    <Menu.Dropdown>
-                      <Menu.Label>列表動作</Menu.Label>
-                      <Menu.Divider />
-                      <Menu.Item
-                        color="red"
-                        leftSection={<IconTrash />}
-                        onClick={() => {
-                          open();
-                          setCurrentDelId(column.id);
-                        }}
-                      >
-                        刪除列表
-                      </Menu.Item>
-                    </Menu.Dropdown>
-                  </Menu>
-                </Flex>
-                <TaskCardList column={column} />
-              </Stack>
-            </Box>
-          </Flex>
-        ))}
+        <SortableContext
+          items={containers}
+          strategy={verticalListSortingStrategy}
+        >
+          {/* {columnsWithTasks.map((column: ColumnResType) => ( */}
+          {containers.map((containerId) => (
+            <DroppableContainer
+              items={taskItems[containerId].tasks.map((task) => task.id)}
+              key={containerId}
+              id={containerId}
+              title={taskItems[containerId].title}
+              onDelMenuOpen={() => handleOpenDelMenu(containerId)}
+              onTitleSave={handleEditTitle}
+            >
+              <TaskCardList
+                columnId={containerId}
+                tasks={taskItems[containerId].tasks}
+              />
+            </DroppableContainer>
+          ))}
+        </SortableContext>
         <AddColumn
           boardId={userInfo.boardId}
           currentColDataIndex={currentColDataIndex}
@@ -377,7 +422,13 @@ function TaskColumn() {
           </Button>
         </Modal>
         <DragOverlay dropAnimation={dropAnimation}>
-          {task ? <TaskCard task={task} open={open} close={close} opened={opened} /> : null}
+          {activeItemId ? (
+            containers.includes(activeItemId) ? (
+              renderColumnOverlay(taskItems[activeItemId])
+            ) : (
+              <TaskCard task={task} open={open} close={close} opened={opened} />
+            )
+          ) : null}
         </DragOverlay>
       </DndContext>
     </Flex>

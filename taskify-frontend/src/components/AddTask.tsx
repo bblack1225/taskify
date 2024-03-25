@@ -5,20 +5,22 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { addTask } from "@/api/tasks";
 import { notifications } from "@mantine/notifications";
-import { BaseDataRes, BaseTaskRes, ColumnResType } from "@/types/column";
+import { BaseDataRes, BaseTaskRes } from "@/types/column";
 import { calculateDataIndex } from "@/utils";
 import { v4 as uuidV4 } from "uuid";
 
 type Props = {
   isAddingTask: boolean;
   toggleAddingTask: (isAdding: boolean) => void;
-  column: ColumnResType;
+  // column: ColumnResType;
+  columnId: string;
+  tasks: BaseTaskRes[];
 };
-function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
+function AddTask({ isAddingTask, toggleAddingTask, columnId, tasks }: Props) {
   const [newTask, setNewTask] = useState("");
   const [isComposing, setIsComposing] = useState(false);
 
-  const currentDataIndex = calculateDataIndex(column.tasks);
+  const currentDataIndex = calculateDataIndex(tasks);
   const queryClient = useQueryClient();
   // TODO 為了取得 boardId，可能有更好的做法?
   const queryData = queryClient.getQueryData<BaseDataRes>([
@@ -128,7 +130,7 @@ function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
             className={style.addTaskTextarea}
             placeholder="為這張卡片輸入標題..."
             onChange={(e) => setNewTask(e.target.value)}
-            onBlur={() => handleBlur(newTask, column.id)}
+            onBlur={() => handleBlur(newTask, columnId)}
             onKeyDown={(e) => handleKeyDown(e)}
             onCompositionStart={() => setIsComposing(true)}
             onCompositionEnd={() => setIsComposing(false)}
@@ -136,7 +138,7 @@ function AddTask({ isAddingTask, toggleAddingTask, column }: Props) {
           <Flex style={{ marginTop: "-4px" }}>
             <Button
               className={style.addNewCardButton}
-              onClick={() => handleAddTask(newTask, column.id)}
+              onClick={() => handleAddTask(newTask, columnId)}
             >
               新增卡片
             </Button>

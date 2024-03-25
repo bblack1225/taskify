@@ -1,7 +1,7 @@
 import { Stack, Button } from "@mantine/core";
 import AddTask from "./AddTask";
 import TaskCard from "./TaskCard";
-import { BaseTaskRes, ColumnResType } from "@/types/column";
+import { BaseTaskRes } from "@/types/column";
 import { useState } from "react";
 import style from "./TaskCardList.module.scss";
 import {
@@ -12,9 +12,11 @@ import { useDroppable } from "@dnd-kit/core";
 import SortableTaskItem from "@/hooks/SortableTaskItem";
 
 type Props = {
-  column: ColumnResType;
+  // column: ColumnResType;
+  columnId: string;
+  tasks: BaseTaskRes[];
 };
-const TaskCardList = ({ column }: Props) => {
+const TaskCardList = ({ columnId, tasks }: Props) => {
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [openedTasks, setOpenedTasks] = useState<string[]>([]);
 
@@ -29,31 +31,32 @@ const TaskCardList = ({ column }: Props) => {
   };
 
   const { setNodeRef } = useDroppable({
-    id: column.id,
+    id: columnId,
   });
 
   return (
     <>
       <SortableContext
-        id={column.id}
-        items={column.tasks}
+        // id={column.id}
+        items={tasks}
         strategy={verticalListSortingStrategy}
       >
         <Stack className={style.taskContainer} ref={setNodeRef}>
-          {column.tasks.map((task: BaseTaskRes) => (
+          {tasks.map((task: BaseTaskRes) => (
             <SortableTaskItem key={task.id} id={task.id}>
               <TaskCard
-            key={task.id}
-            task={task}
-            opened={openedTasks.includes(task.id)}
-            open={() => handleTaskOpen(task.id)}
-            close={() => handleTaskClose(task.id)}
-          />
+                key={task.id}
+                task={task}
+                opened={openedTasks.includes(task.id)}
+                open={() => handleTaskOpen(task.id)}
+                close={() => handleTaskClose(task.id)}
+              />
             </SortableTaskItem>
           ))}
 
           <AddTask
-            column={column}
+            columnId={columnId}
+            tasks={tasks}
             isAddingTask={isAddingTask}
             toggleAddingTask={(val) => setIsAddingTask(val)}
           />

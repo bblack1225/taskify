@@ -22,7 +22,7 @@ const SortableTaskItem = ({ children, id }: SortableTaskItemProps) => {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0 : 1,
+    opacity: isDragging ? 0.5 : undefined,
   };
 
   return (
