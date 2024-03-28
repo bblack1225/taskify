@@ -1,24 +1,21 @@
 import { Stack, Button } from "@mantine/core";
 import AddTask from "./AddTask";
 import TaskCard from "./TaskCard";
-import { BaseTaskRes } from "@/types/column";
+import { BaseTaskRes, ColumnResType } from "@/types/column";
 import { useState } from "react";
 import style from "./TaskCardList.module.scss";
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useDroppable } from "@dnd-kit/core";
-import SortableTaskItem from "@/hooks/SortableTaskItem";
 
 type Props = {
-  // column: ColumnResType;
-  columnId: string;
-  tasks: BaseTaskRes[];
+  column: ColumnResType;
 };
-const TaskCardList = ({ columnId, tasks }: Props) => {
+const TaskCardList = ({ column }: Props) => {
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [openedTasks, setOpenedTasks] = useState<string[]>([]);
+  const tasks = column.tasks;
 
   const handleTaskOpen = (taskId: string) => {
     setOpenedTasks((prevOpenedTasks) => [...prevOpenedTasks, taskId]);
@@ -30,33 +27,26 @@ const TaskCardList = ({ columnId, tasks }: Props) => {
     );
   };
 
-  const { setNodeRef } = useDroppable({
-    id: columnId,
-  });
-
   return (
     <>
       <SortableContext
-        // id={column.id}
-        items={tasks}
+        items={tasks.map((task) => task.id)}
         strategy={verticalListSortingStrategy}
       >
-        <Stack className={style.taskContainer} ref={setNodeRef}>
+        <Stack className={style.taskContainer}>
           {tasks.map((task: BaseTaskRes) => (
-            <SortableTaskItem key={task.id} id={task.id}>
-              <TaskCard
-                key={task.id}
-                task={task}
-                opened={openedTasks.includes(task.id)}
-                open={() => handleTaskOpen(task.id)}
-                close={() => handleTaskClose(task.id)}
-              />
-            </SortableTaskItem>
+            <TaskCard
+              key={task.id}
+              task={task}
+              opened={openedTasks.includes(task.id)}
+              open={() => handleTaskOpen(task.id)}
+              close={() => handleTaskClose(task.id)}
+            />
           ))}
 
           <AddTask
-            columnId={columnId}
-            tasks={tasks}
+            columnId={column.id}
+            tasks={column.tasks}
             isAddingTask={isAddingTask}
             toggleAddingTask={(val) => setIsAddingTask(val)}
           />

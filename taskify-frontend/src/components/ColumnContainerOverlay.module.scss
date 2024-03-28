@@ -1,0 +1,32 @@
+@import "/src/themes/theme.scss";
+
+.taskTitle {
+  flex: 2;
+  margin: 0 4px;
+  background-color: #4592af;
+  border: none;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.columnContainer {
+  width: 300px;
+  background-color: $primary;
+  padding: 12px 5px 12px 5px;
+  border-radius: 10px;
+  max-height: calc(100% - 20px);
+}
+
+.titleContainer {
+  overflow: visible;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.actionIcon {
+  &:hover {
+    background: $primary--dark;
+  }
+}

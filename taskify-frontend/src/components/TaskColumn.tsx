@@ -1,22 +1,18 @@
-import {
-  ActionIcon,
-  Box,
-  Button,
-  Flex,
-  Loader,
-  Modal,
-  Stack,
-} from "@mantine/core";
+import { Button, Flex, Loader, Modal } from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
 import { useEffect, useState } from "react";
-import { IconDots, IconMoodCheck } from "@tabler/icons-react";
+import { IconMoodCheck } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { delColumn, editColumn } from "@/api/column";
-import { ColumnDeleteRes, ColumnResType, BaseDataRes } from "@/types/column";
+import {
+  ColumnDeleteRes,
+  ColumnResType,
+  BaseDataRes,
+  BaseTaskRes,
+} from "@/types/column";
 import AddColumn from "./AddColumn";
 import { notifications } from "@mantine/notifications";
 import { useDisclosure } from "@mantine/hooks";
-import TaskCardList from "./TaskCardList";
 import { calculateDataIndex } from "@/utils";
 import { useTasks } from "@/hooks/useTasks";
 import { useUser } from "@/hooks/useUser";
@@ -38,11 +34,10 @@ import {
 import {
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import TaskCard from "./TaskCard";
-import DroppableContainer from "./DroppableContainer";
-import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
+import ColumnContainer from "./ColumnContainer";
+import ColumnContainerOverlay from "./ColumnContainerOverlay";
 
 function selectColumnsWithTasks(data: BaseDataRes): ColumnResType[] {
   return data.columns.map((column) => ({
@@ -55,7 +50,8 @@ function TaskColumn() {
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
   const userInfo = useUser();
-  const [activeItemId, setActiveItemId] = useState<null | string>(null);
+  const [activeColumn, setActiveColumn] = useState<ColumnResType | null>(null);
+  const [activeTask, setActiveTask] = useState<BaseTaskRes | null>(null);
 
   const { isPending, data, error } = useTasks(userInfo.boardId);
 
@@ -78,8 +74,6 @@ function TaskColumn() {
   const [columnsWithTasks, setColumnsWithTasks] = useState<
     Array<ColumnResType>
   >([]);
-  const [containers, setContainers] = useState<string[]>([]);
-  const [taskItems, setTaskItems] = useState<Record<string, ColumnResType>>({});
 
   useEffect(() => {
     if (!data) {
@@ -87,15 +81,6 @@ function TaskColumn() {
     }
     const columnsWithTasks = selectColumnsWithTasks(data);
     setColumnsWithTasks(columnsWithTasks);
-    const containers = data.columns.map((col) => col.id);
-    setContainers(containers);
-    const taskItems = containers.reduce((obj, key) => {
-      return {
-        ...obj,
-        [key]: columnsWithTasks.find((col) => col.id === key),
-      };
-    }, {});
-    setTaskItems(taskItems);
   }, [data]);
 
   // const columnsWithTasks = useMemo(() => {
@@ -187,14 +172,18 @@ function TaskColumn() {
   };
 
   const handleDragStart = ({ active }: DragStartEvent) => {
-    console.log("active", active.id);
+    if (active.data.current?.type === "Column") {
+      setActiveColumn(active.data.current?.column);
+      return;
+    }
 
-    setActiveItemId(active.id as string);
+    if (active.data.current?.type === "Task") {
+      setActiveTask(active.data.current?.task);
+      return;
+    }
+
+    // setActiveItemId(active.id as string);
   };
-
-  const task = activeItemId
-    ? data?.tasks.find((task) => task.id === activeItemId)
-    : null;
 
   const findContainerId = (id: string, columnsWithTasks: ColumnResType[]) => {
     const index = columnsWithTasks.findIndex((col) => col.id === id);
@@ -277,6 +266,8 @@ function TaskColumn() {
   };
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    setActiveColumn(null);
+    setActiveTask(null);
     // console.log("active", active);
     // console.log("over", over);
 
@@ -336,42 +327,6 @@ function TaskColumn() {
     setCurrentDelId(containerId);
   };
 
-  const renderColumnOverlay = (column: ColumnResType) => {
-    return (
-      <div style={{ flexShrink: 0, display: "flex", height: "100%" }}>
-        <Flex style={{ height: "100%" }}>
-          <Box
-            style={{
-              height: "100%",
-            }}
-          >
-            <Stack className={style.columnContainer}>
-              <Flex className={style.titleContainer}>
-                <ColumnTitleTextarea
-                  id={column.id}
-                  title={column.title}
-                  onSave={handleEditTitle}
-                />
-                <ActionIcon
-                  className={style.actionIcon}
-                  variant="transparent"
-                  aria-label="Settings"
-                  color="white"
-                  size={"lg"}
-                >
-                  <IconDots size="1.125rem" />
-                </ActionIcon>
-              </Flex>
-              <TaskCardList
-                columnId={column.id}
-                tasks={taskItems[column.id].tasks}
-              />
-            </Stack>
-          </Box>
-        </Flex>
-      </div>
-    );
-  };
   return (
     <Flex className={style.container}>
       <DndContext
@@ -381,25 +336,14 @@ function TaskColumn() {
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext
-          items={containers}
-          strategy={verticalListSortingStrategy}
-        >
-          {/* {columnsWithTasks.map((column: ColumnResType) => ( */}
-          {containers.map((containerId) => (
-            <DroppableContainer
-              items={taskItems[containerId].tasks.map((task) => task.id)}
-              key={containerId}
-              id={containerId}
-              title={taskItems[containerId].title}
-              onDelMenuOpen={() => handleOpenDelMenu(containerId)}
-              onTitleSave={handleEditTitle}
-            >
-              <TaskCardList
-                columnId={containerId}
-                tasks={taskItems[containerId].tasks}
-              />
-            </DroppableContainer>
+        <SortableContext items={columnsWithTasks.map((column) => column.id)}>
+          {columnsWithTasks.map((column: ColumnResType) => (
+            <ColumnContainer
+              key={column.id}
+              column={column}
+              handleEditTitle={handleEditTitle}
+              onDelMenuOpen={handleOpenDelMenu}
+            />
           ))}
         </SortableContext>
         <AddColumn
@@ -422,13 +366,15 @@ function TaskColumn() {
           </Button>
         </Modal>
         <DragOverlay dropAnimation={dropAnimation}>
-          {activeItemId ? (
-            containers.includes(activeItemId) ? (
-              renderColumnOverlay(taskItems[activeItemId])
-            ) : (
-              <TaskCard task={task} open={open} close={close} opened={opened} />
-            )
-          ) : null}
+          {activeColumn && <ColumnContainerOverlay column={activeColumn} />}
+          {activeTask && (
+            <TaskCard
+              task={activeTask}
+              open={open}
+              opened={opened}
+              close={close}
+            />
+          )}
         </DragOverlay>
       </DndContext>
     </Flex>

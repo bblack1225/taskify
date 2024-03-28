@@ -38,6 +38,8 @@ import TaskLabelMenu from "./Menu/TaskLabelMenu";
 import TaskDateMenu from "./Menu/TaskDateMenu";
 import { TaskLabel } from "@/types/labels";
 import { useLabelsData } from "@/context/useLabelsData";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Props = {
   task: BaseTaskRes;
@@ -275,9 +277,37 @@ function TaskCard({ task, open, close, opened }: Props) {
     }
   };
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: task.id,
+    data: {
+      type: "Task",
+      task,
+    },
+  });
+
+  const dndStyles = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : undefined,
+  };
+
   return (
     <>
-      <Box onClick={open} className={style.taskContainer}>
+      <Box
+        ref={setNodeRef}
+        style={dndStyles}
+        onClick={open}
+        className={style.taskContainer}
+        {...attributes}
+        {...listeners}
+      >
         {taskLabels.length > 0 && (
           <Flex
             style={{

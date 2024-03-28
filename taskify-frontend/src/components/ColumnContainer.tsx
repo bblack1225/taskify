@@ -1,26 +1,22 @@
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { ActionIcon, Box, Flex, Menu, Stack } from "@mantine/core";
 import ColumnTitleTextarea from "./textarea/ColumnTitleTextarea";
 import { IconDots, IconTrash } from "@tabler/icons-react";
-import styles from "@/components/TaskColumn.module.scss";
+import { ColumnResType } from "@/types/column";
+import style from "@/components/TaskColumn.module.scss";
+import TaskCardList from "./TaskCardList";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Props = {
-  id: string;
-  title: string;
-  onDelMenuOpen: () => void;
-  onTitleSave: (id: string, value: string) => void;
-  items: string[];
-  children: React.ReactNode;
+  column: ColumnResType;
+  handleEditTitle: (id: string, title: string) => void;
+  onDelMenuOpen: (id: string) => void;
 };
 
-export default function DroppableContainer({
-  id,
-  title,
+export default function ColumnContainer({
+  column,
+  handleEditTitle,
   onDelMenuOpen,
-  onTitleSave,
-  items,
-  children,
 }: Props) {
   const {
     attributes,
@@ -30,15 +26,14 @@ export default function DroppableContainer({
     transition,
     isDragging,
   } = useSortable({
-    id,
-    // TODO 不知道要幹嘛用的
+    id: column.id,
     data: {
-      type: "container",
-      children: items,
+      type: "Column",
+      column,
     },
   });
 
-  const style = {
+  const dndStyles = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : undefined,
@@ -46,16 +41,20 @@ export default function DroppableContainer({
     display: "flex",
   };
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <Flex>
+    <div style={dndStyles} ref={setNodeRef}>
+      <Flex {...attributes} {...listeners}>
         <Box>
-          <Stack className={styles.columnContainer}>
-            <Flex className={styles.titleContainer}>
-              <ColumnTitleTextarea id={id} title={title} onSave={onTitleSave} />
+          <Stack className={style.columnContainer}>
+            <Flex className={style.titleContainer}>
+              <ColumnTitleTextarea
+                id={column.id}
+                title={column.title}
+                onSave={handleEditTitle}
+              />
               <Menu shadow="md" width={200}>
                 <Menu.Target>
                   <ActionIcon
-                    className={styles.actionIcon}
+                    className={style.actionIcon}
                     variant="transparent"
                     aria-label="Settings"
                     color="white"
@@ -70,22 +69,14 @@ export default function DroppableContainer({
                   <Menu.Item
                     color="red"
                     leftSection={<IconTrash />}
-                    onClick={onDelMenuOpen}
+                    onClick={() => onDelMenuOpen(column.id)}
                   >
                     刪除列表
                   </Menu.Item>
                 </Menu.Dropdown>
               </Menu>
-              {/* <ActionIcon
-                size={"lg"}
-                variant="transparent"
-                color="white"
-                style={{ cursor: "grab" }}
-              >
-                <IconGripVertical size="1.125rem" />
-              </ActionIcon> */}
             </Flex>
-            {children}
+            <TaskCardList column={column} />
           </Stack>
         </Box>
       </Flex>
