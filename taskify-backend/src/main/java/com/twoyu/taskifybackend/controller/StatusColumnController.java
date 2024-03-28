@@ -1,8 +1,7 @@
 package com.twoyu.taskifybackend.controller;
 
-import com.twoyu.taskifybackend.exception.ServiceException;
 import com.twoyu.taskifybackend.model.vo.request.AddColumnRequest;
-import com.twoyu.taskifybackend.model.vo.request.UpdateColumnTitleRequest;
+import com.twoyu.taskifybackend.model.vo.request.UpdateColumnRequest;
 import com.twoyu.taskifybackend.model.vo.response.*;
 import com.twoyu.taskifybackend.service.IStatusColumnService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,7 +29,7 @@ public class StatusColumnController {
 
     @Operation(summary = "修改狀態列表的標題(直接去點擊列表的Textarea)")
     @PutMapping("/{id}")
-    public UpdateColumnTitleResponse updateTitle(@PathVariable UUID id, @Valid @RequestBody UpdateColumnTitleRequest request){
+    public UpdateColumnResponse updateTitle(@PathVariable UUID id, @Valid @RequestBody UpdateColumnRequest request){
         return statusColumnService.updateTitle(id, request);
     }
 

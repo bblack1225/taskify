@@ -12,9 +12,11 @@ export const addColumn = (requestData: {
 export const editColumn = (editColumn: {
   id: string;
   title: string;
+  dataIndex: number;
 }): Promise<ColumnMutateRes> => {
   return axiosClient.put(`/statusCol/${editColumn.id}`, {
     title: editColumn.title,
+    dataIndex: editColumn.dataIndex,
   });
 };
 

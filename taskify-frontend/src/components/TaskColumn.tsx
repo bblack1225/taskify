@@ -32,6 +32,7 @@ import {
   TouchSensor,
 } from "@dnd-kit/core";
 import {
+  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
@@ -92,24 +93,37 @@ function TaskColumn() {
 
   const queryClient = useQueryClient();
   const updateMutation = useMutation({
-    mutationFn: (editTitle: { id: string; title: string }) =>
-      editColumn(editTitle),
-    onMutate: async (updatedTask) => {
+    mutationFn: (updatedColumn: {
+      id: string;
+      title: string;
+      dataIndex: number;
+      wholeUpdatedColumns?: ColumnResType[];
+    }) => editColumn(updatedColumn),
+    onMutate: async (updatedColumn) => {
       await queryClient.cancelQueries({ queryKey: ["tasks"] });
       const previousTasks = queryClient.getQueryData(["tasks"]);
-      queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
-        return {
-          ...oldData,
-          columns: oldData.columns.map((column) =>
-            column.id !== updatedTask.id
-              ? column
-              : {
-                  ...column,
-                  title: updatedTask.title,
-                }
-          ),
-        };
-      });
+      if (updatedColumn.wholeUpdatedColumns) {
+        queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+          return {
+            ...oldData,
+            columns: updatedColumn.wholeUpdatedColumns,
+          };
+        });
+      } else {
+        queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+          return {
+            ...oldData,
+            columns: oldData.columns.map((column) =>
+              column.id !== updatedColumn.id
+                ? column
+                : {
+                    ...column,
+                    title: updatedColumn.title,
+                  }
+            ),
+          };
+        });
+      }
       return { previousTasks };
     },
     onSuccess: () => {
@@ -160,10 +174,20 @@ function TaskColumn() {
   const currentColDataIndex = calculateDataIndex(columnsWithTasks);
 
   const handleEditTitle = (id: string, title: string) => {
-    updateMutation.mutate({
-      id,
-      title,
-    });
+    const column = columnsWithTasks.find((col) => col.id === id);
+    if (column) {
+      updateMutation.mutate({
+        id,
+        title,
+        dataIndex: column.dataIndex,
+      });
+    } else {
+      notifications.show({
+        title: "Error!",
+        message: "Column not found!",
+        color: "red",
+      });
+    }
   };
 
   const handleDelColumn = () => {
@@ -201,8 +225,8 @@ function TaskColumn() {
       columnsWithTasks
     );
     const overContainerId = findContainerId(overId as string, columnsWithTasks);
-    console.log("activeId", activeId);
-    console.log("overId", overId);
+    // console.log("activeId", activeId);
+    // console.log("overId", overId);
 
     if (
       !activeContainerId ||
@@ -268,17 +292,90 @@ function TaskColumn() {
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     setActiveColumn(null);
     setActiveTask(null);
-    // console.log("active", active);
-    // console.log("over", over);
 
-    const activeContainer = active.data.current?.containerId;
-    const overContainer = over?.data.current?.sortable.containerId;
+    if (!over) {
+      return;
+    }
+
+    const activeId = active.id;
+    const overId = over.id;
+    if (activeId === overId) {
+      return;
+    }
+
+    console.log("active.data.current?.type", active.data.current?.type);
+
+    // TODO 當為task時，要再儲存到後端
+    if (active.data.current?.type !== "Column") {
+      return;
+    }
+
+    const activeColumnIndex = columnsWithTasks.findIndex(
+      (col) => col.id === activeId
+    );
+    const overColumnIndex = columnsWithTasks.findIndex(
+      (col) => col.id === overId
+    );
+    console.log("activeColumnIndex", activeColumnIndex);
+    console.log("overColumnIndex", overColumnIndex);
+    const currentColumn = columnsWithTasks[activeColumnIndex];
+    let newDataIndex: number;
+    if (overColumnIndex === 0) {
+      console.log("移到第一個");
+      newDataIndex = columnsWithTasks[0].dataIndex / 2;
+    } else if (overColumnIndex === columnsWithTasks.length - 1) {
+      console.log("移到最後");
+      newDataIndex = columnsWithTasks[overColumnIndex].dataIndex + 65536;
+    } else {
+      console.log("移到中間");
+      newDataIndex =
+        (columnsWithTasks[overColumnIndex - 1].dataIndex +
+          columnsWithTasks[overColumnIndex + 1].dataIndex) /
+        2;
+    }
+    console.log("newDataIndex", newDataIndex);
+
+    const updatedColumn = {
+      ...currentColumn,
+      dataIndex: newDataIndex,
+    };
+    const updatedColumns = columnsWithTasks.map((col) => {
+      if (col.id === currentColumn.id) {
+        return updatedColumn;
+      }
+      return col;
+    });
+
+    const columnsAfterMove = arrayMove(
+      updatedColumns,
+      activeColumnIndex,
+      overColumnIndex
+    );
+    // TODO 有bug 尚未完成
+
+    updateMutation.mutate({
+      id: currentColumn.id,
+      title: currentColumn.title,
+      dataIndex: newDataIndex,
+      wholeUpdatedColumns: columnsAfterMove,
+    });
+
+    // setColumnsWithTasks(columnsAfterMove);
+    // console.log("currentOverColumn", currentOverColumn);
+
+    // // update column
+    // setColumnsWithTasks((prevColumns: ColumnResType[]): ColumnResType[] => {
+    //   return arrayMove(prevColumns, activeColumnIndex, overColumnIndex);
+    // });
+
+    // const activeContainer = active.data.current?.containerId;
+    // const overContainer = over?.data.current?.sortable.containerId;
     //over的containerId
     // const activeId = task?.id;
 
-    if (!activeContainer || !overContainer) {
-      return;
-    }
+    // if (!activeContainer || !overContainer) {
+    // return;
+    // }
     // active的taskId;
 
     // if (activeContainer) {
@@ -326,6 +423,7 @@ function TaskColumn() {
     open();
     setCurrentDelId(containerId);
   };
+  console.log("columnsWithTasks", columnsWithTasks);
 
   return (
     <Flex className={style.container}>

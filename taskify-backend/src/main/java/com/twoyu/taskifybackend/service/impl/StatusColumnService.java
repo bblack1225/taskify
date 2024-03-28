@@ -3,7 +3,7 @@ package com.twoyu.taskifybackend.service.impl;
 import com.twoyu.taskifybackend.exception.ServiceException;
 import com.twoyu.taskifybackend.model.entity.*;
 import com.twoyu.taskifybackend.model.vo.request.AddColumnRequest;
-import com.twoyu.taskifybackend.model.vo.request.UpdateColumnTitleRequest;
+import com.twoyu.taskifybackend.model.vo.request.UpdateColumnRequest;
 import com.twoyu.taskifybackend.model.vo.response.*;
 import com.twoyu.taskifybackend.model.vo.response.shared.*;
 import com.twoyu.taskifybackend.repository.*;
@@ -40,12 +40,16 @@ public class StatusColumnService implements IStatusColumnService {
         );
     }
     @Override
-    public UpdateColumnTitleResponse updateTitle(UUID id, UpdateColumnTitleRequest request) {
+    public UpdateColumnResponse updateTitle(UUID id, UpdateColumnRequest request) {
         StatusColumn statusColumn = statusColumnRepository
                 .findById(id).orElseThrow(() -> new ServiceException("StatusColumn id not found:" + id));
         statusColumn.setTitle(request.getTitle());
+
+        // TODO 如果遇到 dataIndex 為小數點的情況，要進行處理
+        Integer dataIndex = request.getDataIndex().intValue();
+        statusColumn.setDataIndex(dataIndex);
         statusColumn = statusColumnRepository.save(statusColumn);
-        return new UpdateColumnTitleResponse(
+        return new UpdateColumnResponse(
                 statusColumn.getId(),
                 statusColumn.getBoardId(),
                 statusColumn.getTitle(),
