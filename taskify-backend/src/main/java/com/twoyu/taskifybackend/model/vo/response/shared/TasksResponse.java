@@ -21,7 +21,7 @@ public class TasksResponse {
     @Schema(description = "任務名稱")
     private String name;
     @Schema(description = "任務在列表中的排序")
-    private Integer dataIndex;
+    private Double dataIndex;
     @Schema(description = "任務描述")
     private String description;
     @Schema(description = "任務包含的標籤")

@@ -9,5 +9,5 @@ public class StatusColumnResponse {
     private UUID id;
     private String title;
     private String color;
-    private Integer dataIndex;
+    private Double dataIndex;
 }

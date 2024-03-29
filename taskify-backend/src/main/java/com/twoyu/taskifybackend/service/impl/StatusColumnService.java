@@ -25,6 +25,7 @@ public class StatusColumnService implements IStatusColumnService {
     private final TasksRepository tasksRepository;
     private final BoardRepository boardRepository;
     private final TasksLabelsRepository tasksLabelsRepository;
+    private static final Double BASE_DATA_INDEX = 65536.0;
     @Override
     public AddColumnResponse addColumn(AddColumnRequest addColumnRequest) {
         StatusColumn statusColumn = new StatusColumn();
@@ -45,10 +46,20 @@ public class StatusColumnService implements IStatusColumnService {
                 .findById(id).orElseThrow(() -> new ServiceException("StatusColumn id not found:" + id));
         statusColumn.setTitle(request.getTitle());
 
-        // TODO 如果遇到 dataIndex 為小數點的情況，要進行處理
-        Integer dataIndex = request.getDataIndex().intValue();
-        statusColumn.setDataIndex(dataIndex);
+        statusColumn.setDataIndex(request.getDataIndex());
         statusColumn = statusColumnRepository.save(statusColumn);
+
+        // TODO 如果遇到 dataIndex 為小數點的情況，要進行處理
+        if(request.getDataIndex() <= 1){
+            UUID boardId = statusColumn.getBoardId();
+            List<StatusColumn> statusColumns = statusColumnRepository.findAllByBoardIdOrderByDataIndex(boardId);
+            for(int i = 1; i <= statusColumns.size(); i++){
+                StatusColumn column = statusColumns.get(i);
+                column.setDataIndex(column.getDataIndex() + BASE_DATA_INDEX);
+            }
+
+        }
+
         return new UpdateColumnResponse(
                 statusColumn.getId(),
                 statusColumn.getBoardId(),

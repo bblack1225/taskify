@@ -330,7 +330,7 @@ function TaskColumn() {
       console.log("移到中間");
       newDataIndex =
         (columnsWithTasks[overColumnIndex - 1].dataIndex +
-          columnsWithTasks[overColumnIndex + 1].dataIndex) /
+          columnsWithTasks[overColumnIndex].dataIndex) /
         2;
     }
     console.log("newDataIndex", newDataIndex);
@@ -352,6 +352,7 @@ function TaskColumn() {
       overColumnIndex
     );
     // TODO 有bug 尚未完成
+    console.log("columnsAfterMove", columnsAfterMove);
 
     updateMutation.mutate({
       id: currentColumn.id,

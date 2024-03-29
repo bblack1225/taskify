@@ -23,5 +23,5 @@ public class AddColumnRequest {
 
     @NotNull
     @Schema(description = "狀態列表的排序", example = "0")
-    private Integer dataIndex;
+    private Double dataIndex;
 }

@@ -46,7 +46,7 @@ public class StatusColumn implements Serializable {
      * 狀態欄排序
      */
     @Column(name = "data_index", nullable = false)
-    private Integer dataIndex;
+    private Double dataIndex;
 
     @Column(name = "board_id", nullable = false)
     private UUID boardId;

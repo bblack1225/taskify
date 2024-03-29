@@ -16,7 +16,7 @@ public class AddTaskRequest {
     private String name;
     @NotNull
     @Schema(description = "任務在看板中的排序", example = "0")
-    private Integer dataIndex;
+    private Double dataIndex;
 
     @NotNull
     @Schema(description = "任務所屬的看板ID")
