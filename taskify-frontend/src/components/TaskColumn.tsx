@@ -40,6 +40,7 @@ import TaskCard from "./TaskCard";
 import ColumnContainer from "./ColumnContainer";
 import ColumnContainerOverlay from "./ColumnContainerOverlay";
 import { createPortal } from "react-dom";
+import { isActive } from "@tiptap/react";
 
 function selectColumnsWithTasks(data: BaseDataRes): ColumnResType[] {
   return data.columns.map((column) => ({
@@ -234,8 +235,54 @@ function TaskColumn() {
   };
 
   const handleDragOver = ({ active, over }: DragOverEvent) => {
+    console.log("active", active);
+    console.log("over", over);
+
+    if (!over) {
+      return;
+    }
     const activeId = active.id;
-    const overId = over?.id;
+    const overId = over.id;
+    if (activeId === overId) {
+      return;
+    }
+
+    const isActiveATask = active.data.current?.type === "Task";
+    const isOverATask = over.data.current?.type === "Task";
+    if (!isActiveATask) return;
+
+    // 同一個column間的task移動
+    if (isActiveATask && isOverATask) {
+      console.log("&&&");
+
+      const columnId = active.data.current?.task.columnId;
+      const tasks = columnsWithTasks.find((col) => col.id === columnId)?.tasks;
+      if (!tasks) return;
+      const activeIndex = tasks?.findIndex((task) => task.id === activeId);
+      const overIndex = tasks?.findIndex((task) => task.id === overId);
+      console.log("activeIndex", activeIndex);
+      console.log("overIndex", overIndex);
+      const newTasks = arrayMove(tasks, activeIndex, overIndex);
+      setColumnsWithTasks(() => {
+        return columnsWithTasks.map((col) => {
+          if (col.id === columnId) {
+            return {
+              ...col,
+              tasks: newTasks,
+            };
+          }
+          return col;
+        });
+      });
+    }
+
+    const isOverAColumn = over.data.current?.type === "Column";
+    console.log("isOverAColumn", isOverAColumn);
+
+    if (isActiveATask && isOverAColumn) {
+      console.log("!!!!");
+    }
+
     const activeContainerId = findContainerId(
       activeId as string,
       columnsWithTasks
@@ -315,7 +362,10 @@ function TaskColumn() {
 
     const activeId = active.id;
     const overId = over.id;
+
     if (activeId === overId) {
+      // TODO 處理同一個column間的task移動，但column移動並沒有更換index也會進來這邊
+      console.log("??????");
       return;
     }
 
@@ -323,6 +373,8 @@ function TaskColumn() {
 
     // TODO 當為task時，要再儲存到後端
     if (active.data.current?.type !== "Column") {
+      // TODO 處理同一個column或不同column間的task移動，
+      console.log("@@@@@@");
       return;
     }
 
