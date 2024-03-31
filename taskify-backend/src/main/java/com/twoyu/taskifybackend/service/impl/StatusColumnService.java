@@ -13,7 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +29,7 @@ public class StatusColumnService implements IStatusColumnService {
     private final BoardRepository boardRepository;
     private final TasksLabelsRepository tasksLabelsRepository;
     private static final Double BASE_DATA_INDEX = 65536.0;
+    private static final Double BASE_RESET_DATA_INDEX = 16384.0;
     @Override
     public AddColumnResponse addColumn(AddColumnRequest addColumnRequest) {
         StatusColumn statusColumn = new StatusColumn();
@@ -50,14 +54,27 @@ public class StatusColumnService implements IStatusColumnService {
         statusColumn = statusColumnRepository.save(statusColumn);
 
         // TODO 如果遇到 dataIndex 為小數點的情況，要進行處理
-        if(request.getDataIndex() <= 1){
+        if(request.getDataIndex() < 1){
             UUID boardId = statusColumn.getBoardId();
             List<StatusColumn> statusColumns = statusColumnRepository.findAllByBoardIdOrderByDataIndex(boardId);
-            for(int i = 1; i <= statusColumns.size(); i++){
+//            for(int i = 1; i <= statusColumns.size(); i++){
+//                StatusColumn column = statusColumns.get(i);
+//                column.setDataIndex(column.getDataIndex() + BASE_DATA_INDEX);
+//            }
+            IntStream.range(0, statusColumns.size()).forEach(i -> {
                 StatusColumn column = statusColumns.get(i);
-                column.setDataIndex(column.getDataIndex() + BASE_DATA_INDEX);
-            }
-
+                column.setDataIndex(BASE_RESET_DATA_INDEX * (i + 1));
+            });
+            statusColumnRepository.saveAll(statusColumns);
+            Map<UUID, Double> columnIndexMap = statusColumns.stream().collect(
+                    Collectors.toMap(StatusColumn::getId, StatusColumn::getDataIndex)
+            );
+            return new UpdateColumnResponse(
+                    statusColumn.getId(),
+                    statusColumn.getBoardId(),
+                    statusColumn.getTitle(),
+                    statusColumn.getDataIndex(),
+                    columnIndexMap);
         }
 
         return new UpdateColumnResponse(
@@ -98,11 +115,11 @@ public class StatusColumnService implements IStatusColumnService {
         }).toList();
         res.setColumns(statusColumnResList);
         List<TasksLabels> tasksLabels = tasksLabelsRepository.findAllByBoardId(boardId);
-        Map<UUID, List<UUID>> map = new HashMap<>();
+        Map<UUID, List<UUID>> taskLabelsMap = new HashMap<>();
         for (TasksLabels tasksLabel : tasksLabels) {
-            List<UUID> uuids = map.getOrDefault(tasksLabel.getId().getTaskId(), new ArrayList<>());
-            uuids.add(tasksLabel.getId().getLabelId());
-            map.put(tasksLabel.getId().getTaskId(), uuids);
+            List<UUID> labelIdsByTask = taskLabelsMap.getOrDefault(tasksLabel.getId().getTaskId(), new ArrayList<>());
+            labelIdsByTask.add(tasksLabel.getId().getLabelId());
+            taskLabelsMap.put(tasksLabel.getId().getTaskId(), labelIdsByTask);
         }
         List<Tasks> tasksDTOs =  tasksRepository.findAllByBoardIdOrderByDataIndex(boardId);
         List<TasksResponse> tasksResponses = tasksDTOs.stream().map(task -> {
@@ -114,7 +131,7 @@ public class StatusColumnService implements IStatusColumnService {
             tasksResponse.setStartDate(task.getStartDate());
             tasksResponse.setDueDate(task.getDueDate());
 
-            List<UUID> labelIds = map.getOrDefault(task.getId(), new ArrayList<>());
+            List<UUID> labelIds = taskLabelsMap.getOrDefault(task.getId(), new ArrayList<>());
             tasksResponse.setLabels(labelIds);
             tasksResponse.setColumnId(task.getStatusId());
             return tasksResponse;

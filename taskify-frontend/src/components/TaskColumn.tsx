@@ -39,6 +39,7 @@ import {
 import TaskCard from "./TaskCard";
 import ColumnContainer from "./ColumnContainer";
 import ColumnContainerOverlay from "./ColumnContainerOverlay";
+import { createPortal } from "react-dom";
 
 function selectColumnsWithTasks(data: BaseDataRes): ColumnResType[] {
   return data.columns.map((column) => ({
@@ -84,13 +85,6 @@ function TaskColumn() {
     setColumnsWithTasks(columnsWithTasks);
   }, [data]);
 
-  // const columnsWithTasks = useMemo(() => {
-  //   if (!data) {
-  //     return [];
-  //   }
-  //   return selectColumnsWithTasks(data);
-  // }, [data]);
-
   const queryClient = useQueryClient();
   const updateMutation = useMutation({
     mutationFn: (updatedColumn: {
@@ -126,7 +120,28 @@ function TaskColumn() {
       }
       return { previousTasks };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (data.columnIndexMap) {
+        const { columnIndexMap } = data;
+        console.log("updatedColumn", columnIndexMap);
+
+        queryClient.setQueryData(["tasks"], (oldData: BaseDataRes) => {
+          const newColumns = oldData.columns.map((column) => {
+            const newDataIndex = columnIndexMap[column.id];
+            return {
+              ...column,
+              dataIndex: newDataIndex,
+            };
+          });
+          console.log("newColumns", newColumns);
+
+          return {
+            ...oldData,
+            columns: newColumns,
+          };
+        });
+      }
+
       // queryClient.invalidateQueries({ queryKey: ["tasks"] });
       notifications.show({
         icon: <IconMoodCheck />,
@@ -161,12 +176,13 @@ function TaskColumn() {
     },
   });
 
-  if (isPending)
+  if (isPending) {
     return (
       <div style={{ margin: "0 auto" }}>
         <Loader color="#4592af" type="dots" />
       </div>
     );
+  }
 
   if (error) return "An error has occurred: " + error.message;
 
@@ -321,19 +337,28 @@ function TaskColumn() {
     const currentColumn = columnsWithTasks[activeColumnIndex];
     let newDataIndex: number;
     if (overColumnIndex === 0) {
-      console.log("移到第一個");
+      // 移到第一個
       newDataIndex = columnsWithTasks[0].dataIndex / 2;
     } else if (overColumnIndex === columnsWithTasks.length - 1) {
-      console.log("移到最後");
+      // 移到最後一個
       newDataIndex = columnsWithTasks[overColumnIndex].dataIndex + 65536;
     } else {
-      console.log("移到中間");
-      newDataIndex =
-        (columnsWithTasks[overColumnIndex - 1].dataIndex +
-          columnsWithTasks[overColumnIndex].dataIndex) /
-        2;
+      // 移到中間
+
+      // 往右移
+      if (overColumnIndex > activeColumnIndex) {
+        newDataIndex =
+          (columnsWithTasks[overColumnIndex].dataIndex +
+            columnsWithTasks[overColumnIndex + 1].dataIndex) /
+          2;
+      } else {
+        // 往左移
+        newDataIndex =
+          (columnsWithTasks[overColumnIndex - 1].dataIndex +
+            columnsWithTasks[overColumnIndex].dataIndex) /
+          2;
+      }
     }
-    console.log("newDataIndex", newDataIndex);
 
     const updatedColumn = {
       ...currentColumn,
@@ -351,8 +376,7 @@ function TaskColumn() {
       activeColumnIndex,
       overColumnIndex
     );
-    // TODO 有bug 尚未完成
-    console.log("columnsAfterMove", columnsAfterMove);
+    setColumnsWithTasks(columnsAfterMove);
 
     updateMutation.mutate({
       id: currentColumn.id,
@@ -464,17 +488,20 @@ function TaskColumn() {
             確定刪除
           </Button>
         </Modal>
-        <DragOverlay dropAnimation={dropAnimation}>
-          {activeColumn && <ColumnContainerOverlay column={activeColumn} />}
-          {activeTask && (
-            <TaskCard
-              task={activeTask}
-              open={open}
-              opened={opened}
-              close={close}
-            />
-          )}
-        </DragOverlay>
+        {createPortal(
+          <DragOverlay dropAnimation={dropAnimation}>
+            {activeColumn && <ColumnContainerOverlay column={activeColumn} />}
+            {activeTask && (
+              <TaskCard
+                task={activeTask}
+                open={open}
+                opened={opened}
+                close={close}
+              />
+            )}
+          </DragOverlay>,
+          document.body
+        )}
       </DndContext>
     </Flex>
   );

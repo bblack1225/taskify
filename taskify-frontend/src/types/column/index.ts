@@ -3,6 +3,9 @@ export type ColumnMutateRes = {
   boardId: string;
   title: string;
   dataIndex: number;
+  columnIndexMap?: {
+    [key: string]: number;
+  };
 };
 
 export type ColumnDeleteRes = {
