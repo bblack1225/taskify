@@ -171,6 +171,9 @@ function TaskCard({ task, open, close, opened }: Props) {
     },
   });
 
+  /**
+   * 這裡的deleteTaskLabelMutation跟addTaskLabelMutation是為了處理標籤的新增跟刪除
+   */
   const deleteTaskLabelMutation = useMutation({
     mutationFn: ({ taskId, labelId }: { taskId: string; labelId: string }) => {
       return deleteTaskLabel(taskId, labelId);

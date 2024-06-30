@@ -226,126 +226,93 @@ function TaskColumn() {
     // setActiveItemId(active.id as string);
   };
 
-  const findContainerId = (id: string, columnsWithTasks: ColumnResType[]) => {
-    const index = columnsWithTasks.findIndex((col) => col.id === id);
-    if (index == -1) {
-      return id;
-    }
-    return columnsWithTasks[index].id;
-  };
-
+  // drag over 只處理跨column的task移動
   const handleDragOver = ({ active, over }: DragOverEvent) => {
-    console.log("active", active);
-    console.log("over", over);
-
-    if (!over) {
-      return;
-    }
     const activeId = active.id;
-    const overId = over.id;
-    if (activeId === overId) {
-      return;
-    }
+    const overId = over?.id;
 
     const isActiveATask = active.data.current?.type === "Task";
-    const isOverATask = over.data.current?.type === "Task";
-    if (!isActiveATask) return;
-
-    // 同一個column間的task移動
-    if (isActiveATask && isOverATask) {
-      console.log("&&&");
-
-      const columnId = active.data.current?.task.columnId;
-      const tasks = columnsWithTasks.find((col) => col.id === columnId)?.tasks;
-      if (!tasks) return;
-      const activeIndex = tasks?.findIndex((task) => task.id === activeId);
-      const overIndex = tasks?.findIndex((task) => task.id === overId);
-      console.log("activeIndex", activeIndex);
-      console.log("overIndex", overIndex);
-      const newTasks = arrayMove(tasks, activeIndex, overIndex);
-      setColumnsWithTasks(() => {
-        return columnsWithTasks.map((col) => {
-          if (col.id === columnId) {
-            return {
-              ...col,
-              tasks: newTasks,
-            };
-          }
-          return col;
-        });
-      });
+    // 如果是column移動
+    if (!over || !isActiveATask) {
+      return;
     }
-
-    const isOverAColumn = over.data.current?.type === "Column";
-    console.log("isOverAColumn", isOverAColumn);
-
-    if (isActiveATask && isOverAColumn) {
-      console.log("!!!!");
-    }
-
-    const activeContainerId = findContainerId(
-      activeId as string,
-      columnsWithTasks
-    );
-    const overContainerId = findContainerId(overId as string, columnsWithTasks);
-    // console.log("activeId", activeId);
     // console.log("overId", overId);
 
-    if (
-      !activeContainerId ||
-      !overContainerId ||
-      overContainerId === activeContainerId
-    ) {
+    const activeColumnId = active.data.current?.task.columnId;
+    const isOverAColumn = over.data.current?.type === "Column";
+    const overColumnId = isOverAColumn
+      ? overId
+      : over.data.current?.task.columnId;
+    if (!activeColumnId || !overColumnId) {
       return;
     }
 
-    // setColumnsWithTasks(
-    //   (prevColumnsWithTasks: ColumnResType[]): ColumnResType[] => {
-    //     console.log("prevColumnsWithTasks", prevColumnsWithTasks);
+    if (activeColumnId !== overColumnId) {
+      setColumnsWithTasks(
+        (prevColumnsWithTasks: ColumnResType[]): ColumnResType[] => {
+          const activeTasks = prevColumnsWithTasks.find(
+            (column) => column.id === activeColumnId
+          )?.tasks;
+          const overTasks = prevColumnsWithTasks.find(
+            (column) => column.id === overColumnId
+          )?.tasks;
 
-    //     const activeTasks = prevColumnsWithTasks.find(
-    //       (col) => col.id === activeContainerId
-    //     )?.tasks;
-    //     const overTasks = prevColumnsWithTasks.find(
-    //       (col) => col.id === overContainerId
-    //     )?.tasks;
+          if (!activeTasks || !overTasks) return prevColumnsWithTasks;
 
-    //     const activeTaskIndex = activeTasks?.findIndex(
-    //       (task) => task.id === activeId
-    //     );
-    //     const overTaskIndex = overTasks?.findIndex(
-    //       (task) => task.id === overId
-    //     );
-    //     const currentTask = activeTasks?.find((task) => task.id === activeId);
-    //     console.log("activeTasks", activeTasks);
-    //     console.log("activeTaskIndex", activeTaskIndex);
+          const overIndex = overTasks.findIndex((task) => task.id === overId);
+          const activeIndex = activeTasks.findIndex(
+            (task) => task.id === activeId
+          );
+          let newIndex: number;
+          const overIdIndexByColumn = prevColumnsWithTasks.findIndex(
+            (col) => col.id === overId
+          );
+          // console.log("overIdIndexByColumn", overIdIndexByColumn);
 
-    //     const newVal = prevColumnsWithTasks.map((col) => {
-    //       if (col.id === activeContainerId) {
-    //         const newTasks = col.tasks.filter((task) => task.id !== activeId);
-    //         return {
-    //           ...col,
-    //           tasks: newTasks,
-    //         };
-    //       }
-    //       if (col.id === overContainerId) {
-    //         const newTasks = [
-    //           ...col.tasks.slice(0, overTaskIndex),
-    //           currentTask,
-    //           ...col.tasks.slice(overTaskIndex, col.tasks.length),
-    //         ];
-    //         return {
-    //           ...col,
-    //           tasks: newTasks,
-    //         };
-    //       }
+          // 代表移動到第一個或最後一個column，且元素為空
+          if (overIdIndexByColumn !== -1) {
+            newIndex = columnsWithTasks[overIdIndexByColumn].tasks.length + 1;
+            // console.log("newIndex", newIndex);
+          } else {
+            // 移動到column最後一個元素
+            const isBelowOverItem =
+              over &&
+              active.rect.current.translated &&
+              active.rect.current.translated.top >
+                over.rect.top + over.rect.height;
 
-    //       return col;
-    //     });
-
-    //     return newVal as ColumnResType[];
-    //   }
-    // );
+            const modifier = isBelowOverItem ? 1 : 0;
+            newIndex =
+              overIndex >= 0 ? overIndex + modifier : overTasks.length + 1;
+          }
+          return prevColumnsWithTasks.map((col) => {
+            if (col.id === activeColumnId) {
+              return {
+                ...col,
+                tasks: col.tasks.filter((task) => task.id !== activeId),
+              };
+            }
+            if (col.id === overColumnId) {
+              // task中的columnId要改成 overColumnId
+              const draggedTask = {
+                ...activeTasks[activeIndex],
+                columnId: overColumnId,
+              };
+              const newOverTasks = [
+                ...overTasks.slice(0, newIndex),
+                draggedTask,
+                ...overTasks.slice(newIndex, overTasks.length),
+              ];
+              return {
+                ...col,
+                tasks: newOverTasks,
+              };
+            }
+            return col;
+          });
+        }
+      );
+    }
   };
 
   const dropAnimation: DropAnimation = {
@@ -353,6 +320,8 @@ function TaskColumn() {
   };
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    console.log("active", active);
+    console.log("over", over);
     setActiveColumn(null);
     setActiveTask(null);
 
@@ -363,136 +332,115 @@ function TaskColumn() {
     const activeId = active.id;
     const overId = over.id;
 
-    if (activeId === overId) {
-      // TODO 處理同一個column間的task移動，但column移動並沒有更換index也會進來這邊
-      console.log("??????");
-      return;
-    }
+    if (active.data.current?.type === "Column") {
+      if (activeId === overId) {
+        return;
+      }
 
-    console.log("active.data.current?.type", active.data.current?.type);
-
-    // TODO 當為task時，要再儲存到後端
-    if (active.data.current?.type !== "Column") {
-      // TODO 處理同一個column或不同column間的task移動，
-      console.log("@@@@@@");
-      return;
-    }
-
-    const activeColumnIndex = columnsWithTasks.findIndex(
-      (col) => col.id === activeId
-    );
-    const overColumnIndex = columnsWithTasks.findIndex(
-      (col) => col.id === overId
-    );
-    console.log("activeColumnIndex", activeColumnIndex);
-    console.log("overColumnIndex", overColumnIndex);
-    const currentColumn = columnsWithTasks[activeColumnIndex];
-    let newDataIndex: number;
-    if (overColumnIndex === 0) {
-      // 移到第一個
-      newDataIndex = columnsWithTasks[0].dataIndex / 2;
-    } else if (overColumnIndex === columnsWithTasks.length - 1) {
-      // 移到最後一個
-      newDataIndex = columnsWithTasks[overColumnIndex].dataIndex + 65536;
-    } else {
-      // 移到中間
-
-      // 往右移
-      if (overColumnIndex > activeColumnIndex) {
-        newDataIndex =
-          (columnsWithTasks[overColumnIndex].dataIndex +
-            columnsWithTasks[overColumnIndex + 1].dataIndex) /
-          2;
+      const activeColumnIndex = columnsWithTasks.findIndex(
+        (col) => col.id === activeId
+      );
+      const overColumnIndex = columnsWithTasks.findIndex(
+        (col) => col.id === overId
+      );
+      const currentColumn = columnsWithTasks[activeColumnIndex];
+      let newDataIndex: number;
+      if (overColumnIndex === 0) {
+        // 移到第一個
+        newDataIndex = columnsWithTasks[0].dataIndex / 2;
+      } else if (overColumnIndex === columnsWithTasks.length - 1) {
+        // 移到最後一個
+        newDataIndex = columnsWithTasks[overColumnIndex].dataIndex + 65536;
       } else {
-        // 往左移
-        newDataIndex =
-          (columnsWithTasks[overColumnIndex - 1].dataIndex +
-            columnsWithTasks[overColumnIndex].dataIndex) /
-          2;
+        // 移到中間
+
+        // 往右移
+        if (overColumnIndex > activeColumnIndex) {
+          newDataIndex =
+            (columnsWithTasks[overColumnIndex].dataIndex +
+              columnsWithTasks[overColumnIndex + 1].dataIndex) /
+            2;
+        } else {
+          // 往左移
+          newDataIndex =
+            (columnsWithTasks[overColumnIndex - 1].dataIndex +
+              columnsWithTasks[overColumnIndex].dataIndex) /
+            2;
+        }
+      }
+
+      const updatedColumn = {
+        ...currentColumn,
+        dataIndex: newDataIndex,
+      };
+      const updatedColumns = columnsWithTasks.map((col) => {
+        if (col.id === currentColumn.id) {
+          return updatedColumn;
+        }
+        return col;
+      });
+
+      const columnsAfterMove = arrayMove(
+        updatedColumns,
+        activeColumnIndex,
+        overColumnIndex
+      );
+      setColumnsWithTasks(columnsAfterMove);
+
+      updateMutation.mutate({
+        id: currentColumn.id,
+        title: currentColumn.title,
+        dataIndex: newDataIndex,
+        wholeUpdatedColumns: columnsAfterMove,
+      });
+    } else {
+      const overColumn = columnsWithTasks.find(
+        (col) => col.id === over.data.current?.task.columnId
+      );
+      if (overColumn) {
+        // TODO 處理task跨column移動
+        if (activeId === overId) {
+          console.log("處理task跨column移動");
+        } else {
+          const tasks = [...overColumn.tasks];
+          const newTasks = arrayMove(
+            tasks,
+            active.data.current?.sortable.index,
+            over.data.current?.sortable.index
+          );
+          console.log("tasks", tasks);
+          console.log("newTasks", newTasks);
+
+          setColumnsWithTasks((prevColumnsWithTasks) => {
+            return prevColumnsWithTasks.map((col) => {
+              if (col.id === overColumn.id) {
+                return {
+                  ...col,
+                  tasks: newTasks,
+                };
+              }
+              return col;
+            });
+          });
+          console.log("處理task同column移動");
+        }
       }
     }
+    // console.log("處理task跨column移動");
 
-    const updatedColumn = {
-      ...currentColumn,
-      dataIndex: newDataIndex,
-    };
-    const updatedColumns = columnsWithTasks.map((col) => {
-      if (col.id === currentColumn.id) {
-        return updatedColumn;
-      }
-      return col;
-    });
-
-    const columnsAfterMove = arrayMove(
-      updatedColumns,
-      activeColumnIndex,
-      overColumnIndex
-    );
-    setColumnsWithTasks(columnsAfterMove);
-
-    updateMutation.mutate({
-      id: currentColumn.id,
-      title: currentColumn.title,
-      dataIndex: newDataIndex,
-      wholeUpdatedColumns: columnsAfterMove,
-    });
-
-    // setColumnsWithTasks(columnsAfterMove);
-    // console.log("currentOverColumn", currentOverColumn);
-
-    // // update column
-    // setColumnsWithTasks((prevColumns: ColumnResType[]): ColumnResType[] => {
-    //   return arrayMove(prevColumns, activeColumnIndex, overColumnIndex);
-    // });
-
-    // const activeContainer = active.data.current?.containerId;
-    // const overContainer = over?.data.current?.sortable.containerId;
-    //over的containerId
-    // const activeId = task?.id;
-
-    // if (!activeContainer || !overContainer) {
-    // return;
-    // }
-    // active的taskId;
-
-    // if (activeContainer) {
-    //   columnsWithTasks.forEach((col) => {
-    //     col.tasks.forEach((colTask, taskIndex) => {
-    //       if (colTask.id !== activeId) {
-    //         return;
-    //       } else if (colTask.id === activeId) {
-    //         col.tasks.splice(taskIndex, 1);
-    //         columnsWithTasks.find((col) => {
-    //           if (col.id === overContainer) {
-    //             const overInner = over?.data.current?.sortable.items;
-    //             col.tasks.splice(overInner.indexOf(activeId), 0, colTask);
-    //           }
-    //         });
-    //       }
-    //     });
-    //   });
+    // if (activeId === overId) {
+    //   // TODO 處理同一個column間的task移動，但column移動並沒有更換index也會進來這邊
+    //   console.log("??????");
+    //   return;
     // }
 
-    // const sourceColumn = columnsWithTasks.find(
-    //   (col) => col.id === activeContainer
-    // );
-    // // console.log("sourceColumn", sourceColumn);
+    // console.log("active.data.current?.type", active.data.current?.type);
 
-    // const targetColumn = columnsWithTasks.find(
-    //   (col) => col.id === overContainer
-    // );
-    // // console.log("targetColumn", targetColumn);
-
-    // if (sourceColumn && targetColumn) {
-    //   const taskToMove = sourceColumn.tasks.find(
-    //     (task) => task.id === activeId
-    //   );
-    //   sourceColumn.tasks.splice(sourceColumn.tasks.indexOf(taskToMove), 1);
-    //   targetColumn.tasks.splice(0, 0, taskToMove);
-    // }
-
-    // if (activeContainer) {
-    //   queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    // // TODO 當為task時，要再儲存到後端
+    // if (active.data.current?.type !== "Column") {
+    //   // TODO 處理同一個column或不同column間的task移動，
+    //   console.log("@@@@@@");
+    //   return;
     // }
   };
 
