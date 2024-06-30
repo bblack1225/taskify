@@ -31,7 +31,7 @@ class StatusColumnServiceTest {
             AddColumnRequest addColumnRequest = new AddColumnRequest();
             addColumnRequest.setBoardId(UUID.randomUUID());
             addColumnRequest.setTitle("Test Title");
-            addColumnRequest.setDataIndex(0);
+            addColumnRequest.setDataIndex(0.0);
 
             // Mock the statusColumnRepository.save() method
             StatusColumn savedStatusColumn = new StatusColumn();
