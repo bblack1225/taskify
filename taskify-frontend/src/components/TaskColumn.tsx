@@ -143,8 +143,8 @@ function TaskColumn() {
                       className={style.actionIcon}
                       variant="transparent"
                       aria-label="Settings"
-                      color="white"
-                      size={"lg"}
+                      color="black"
+                      size={"xl"}
                     >
                       <IconDots size="1.125rem" />
                     </ActionIcon>

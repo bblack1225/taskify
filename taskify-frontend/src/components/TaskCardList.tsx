@@ -42,7 +42,12 @@ const TaskCardList = ({ column }: Props) => {
       </Stack>
       {isAddingTask || (
         <Stack className={style.addButtonContainer}>
-          <Button color="#4592af" onClick={() => setIsAddingTask(true)}>
+          <Button
+            variant="subtle"
+            color="orange"
+            radius="md"
+            onClick={() => setIsAddingTask(true)}
+          >
             + 新增卡片
           </Button>
         </Stack>

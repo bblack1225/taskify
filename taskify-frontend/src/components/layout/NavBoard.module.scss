@@ -1,13 +1,31 @@
 @import "/src/themes/theme.scss";
 
+.firstName {
+  width: 35px;
+  height: 35px;
+  border-radius: 100%;
+  align-items: center;
+  justify-content: center;
+  background-color: #dfd3c3;
+  margin-right: 12px;
+  font-weight: 700;
+  color: #834b00;
+}
+
 .navTitle {
-  color: $white;
-  background-color: $primary--red;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   padding: 5px;
-  border-radius: 5px;
+  font-weight: 600;
 }
 
 .active {
-  border-bottom: 2px solid black;
+  padding-bottom: 5px;
+  border-bottom: 2px dotted rgba(255, 134, 98, 0.634);
+}
+
+.iconChevronLeft:hover {
+  border-radius: 100%;
+  background-color: $primary--orange;
 }

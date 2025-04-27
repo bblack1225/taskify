@@ -5,15 +5,18 @@ import { Outlet } from "react-router-dom";
 import { useLocalStorage } from "@mantine/hooks";
 
 function MainLayout() {
-    const [isNavBoardOpen, setIsNavBoardOpen] = useLocalStorage({
+  const [isNavBoardOpen, setIsNavBoardOpen] = useLocalStorage({
     key: "isNavOpen",
     defaultValue: true,
-  })
+  });
   return (
     <AppShell header={{ height: 60 }} padding="md">
       <AppShell.Header className={style.header}>Taskify</AppShell.Header>
       <AppShell.Navbar
         className={isNavBoardOpen ? style.navbar : style.navbarClose}
+        onClick={() => {
+          !isNavBoardOpen && setIsNavBoardOpen(true);
+        }}
       >
         <NavBoard
           isNavBoardOpen={isNavBoardOpen}
@@ -21,7 +24,7 @@ function MainLayout() {
         />
       </AppShell.Navbar>
       <AppShell.Main className={isNavBoardOpen ? style.main : style.mainClose}>
-        <Outlet />
+        <Outlet context={{ isNavBoardOpen }} />
       </AppShell.Main>
     </AppShell>
   );

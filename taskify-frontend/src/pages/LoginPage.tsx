@@ -35,12 +35,12 @@ function LoginPage() {
 
     validate: {
       email: (value) => {
-        if(/^\S+@\S+$/.test(value)){
+        if (/^\S+@\S+$/.test(value)) {
           return null;
-        }else {
-          if(value.length === 0){
+        } else {
+          if (value.length === 0) {
             return "請輸入Email";
-          }else {
+          } else {
             return "無效的Email";
           }
         }

@@ -2,7 +2,7 @@
 
 .main {
   display: flex;
-  padding-left: 16.5em;
+  padding-left: 12em;
   // 神奇的height設定，讓scroll bar出現
   height: 1px;
 }
@@ -19,6 +19,7 @@
 }
 
 .navbarClose {
+  cursor: pointer;
   background-color: $primary--light;
   &:hover {
     background-color: #cdd8e4;
@@ -27,8 +28,9 @@
 
 .header {
   width: auto;
-  padding: 20px;
-  color: $white;
+  padding: 10px 20px;
   font-weight: bold;
+  font-size: x-large;
   background-color: $primary;
+  text-shadow: 1px 1px 2px rgb(254, 168, 132);
 }

@@ -10,7 +10,6 @@ import TaskBoard from "@/pages/Taskboard";
 import CalendarPage from "@/pages/CalendarPage";
 import RootBoundary from "./RootBoundary";
 
-
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <>

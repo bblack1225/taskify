@@ -314,7 +314,9 @@ function TaskCard({ task, open, close, opened }: Props) {
             })}
           </Flex>
         )}
-        <Text style={{ marginLeft: "4px" }}>{editTaskTitle}</Text>
+        <Text style={{ marginLeft: "4px" }} className={style.editTaskTitle}>
+          {editTaskTitle}
+        </Text>
       </Box>
       {opened && (
         <>
