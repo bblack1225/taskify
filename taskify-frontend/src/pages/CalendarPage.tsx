@@ -9,7 +9,7 @@ import { useUser } from "@/hooks/useUser";
 function CalendarPage() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const calendarRef = useRef<InstanceType<typeof FullCalendar> | null>(null);
-  const userInfo =useUser();
+  const userInfo = useUser();
   const { isPending, data, error } = useTasks(userInfo.boardId);
 
   const dateData = data?.tasks.filter((task) => task.startDate || task.dueDate);

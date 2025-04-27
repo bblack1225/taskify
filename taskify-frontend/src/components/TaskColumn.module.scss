@@ -9,7 +9,7 @@
   .columnContainer {
     width: 300px;
     background-color: $primary;
-    padding: 12px 5px 12px 5px;
+    padding: 12px 8px;
     border-radius: 10px;
     max-height: calc(100% - 20px);
   }
@@ -22,7 +22,7 @@
       border: none;
       border-radius: 8px;
       color: $gray--light;
-      box-shadow: inset 0 0 0 3px $blue;
+      box-shadow: inset 0 0 0 1px $blue;
       background-color: $white;
     }
   }
@@ -31,13 +31,6 @@
 .titleContainer {
   overflow: visible;
   justify-content: space-between;
-  padding: 0 2px;
-}
-
-.actionIcon {
-  &:hover {
-    background: $primary--dark;
-  }
 }
 
 .taskContainer {

@@ -9,14 +9,12 @@ export interface Props extends MantineTextareaProps {
 
 // TODO 可能會需要再建立一個抽象的textarea用到 forwardRef
 const ColumnTitleTextarea = ({ id, title, onSave, ...props }: Props) => {
-  
   const [editTitle, setEditTitle] = useState(title);
   const [isComposing, setIsComposing] = useState(false);
 
   useEffect(() => {
-      setEditTitle(title)
-  },[title])
-
+    setEditTitle(title);
+  }, [title]);
 
   const handleBlur = () => {
     const trimmedTitle = editTitle.trim();
@@ -24,9 +22,9 @@ const ColumnTitleTextarea = ({ id, title, onSave, ...props }: Props) => {
       setEditTitle(title);
       return;
     }
-    if(title === trimmedTitle) {
+    if (title === trimmedTitle) {
       setEditTitle(trimmedTitle);
-      return
+      return;
     }
 
     if (title !== trimmedTitle) {
@@ -35,15 +33,15 @@ const ColumnTitleTextarea = ({ id, title, onSave, ...props }: Props) => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    
     if (e.key === "Enter" && !isComposing) {
       e.preventDefault();
       e.currentTarget.blur();
     }
   };
-  
+
   return (
     <Textarea
+      variant="unstyled"
       className={style.taskTitle}
       value={editTitle}
       autosize
@@ -51,11 +49,10 @@ const ColumnTitleTextarea = ({ id, title, onSave, ...props }: Props) => {
       onBlur={handleBlur}
       onChange={(e) => setEditTitle(e.target.value)}
       onCompositionStart={() => {
-        setIsComposing(true)
-        
+        setIsComposing(true);
       }}
       onCompositionEnd={() => {
-        setIsComposing(false)
+        setIsComposing(false);
       }}
       {...props}
     />
