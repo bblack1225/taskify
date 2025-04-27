@@ -57,61 +57,68 @@ function LoginPage() {
     <Flex className={style.loginPageContainer}>
       <Flex className={style.layerContainer}>
         <div className={style.layer}>SIMPLIFY YOUR DAY</div>
-      </Flex>
-      <form
-        className={style.loginMain}
-        onSubmit={form.onSubmit((value) => loginMutation.mutate(value))}
-      >
-        <Box
-          className={style.loginText}
-          style={{ fontSize: "32px", fontWeight: "bold" }}
+        <form
+          className={style.loginMain}
+          onSubmit={form.onSubmit((value) => loginMutation.mutate(value))}
         >
-          Taskify
-        </Box>
-        <Text className={style.loginText} style={{ fontSize: "16px" }}>
-          登入以繼續
-        </Text>
-        <TextInput
-          placeholder="輸入您的電子郵件"
-          {...form.getInputProps("email")}
-        />
-        <PasswordInput
-          placeholder="輸入密碼"
-          {...form.getInputProps("password")}
-        />
-        <Button className={style.loginButton} type="submit">
-          登入
-        </Button>
-
-        <Flex direction={"column"} style={{ marginTop: "50px", gap: "10px" }}>
-          <Flex justify={"space-between"} align={"center"}>
-            <Flex>
-              <Text c={"dimmed"} style={{ fontSize: "14px" }}>
-                測試帳號：user1@example.com
-              </Text>
-            </Flex>
-            <Flex>
-              <CopyButton value="user1@example.com">
-                {({ copied, copy }) => (
-                  <Button
-                    w={100}
-                    h={30}
-                    color={copied ? "teal" : "yellow"}
-                    onClick={copy}
-                  >
-                    {copied ? "複製成功" : "複製帳號"}
-                  </Button>
-                )}
-              </CopyButton>
-            </Flex>
-          </Flex>
-          <Text c={"dimmed"} style={{ fontSize: "14px" }}>
-            測試密碼：user
+          <Box
+            className={style.loginText}
+            style={{ fontSize: "32px", fontWeight: "bold" }}
+          >
+            Taskify
+          </Box>
+          <Text className={style.loginText} style={{ fontSize: "16px" }}>
+            登入以繼續
           </Text>
-        </Flex>
+          <TextInput
+            placeholder="輸入您的電子郵件"
+            {...form.getInputProps("email")}
+          />
+          <PasswordInput
+            placeholder="輸入密碼"
+            {...form.getInputProps("password")}
+          />
+          <Button className={style.loginButton} type="submit">
+            登入
+          </Button>
 
-        {/* </form> */}
-        {/* <Text className={style.loginText} style={{ fontSize: "12px" }}>
+          <Flex direction={"column"} style={{ marginTop: "50px", gap: "10px" }}>
+            <Flex justify={"space-between"} align={"center"}>
+              <Flex>
+                <Text
+                  variant="gradient"
+                  gradient={{ from: "blue", to: "cyan", deg: 90 }}
+                  style={{ fontSize: "14px" }}
+                >
+                  測試帳號：user1@example.com
+                </Text>
+              </Flex>
+              <Flex>
+                <CopyButton value="user1@example.com">
+                  {({ copied, copy }) => (
+                    <Button
+                      w={100}
+                      h={30}
+                      color={copied ? "teal" : "yellow"}
+                      onClick={copy}
+                    >
+                      {copied ? "複製成功" : "複製帳號"}
+                    </Button>
+                  )}
+                </CopyButton>
+              </Flex>
+            </Flex>
+            <Text
+              variant="gradient"
+              gradient={{ from: "blue", to: "cyan", deg: 90 }}
+              style={{ fontSize: "14px" }}
+            >
+              測試密碼：user
+            </Text>
+          </Flex>
+
+          {/* </form> */}
+          {/* <Text className={style.loginText} style={{ fontSize: "12px" }}>
           或是
         </Text>
         <Button className={style.loginButton}>使用Google登入</Button>
@@ -119,7 +126,8 @@ function LoginPage() {
           <a href="">無法登入？</a>
           <a href="">建立帳戶</a>
         </Flex> */}
-      </form>
+        </form>
+      </Flex>
     </Flex>
   );
 }

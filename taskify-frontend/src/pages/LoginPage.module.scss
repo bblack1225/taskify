@@ -20,37 +20,40 @@
 
 .loginPageContainer {
   border-radius: 20px;
-  padding: 10px;
   height: 100vh;
 }
 
 .layerContainer {
-  margin: 5px;
-  background-image: url("../../public/home.jpg");
-  border-radius: 20px;
+  position: relative;
+  background-image: url("../../public/home_v2.jpg");
   width: 100%;
   background-size: cover;
   opacity: 0.8;
   .layer {
-    margin-left: 20px;
+    margin-top: 10px;
+    margin-left: 30px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    font-family: "YourDesiredFont", sans-serif;
-    font-size: 36px;
-    color: wheat;
-    letter-spacing: 20px;
+    font-size: 30px;
+    color: #000000;
+    letter-spacing: 10px;
     animation: shake 5s infinite;
   }
 }
 
 .loginMain {
-  width: 560px;
+  position: absolute;
+  top: 5em;
+  right: 5em;
+  width: 30%;
+  min-width: 300px;
   max-width: 100%;
   padding: 16px;
   margin: 10px;
-  box-shadow: 0 0 5px 1px #a1a1a1;
+  box-shadow: 0 0 5px 1px #898989;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
+  background-color: #f1f1f1;
   // loginMain底下的子元素設置
   & > * {
     margin-top: 10px;
