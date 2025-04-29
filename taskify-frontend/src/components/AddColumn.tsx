@@ -157,7 +157,7 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
           <Stack className={style.columnContainer}>
             <Stack className={style.addButtonContainer}>
               <Button
-                variant="outline"
+                variant="subtle"
                 color="orange"
                 radius="md"
                 onClick={() => {

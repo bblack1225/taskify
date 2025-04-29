@@ -238,13 +238,16 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
     <Menu
       transitionProps={{ duration: 0 }}
       shadow="md"
-      width={250}
+      width={300}
       opened={isOpened}
       onChange={setIsOpened}
       onClose={() => setCurrentMode(labelMenuMode.DEFAULT)}
     >
       <Menu.Target>
-        <Button color={"#A9A9A9"} leftSection={<IconTagStarred />}>
+        <Button
+          color={"#A9A9A9"}
+          leftSection={<IconTagStarred stroke={1.5} size={24} />}
+        >
           標籤
         </Button>
       </Menu.Target>
@@ -254,6 +257,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
           style={{
             display: "grid",
             gridTemplateColumns: "20px 1fr 20px",
+            marginBottom: "4px",
           }}
         >
           {currentMode.canGoBack && (
@@ -272,7 +276,9 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
               }}
             />
           )}
-          <Center style={{ gridColumn: "2/3" }}>{currentMode.title}</Center>
+          <Center style={{ gridColumn: "2/3" }}>
+            <Text size="sm">{currentMode.title}</Text>
+          </Center>
           <IconX
             onClick={() => {
               setIsOpened(false);
@@ -290,8 +296,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
             <Text size="md" mb={10} c={"red"} style={{ textAlign: "center" }}>
               <IconAlertCircleFilled />
               <Stack />
-              <hr />
-              確定刪除？刪除後將無法復原
+              刪除後將無法復原
             </Text>
             <Button color="red" onClick={handleDelLabel}>
               {delLabelMutation.isPending ? (
@@ -312,6 +317,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                     style={{
                       display: "flex",
                       margin: "2px",
+                      justifyContent: "center",
                     }}
                   >
                     <Checkbox
@@ -332,7 +338,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                       style={{ backgroundColor: `${label.color}` }}
                     >
                       <Text
-                        size="xs"
+                        size="sm"
                         c={isLightColor(label.color) ? "black" : "white"}
                       >
                         {label.name}
@@ -340,6 +346,8 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                     </label>
                     <div>
                       <IconBallpen
+                        stroke={1.5}
+                        size={24}
                         onClick={() => {
                           handleEditLabelOpen(label);
                         }}
@@ -354,7 +362,7 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
               </Box>
             </Box>
             <Center>
-              <Button w={200} mb={10} onClick={handleAddLabel}>
+              <Button w={150} my={10} onClick={handleAddLabel} color="#d55b3e">
                 新增標籤
               </Button>
             </Center>
@@ -364,10 +372,10 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
           currentMode.key === LabelMenuType.ADD) && (
           <>
             <Box
-              w={240}
               h={40}
               bg={"#f7f8f9"}
               style={{
+                margin: "8px 20px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -375,10 +383,12 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
             >
               <Center
                 className={style.isEditingLabelContainer}
-                style={{ background: currentLabel.color }}
+                style={{
+                  background: currentLabel.color,
+                }}
               >
                 <Text
-                  size="xs"
+                  size="sm"
                   c={isLightColor(currentLabel.color) ? "black" : "white"}
                 >
                   {currentLabel.name}
@@ -387,16 +397,16 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
             </Box>
             <Center>
               <Stack gap="xs">
-                <Text size="xs" mt={10}>
-                  標題
+                <Text size="sm" mt={10}>
+                  🌱 標題
                 </Text>
                 <Input
-                  size="xs"
+                  size="sm"
                   defaultValue={currentLabel.name}
                   autoFocus
                   onChange={handleLabelNameChange}
                 />
-                <Text size="xs">選一個顏色</Text>
+                <Text size="sm">⭐ 選顏色</Text>
                 <ColorPicker
                   swatchesPerRow={5}
                   format="hex"
@@ -406,14 +416,22 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
                     setCurrentLabel((prev) => ({ ...prev, color: val }))
                   }
                 />
-                <hr style={{ width: "100%" }} />
                 <Flex justify={"space-between"}>
-                  <Button mb={10} onClick={handleLabelSave}>
+                  <Button
+                    variant="filled"
+                    color="orange"
+                    radius="md"
+                    mb={10}
+                    onClick={handleLabelSave}
+                  >
                     {currentMode.key === LabelMenuType.ADD ? "建立" : "儲存"}
                   </Button>
                   {currentMode.key === LabelMenuType.EDIT && (
                     <Button
-                      color="red"
+                      variant="filled"
+                      color="gray"
+                      radius="md"
+                      mb={10}
                       onClick={() => setCurrentMode(labelMenuMode.DELETE)}
                     >
                       刪除

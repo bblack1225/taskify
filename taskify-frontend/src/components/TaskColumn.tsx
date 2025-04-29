@@ -7,6 +7,7 @@ import {
   Loader,
   Menu,
   Modal,
+  Center,
 } from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
 import { useMemo, useState } from "react";
@@ -175,19 +176,22 @@ function TaskColumn() {
         currentColDataIndex={currentColDataIndex}
       />
       <Modal
+        centered
         opened={opened}
         onClose={close}
         radius={10}
-        size="xs"
-        title="請問確定要刪除此列表嗎？"
+        size="sm"
+        title="您確定要刪除這個列表嗎？"
         overlayProps={{
           backgroundOpacity: 0.1,
           blur: 2,
         }}
       >
-        <Button color="red" onClick={handleDelColumn}>
-          確定刪除
-        </Button>
+        <Center>
+          <Button color="red" onClick={handleDelColumn}>
+            確定刪除
+          </Button>
+        </Center>
       </Modal>
     </Flex>
   );

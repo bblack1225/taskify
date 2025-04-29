@@ -90,21 +90,30 @@ function Editor({ description, onSave }: Props) {
               <RichTextEditor.BulletList />
               <RichTextEditor.OrderedList />
             </RichTextEditor.ControlsGroup>
-
-            {/* <RichTextEditor.ControlsGroup>
-              <RichTextEditor.Link />
-              <RichTextEditor.Unlink />
-            </RichTextEditor.ControlsGroup> */}
           </RichTextEditor.Toolbar>
         )}
         <RichTextEditor.Content style={{ minHeight: "100px" }} />
       </RichTextEditor>
       {isEditing && (
         <Flex gap={15}>
-          <Button w={100} mt={10} onClick={handleSave}>
-            save
+          <Button
+            w={100}
+            mt={10}
+            variant="filled"
+            color="orange"
+            radius="md"
+            onClick={handleSave}
+          >
+            儲存
           </Button>
-          <Button color="gray" w={100} mt={10} onClick={handleCancel}>
+          <Button
+            w={100}
+            mt={10}
+            variant="filled"
+            color="gray"
+            radius="md"
+            onClick={handleCancel}
+          >
             取消
           </Button>
         </Flex>

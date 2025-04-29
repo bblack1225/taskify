@@ -65,7 +65,8 @@ function CalendarPage() {
         }}
       >
         <FullCalendar
-          eventColor="#4592af"
+          eventTextColor="#5f6769"
+          eventColor="#FAF5EE"
           ref={calendarRef}
           windowResizeDelay={0}
           height="100%"

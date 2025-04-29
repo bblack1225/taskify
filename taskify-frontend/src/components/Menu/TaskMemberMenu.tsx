@@ -57,7 +57,7 @@ function TaskMemberMenu() {
             <IconSearch style={{ width: rem(14), height: rem(14) }} />
           }
           rightSection={
-            <Text size="xs" c="dimmed">
+            <Text size="sm" c="dimmed">
               ⌘K
             </Text>
           }

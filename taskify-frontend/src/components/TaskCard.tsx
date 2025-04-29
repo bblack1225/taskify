@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Center,
   Flex,
   Group,
   HoverCard,
@@ -14,7 +15,10 @@ import {
   IconAirBalloon,
   IconAlignBoxLeftStretch,
   IconBallpen,
+  IconCalendarCheck,
   IconMoodCheck,
+  IconTag,
+  IconTrash,
 } from "@tabler/icons-react";
 import Editor from "./editor/Editor";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -306,7 +310,7 @@ function TaskCard({ task, open, close, opened }: Props) {
                       />
                     </HoverCard.Target>
                     <HoverCard.Dropdown h={20} className={style.dropdown}>
-                      <Text size="xs">標題：『{label.name}』</Text>
+                      <Text size="sm">標題：『{label.name}』</Text>
                     </HoverCard.Dropdown>
                   </HoverCard>
                 </Group>
@@ -329,8 +333,13 @@ function TaskCard({ task, open, close, opened }: Props) {
           >
             <Modal.Overlay />
             <Modal.Content>
-              <Modal.Header>
-                <IconBallpen />
+              <Modal.Header
+                style={{
+                  boxShadow: "0 1px 8px rgb(0 0 0 / 0.2)",
+                  width: "100%",
+                }}
+              >
+                <IconBallpen stroke={1.5} size={24} />
                 <Textarea
                   className={style.taskTitleTextarea}
                   value={editTaskTitle}
@@ -343,24 +352,25 @@ function TaskCard({ task, open, close, opened }: Props) {
                 />
                 <Modal.CloseButton />
               </Modal.Header>
-              <Modal.Body>
-                <Flex justify={"space-between"}>
+              <Modal.Body style={{ marginTop: "12px" }}>
+                <Flex justify={"space-between"} gap={10}>
                   <Flex direction={"column"}>
-                    <Flex style={{ flexWrap: "wrap" }} gap={15}>
-                      <Text className={style.tagText} c={"gray.6"} fw={600}>
+                    <Flex mt={15}>
+                      <IconTag stroke={1.5} size={24} />
+                      <Text mx={8} c={"gray.6"} fw={600}>
                         標籤
                       </Text>
                       <Flex
                         style={{
                           flexDirection: "row",
                           flexWrap: "wrap",
-                          width: "420px",
+                          width: "80%",
                           alignItems: "center",
                         }}
                       >
                         {taskLabels.length === 0 ? (
                           <Flex>
-                            <Text size="xs" c={"gray.5"} fw={600} ml={5}>
+                            <Text size="sm" c={"gray.5"} fw={600} ml={5}>
                               [點擊右側標籤按鈕即可新增]
                             </Text>
                           </Flex>
@@ -375,7 +385,7 @@ function TaskCard({ task, open, close, opened }: Props) {
                                 className={style.labelDiv}
                               >
                                 <Text
-                                  size="xs"
+                                  size="sm"
                                   c={
                                     isLightColor(label.color)
                                       ? "black"
@@ -389,7 +399,10 @@ function TaskCard({ task, open, close, opened }: Props) {
                           })
                         )}
                       </Flex>
-                      <Text className={style.tagText} c={"gray.6"} fw={600}>
+                    </Flex>
+                    <Flex mt={15}>
+                      <IconCalendarCheck stroke={1.5} size={24} />
+                      <Text mx={8} c={"gray.6"} fw={600}>
                         日期
                       </Text>
                       <Flex
@@ -401,21 +414,21 @@ function TaskCard({ task, open, close, opened }: Props) {
                         }}
                       >
                         {task.startDate ? (
-                          <Text size="xs" fw={600} ml={5}>
+                          <Text size="sm" fw={600} ml={5}>
                             {task.startDate?.substring(0, 10)}
                             {task.dueDate &&
                               `~${task.dueDate?.substring(0, 10)}`}
                           </Text>
                         ) : (
-                          <Text size="xs" fw={600} c={"gray.5"} ml={5}>
+                          <Text size="sm" fw={600} c={"gray.5"} ml={5}>
                             [點擊右側日期按鈕即可新增]
                           </Text>
                         )}
                       </Flex>
                     </Flex>
                     <Flex mt={15}>
-                      <IconAlignBoxLeftStretch />
-                      <Text ml={10} c={"gray.6"} fw={600}>
+                      <IconAlignBoxLeftStretch stroke={1.5} size={24} />
+                      <Text mx={8} c={"gray.6"} fw={600}>
                         描述
                       </Text>
                     </Flex>
@@ -424,8 +437,12 @@ function TaskCard({ task, open, close, opened }: Props) {
                       onSave={handleSaveDesc}
                     />
                   </Flex>
-                  <Flex direction={"column"} gap={8}>
-                    <Text size="xs" c={"gray.6"} fw={600}>
+                  <Flex
+                    direction={"column"}
+                    gap={8}
+                    style={{ marginTop: "12px" }}
+                  >
+                    <Text size="sm" c={"gray.6"} fw={600}>
                       新增至卡片
                     </Text>
                     {/* <TaskMemberMenu /> */}
@@ -438,12 +455,12 @@ function TaskCard({ task, open, close, opened }: Props) {
                       task={task}
                       handleUpdateDate={handleUpdateDate}
                     />
-                    <Text size="xs" c={"gray.6"} fw={600}>
+                    <Text size="sm" c={"gray.6"} fw={600}>
                       動作
                     </Text>
                     <Button
                       color="red"
-                      leftSection={<IconAirBalloon />}
+                      leftSection={<IconTrash stroke={1.5} size={24} />}
                       onClick={() => setOpenDelModal(true)}
                     >
                       刪除任務
@@ -454,23 +471,22 @@ function TaskCard({ task, open, close, opened }: Props) {
             </Modal.Content>
           </Modal.Root>
           <Modal
+            centered
             opened={openDelModal}
             onClose={() => setOpenDelModal(false)}
             radius={10}
-            size="xs"
-            title="請問確定要刪除此任務嗎？"
+            size="sm"
+            title="您確定要刪除此任務嗎？"
             overlayProps={{
               backgroundOpacity: 0.1,
               blur: 2,
             }}
           >
-            <Button
-              color="red"
-              leftSection={<IconAirBalloon />}
-              onClick={() => handleDelTask(task.id)}
-            >
-              刪除任務
-            </Button>
+            <Center>
+              <Button color="red" onClick={() => handleDelTask(task.id)}>
+                確定刪除
+              </Button>
+            </Center>
           </Modal>
         </>
       )}

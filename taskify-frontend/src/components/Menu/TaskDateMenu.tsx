@@ -86,7 +86,10 @@ function TaskDateMenu({ handleUpdateDate, task }: Props) {
   return (
     <Menu shadow="md" width={300} opened={opened} onChange={setOpened}>
       <Menu.Target>
-        <Button color={"#A9A9A9"} leftSection={<IconCalendarStats />}>
+        <Button
+          color={"#A9A9A9"}
+          leftSection={<IconCalendarStats stroke={1.5} size={24} />}
+        >
           日期
         </Button>
       </Menu.Target>
@@ -95,13 +98,15 @@ function TaskDateMenu({ handleUpdateDate, task }: Props) {
         <Menu.Label
           style={{ display: "grid", gridTemplateColumns: "20px 1fr 20px" }}
         >
-          <Center style={{ gridColumn: "2/3" }}>日期</Center>
+          <Center style={{ gridColumn: "2/3" }}>
+            <Text size="sm">日期</Text>
+          </Center>
           <CloseButton
             style={{ gridColumn: "3/3" }}
             onClick={() => setOpened(false)}
           />
         </Menu.Label>
-        <Text ta={"center"} size="xs" c={"blue"}>
+        <Text ta={"center"} size="sm" c={"blue"}>
           {value[0] ? dayjs(value[0]).format("YYYY-MM-DD") : "未選擇"} ~ {""}
           {value[1] ? dayjs(value[1]).format("YYYY-MM-DD") : "未選擇"}
         </Text>
@@ -116,10 +121,22 @@ function TaskDateMenu({ handleUpdateDate, task }: Props) {
             />
           </Flex>
           <Flex justify={"space-between"}>
-            <Button mt={3} onClick={handleDatePicker}>
+            <Button
+              variant="filled"
+              color="orange"
+              radius="md"
+              mt={12}
+              onClick={handleDatePicker}
+            >
               儲存
             </Button>
-            <Button mt={3} onClick={handleCancelDate}>
+            <Button
+              variant="filled"
+              color="gray"
+              radius="md"
+              mt={12}
+              onClick={handleCancelDate}
+            >
               清除日期
             </Button>
           </Flex>
