@@ -12,7 +12,6 @@ import {
 } from "@mantine/core";
 import style from "@/components/TaskCard.module.scss";
 import {
-  IconAirBalloon,
   IconAlignBoxLeftStretch,
   IconBallpen,
   IconCalendarCheck,
