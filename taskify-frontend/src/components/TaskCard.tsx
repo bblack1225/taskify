@@ -299,7 +299,7 @@ function TaskCard({ task, open, close, opened }: Props) {
                   }}
                   justify="center"
                 >
-                  <HoverCard openDelay={300}>
+                  <HoverCard openDelay={300} position="top">
                     <HoverCard.Target>
                       <div
                         style={{

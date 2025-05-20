@@ -12,6 +12,12 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { login } from "@/api/auth";
 import { useForm } from "@mantine/form";
+import {
+  IconLayoutDashboard,
+  IconTags,
+  IconCalendar,
+} from "@tabler/icons-react";
+
 function LoginPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -56,26 +62,40 @@ function LoginPage() {
   return (
     <Flex className={style.loginPageContainer}>
       <Flex className={style.layerContainer}>
-        <div className={style.layer}>SIMPLIFY YOUR DAY</div>
+        <div className={style.projectDescription}>
+          <h1>Taskify</h1>
+          <p className={style.tagline}>讓工作更有效率，讓生活更有條理</p>
+          <div className={style.features}>
+            <div className={style.feature}>
+              <IconLayoutDashboard size={24} />
+              <Text>清晰直觀的任務管理介面</Text>
+            </div>
+            <div className={style.feature}>
+              <IconTags size={24} />
+              <Text>任務標籤分類，快速掌握重點</Text>
+            </div>
+            <div className={style.feature}>
+              <IconCalendar size={24} />
+              <Text>可視化行事曆，輕鬆安排任務</Text>
+            </div>
+          </div>
+        </div>
+
         <form
           className={style.loginMain}
           onSubmit={form.onSubmit((value) => loginMutation.mutate(value))}
         >
-          <Box
-            className={style.loginText}
-            style={{ fontSize: "32px", fontWeight: "bold" }}
-          >
-            Taskify
-          </Box>
           <Text className={style.loginText} style={{ fontSize: "16px" }}>
             登入以繼續
           </Text>
           <TextInput
             placeholder="輸入您的電子郵件"
+            radius="md"
             {...form.getInputProps("email")}
           />
           <PasswordInput
             placeholder="輸入密碼"
+            radius="md"
             {...form.getInputProps("password")}
           />
           <Button className={style.loginButton} type="submit">
@@ -116,16 +136,6 @@ function LoginPage() {
               測試密碼：user
             </Text>
           </Flex>
-
-          {/* </form> */}
-          {/* <Text className={style.loginText} style={{ fontSize: "12px" }}>
-          或是
-        </Text>
-        <Button className={style.loginButton}>使用Google登入</Button>
-        <Flex justify={"space-evenly"}>
-          <a href="">無法登入？</a>
-          <a href="">建立帳戶</a>
-        </Flex> */}
         </form>
       </Flex>
     </Flex>
