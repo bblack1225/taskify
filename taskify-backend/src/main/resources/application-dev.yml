@@ -4,3 +4,4 @@ spring:
     password: password
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5434/taskify
+#    url: jdbc:postgresql://hkg1.clusters.zeabur.com:32362/taskify_db

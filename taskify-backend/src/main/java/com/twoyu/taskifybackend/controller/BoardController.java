@@ -1,24 +1,22 @@
 package com.twoyu.taskifybackend.controller;
 
-import com.twoyu.taskifybackend.model.entity.Board;
 import com.twoyu.taskifybackend.model.vo.response.QueryBoardResponse;
-import com.twoyu.taskifybackend.repository.BoardRepository;
+import com.twoyu.taskifybackend.service.IBoardService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/board")
+@RequestMapping("/boards")
 @RequiredArgsConstructor
 @Tag(name = "看板功能", description = "看板相關的API")
 public class BoardController {
-    private final BoardRepository boardRepository;
+
+    private final IBoardService boardService;
 
 //    @PostMapping
 //    public void add(){
@@ -28,12 +26,8 @@ public class BoardController {
 //        boardRepository.save(board);
 //    }
 
-//    @GetMapping
-//    public List<QueryBoardResponse> getAllData(){
-//        List<Board> boardList = boardRepository.findAll();
-//        return boardList.stream().map(
-//                board ->
-//                     new QueryBoardResponse(board.getId(), board.getName(), board.getDescription())
-//        ).collect(Collectors.toList());
-//    }
+    @GetMapping("/all")
+    public List<QueryBoardResponse> getAllBoards(){
+        return  boardService.queryAllBoards();
+    }
 }

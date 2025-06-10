@@ -49,6 +49,25 @@ public class Board implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt;
 
+    /**
+     * 看板用ICON
+     */
+    @Column(name = "icon", nullable = false)
+    private String icon;
+
+    /**
+     * 看板主題色
+     */
+    @Column(name = "theme_color", nullable = false)
+    private String themeColor;
+
+    /**
+     * 釘選時間
+     */
+    @Column(name = "pinned_at")
+    private LocalDateTime pinnedAt;
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
