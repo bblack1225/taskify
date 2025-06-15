@@ -22,7 +22,7 @@ import { useDisclosure } from "@mantine/hooks";
 import TaskCardList from "./TaskCardList";
 import { calculateDataIndex } from "@/utils";
 import { useTasks } from "@/hooks/useTasks";
-import { useUser } from "@/hooks/useUser";
+import { useParams } from "react-router-dom";
 
 function selectColumnsWithTasks(data: BaseDataRes): ColumnResType[] {
   return data.columns.map((column) => ({
@@ -34,9 +34,9 @@ function selectColumnsWithTasks(data: BaseDataRes): ColumnResType[] {
 function TaskColumn() {
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
-  const userInfo = useUser();
+  const { boardId } = useParams<{ boardId: string }>();
 
-  const { isPending, data, error } = useTasks(userInfo.boardId);
+  const { isPending, data, error } = useTasks(boardId || "");
 
   const columnsWithTasks = useMemo(() => {
     if (!data) {
@@ -172,7 +172,7 @@ function TaskColumn() {
         </Flex>
       ))}
       <AddColumn
-        boardId={userInfo.boardId}
+        boardId={boardId || ""}
         currentColDataIndex={currentColDataIndex}
       />
       <Modal

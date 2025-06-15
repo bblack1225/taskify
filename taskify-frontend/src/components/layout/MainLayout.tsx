@@ -24,7 +24,7 @@ function MainLayout() {
         />
       </AppShell.Navbar>
       <AppShell.Main className={isNavBoardOpen ? style.main : style.mainClose}>
-        <Outlet context={{ isNavBoardOpen }} />
+        <Outlet context={{ isNavBoardOpen, setIsNavBoardOpen }} />
       </AppShell.Main>
     </AppShell>
   );

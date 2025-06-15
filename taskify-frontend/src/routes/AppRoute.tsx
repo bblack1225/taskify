@@ -9,6 +9,7 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import TaskBoard from "@/pages/Taskboard";
 import CalendarPage from "@/pages/CalendarPage";
 import RootBoundary from "./RootBoundary";
+import AllBoard from "@/pages/AllBoard";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -19,8 +20,9 @@ export const router = createBrowserRouter(
         element={<ProtectedRoute />}
         errorElement={<RootBoundary />}
       >
-        <Route path="/" element={<Navigate replace to={"/board"} />} />
-        <Route path="/board" element={<TaskBoard />} />
+        <Route path="/" element={<Navigate replace to={"/allBoards"} />} />
+        <Route path="/allBoards" element={<AllBoard />} />
+        <Route path="/board/:boardId" element={<TaskBoard />} />
         <Route path="/calendar" element={<CalendarPage />} />
       </Route>
     </>

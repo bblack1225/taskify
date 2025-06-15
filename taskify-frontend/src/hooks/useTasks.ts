@@ -5,5 +5,6 @@ export const useTasks = (boardId: string) => {
   return useQuery({
     queryKey: ["tasks"],
     queryFn: () => getBaseData(boardId),
+    throwOnError: true,
   });
 };

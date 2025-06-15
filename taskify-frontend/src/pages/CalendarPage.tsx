@@ -4,13 +4,13 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import { useEffect, useRef } from "react";
 import { useTasks } from "@/hooks/useTasks";
-import { useUser } from "@/hooks/useUser";
 
 function CalendarPage() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const calendarRef = useRef<InstanceType<typeof FullCalendar> | null>(null);
-  const userInfo = useUser();
-  const { isPending, data, error } = useTasks(userInfo.boardId);
+  const { isPending, data, error } = useTasks(
+    "296a0423-d062-43d7-ad2c-b5be1012af96"
+  );
 
   const dateData = data?.tasks.filter((task) => task.startDate || task.dueDate);
 
