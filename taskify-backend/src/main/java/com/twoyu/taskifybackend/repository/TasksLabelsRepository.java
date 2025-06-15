@@ -40,4 +40,7 @@ public interface TasksLabelsRepository extends JpaRepository<TasksLabels, TaskLa
             where tl.task_id = :taskId
             """)
     List<UUID> getLabelIdsByTaskId(UUID taskId);
+
+    void deleteByIdTaskIdIn(List<UUID> taskIds);
+
 }

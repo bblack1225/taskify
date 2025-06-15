@@ -13,9 +13,12 @@ import java.util.UUID;
 @Repository
 public interface BoardRepository extends JpaRepository<Board, UUID>, JpaSpecificationExecutor<Board> {
 
-    @Query("SELECT b FROM Board b " +
-            "JOIN UserBoard ub ON b.id = ub.id.boardId " +
-            "JOIN Users u ON ub.id.userId = u.id " +
-            "WHERE u.email = :email")
+    @Query("""
+            SELECT b FROM Board b
+            JOIN UserBoard ub ON b.id = ub.id.boardId
+            JOIN Users u ON ub.id.userId = u.id
+            WHERE u.email = :email
+            ORDER BY b.pinnedAt DESC NULLS LAST, b.createdAt DESC
+            """)
     List<Board> findBoardsByUserEmail(@Param("email") String email);
 }

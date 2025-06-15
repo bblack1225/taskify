@@ -20,4 +20,6 @@ public interface LabelsRepository extends JpaRepository<Labels, UUID>, JpaSpecif
             where tl.task_id = :taskId
         """)
     List<Labels> getLabelsByTasksId(UUID taskId);
+
+    void deleteByBoardId(UUID boardId);
 }

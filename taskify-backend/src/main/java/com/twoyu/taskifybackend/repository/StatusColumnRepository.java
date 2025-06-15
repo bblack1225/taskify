@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface StatusColumnRepository extends JpaRepository<StatusColumn, UUID>, JpaSpecificationExecutor<StatusColumn> {
     List<StatusColumn> findAllByBoardIdOrderByDataIndex(UUID boardId);
+    void deleteByBoardId(UUID boardId);
 }
