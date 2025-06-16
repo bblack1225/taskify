@@ -163,6 +163,7 @@ function AddColumn({ boardId, currentColDataIndex }: Props) {
                 onClick={() => {
                   setIsAddingColumn(true);
                 }}
+                className={style.addButton}
               >
                 + 新增其他列表
               </Button>

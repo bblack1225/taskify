@@ -4,7 +4,7 @@ import {
   Text,
   SimpleGrid,
   Button,
-  Group,
+  Flex,
   Tabs,
   Badge,
   Loader,
@@ -70,7 +70,6 @@ export default function AllBoard() {
     mutationFn: createBoard,
     onSuccess: () => {
       boardsMutation.mutate();
-      close();
     },
     onError: (err) => {
       console.log("createBoard", err);
@@ -166,94 +165,96 @@ export default function AllBoard() {
     activeTab === "pinned" ? boards.filter((b) => b.pinnedAt) : boards;
 
   return (
-    <div className={style.all_boardDiv}>
-      <Group justify="space-between" mb="xl">
-        <div>
-          <Title order={2} mb="xs">
-            我的看板
-          </Title>
-          <Text color="dimmed">管理您的看板</Text>
-        </div>
-        <Button leftSection={<IconPlus size={16} />} onClick={open}>
-          新增看板
-        </Button>
-      </Group>
+    <div className={style.all_boardDiv} style={{ minHeight: '100vh' }}>
+      <div className={style.contentWrapper}>
+        <Flex justify="space-between" align="center" mb="xl">
+          <div>
+            <Title order={2} mb="xs">
+              我的看板
+            </Title>
+            <Text>管理您的看板</Text>
+          </div>
+          <Button leftSection={<IconPlus size={16} />} onClick={open}>
+            新增看板
+          </Button>
+        </Flex>
 
-      <Tabs value={activeTab} onChange={setActiveTab} mb="xl">
-        <Tabs.List>
-          <Tabs.Tab value="all">
-            所有看板{" "}
-            <Badge ml={5} variant="light" color="gray" size="xs">
-              {boards.length}
-            </Badge>
-          </Tabs.Tab>
-          <Tabs.Tab value="pinned">
-            已置頂{" "}
-            <Badge ml={5} variant="light" color="gray" size="xs">
-              {boards.filter((b) => b.pinnedAt).length}
-            </Badge>
-          </Tabs.Tab>
-        </Tabs.List>
-      </Tabs>
+        <Tabs value={activeTab} onChange={setActiveTab} mb="xl">
+          <Tabs.List>
+            <Tabs.Tab value="all">
+              所有看板{" "}
+              <Badge ml={5} variant="light" color="gray" size="xs">
+                {boards.length}
+              </Badge>
+            </Tabs.Tab>
+            <Tabs.Tab value="pinned">
+              已置頂{" "}
+              <Badge ml={5} variant="light" color="gray" size="xs">
+                {boards.filter((b) => b.pinnedAt).length}
+              </Badge>
+            </Tabs.Tab>
+          </Tabs.List>
+        </Tabs>
 
-      {boardsMutation.isPending ? (
-        <Center style={{ height: "300px" }}>
-          <Loader color="blue" type="bars" />
-        </Center>
-      ) : filteredBoards.length === 0 ? (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: "300px",
-            textAlign: "center",
-          }}
-        >
-          <Text size="lg" mb="md">
-            找不到看板
-          </Text>
-          <Text color="dimmed" mb="md">
-            {activeTab === "pinned"
-              ? "您尚未置頂任何看板。點擊看板上的圖釘圖示可將其置頂。"
-              : "建立您的第一個看板以開始使用"}
-          </Text>
-          {activeTab !== "pinned" && (
-            <Button leftSection={<IconPlus size={16} />} onClick={open}>
-              建立看板
-            </Button>
-          )}
-        </div>
-      ) : (
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg">
-          {filteredBoards.map((board) => (
-            <BoardCard
-              key={board.id}
-              {...board}
-              onBoardClick={() => handleBoardClick(board.id, board.name)}
-              onPinToggle={handlePinToggle}
-              onDelete={handleDeleteBoard}
-              onEdit={handleEditBoard}
-            />
-          ))}
-        </SimpleGrid>
-      )}
+        {boardsMutation.isPending ? (
+          <Center style={{ height: "300px" }}>
+            <Loader color="blue" type="bars" />
+          </Center>
+        ) : filteredBoards.length === 0 ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "300px",
+              textAlign: "center",
+            }}
+          >
+            <Text size="lg" mb="md">
+              找不到看板
+            </Text>
+            <Text color="dimmed" mb="md">
+              {activeTab === "pinned"
+                ? "您尚未置頂任何看板。點擊看板上的圖釘圖示可將其置頂。"
+                : "建立您的第一個看板以開始使用"}
+            </Text>
+            {activeTab !== "pinned" && (
+              <Button leftSection={<IconPlus size={16} />} onClick={open}>
+                建立看板
+              </Button>
+            )}
+          </div>
+        ) : (
+          <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg">
+            {filteredBoards.map((board) => (
+              <BoardCard
+                key={board.id}
+                {...board}
+                onBoardClick={() => handleBoardClick(board.id, board.name)}
+                onPinToggle={handlePinToggle}
+                onDelete={handleDeleteBoard}
+                onEdit={handleEditBoard}
+              />
+            ))}
+          </SimpleGrid>
+        )}
 
-      <CreateBoardModal
-        opened={opened}
-        onClose={close}
-        onSubmit={handleCreateBoard}
-      />
-
-      {editingBoard && (
-        <EditBoardModal
-          opened={!!editingBoard}
-          onClose={() => setEditingBoard(null)}
-          board={editingBoard}
-          onSave={handleSaveBoard}
+        <CreateBoardModal
+          opened={opened}
+          onClose={close}
+          onSubmit={handleCreateBoard}
         />
-      )}
+
+        {editingBoard && (
+          <EditBoardModal
+            opened={!!editingBoard}
+            onClose={() => setEditingBoard(null)}
+            board={editingBoard}
+            onSave={handleSaveBoard}
+          />
+        )}
+      </div>
     </div>
   );
 }

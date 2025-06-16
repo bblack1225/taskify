@@ -12,6 +12,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import { zhTW } from "date-fns/locale";
 import { IconPin, IconTrash, IconPencil } from "@tabler/icons-react";
 import { useState } from "react";
+import style from "./BoardCard.module.scss";
 
 interface BoardCardProps {
   id: string;
@@ -65,12 +66,13 @@ export function BoardCard({
       radius="md"
       withBorder
       style={{
-        borderTop: `4px solid ${themeColor}`,
         height: "100%",
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
+        cursor: "pointer",
       }}
+      className={style.boardCard}
       onClick={() => onBoardClick(id)}
     >
       {/* 上半部背景和圖示 */}

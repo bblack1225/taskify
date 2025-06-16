@@ -93,9 +93,9 @@ export function CreateBoardModal({
     >
       <form
         onSubmit={form.onSubmit((values) => {
-          console.log("values", values);
           onSubmit(values);
-          // form.reset();
+          onClose();
+          form.reset();
         })}
       >
         <TextInput

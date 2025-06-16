@@ -7,10 +7,12 @@ import {
   Loader,
   Menu,
   Modal,
-  Center,
+  Text,
+  Group,
 } from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
 import { useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
 import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { delColumn, editColumn } from "@/api/column";
@@ -22,7 +24,6 @@ import { useDisclosure } from "@mantine/hooks";
 import TaskCardList from "./TaskCardList";
 import { calculateDataIndex } from "@/utils";
 import { useTasks } from "@/hooks/useTasks";
-import { useParams } from "react-router-dom";
 
 function selectColumnsWithTasks(data: BaseDataRes): ColumnResType[] {
   return data.columns.map((column) => ({
@@ -102,15 +103,6 @@ function TaskColumn() {
     },
   });
 
-  if (isPending)
-    return (
-      <div style={{ margin: "0 auto" }}>
-        <Loader color="#4592af" type="dots" />
-      </div>
-    );
-
-  if (error) return "An error has occurred: " + error.message;
-
   // find the last column's dataIndex
   const currentColDataIndex = calculateDataIndex(columnsWithTasks);
 
@@ -121,77 +113,97 @@ function TaskColumn() {
     });
   };
 
-  const handleDelColumn = () => {
-    deleteMutation.mutate(currentDelId);
-    setCurrentDelId("");
+  const handleDeleteColumn = () => {
+    if (currentDelId) {
+      deleteMutation.mutate(currentDelId);
+      close();
+    }
   };
 
+  if (isPending) {
+    return (
+      <Flex justify="center" align="center" style={{ height: "100%" }}>
+        <Loader color="#4592af" type="dots" />
+      </Flex>
+    );
+  }
+
+  if (error)
+    return <Text color="red">An error has occurred: {error.message}</Text>;
+
   return (
-    <Flex className={style.container}>
-      {columnsWithTasks.map((column: ColumnResType) => (
-        <Flex style={{ flexShrink: 0 }} key={column.id}>
-          <Box>
-            <Stack className={style.columnContainer}>
-              <Flex className={style.titleContainer}>
-                <ColumnTitleTextarea
-                  id={column.id}
-                  title={column.title}
-                  onSave={handleEditTitle}
-                />
-                <Menu shadow="md" width={200}>
-                  <Menu.Target>
-                    <ActionIcon
-                      className={style.actionIcon}
-                      variant="transparent"
-                      aria-label="Settings"
-                      color="black"
-                      size={"xl"}
-                    >
-                      <IconDots size="1.125rem" />
-                    </ActionIcon>
-                  </Menu.Target>
-                  <Menu.Dropdown>
-                    <Menu.Label>列表動作</Menu.Label>
-                    <Menu.Divider />
-                    <Menu.Item
-                      color="red"
-                      leftSection={<IconTrash />}
-                      onClick={() => {
-                        open();
-                        setCurrentDelId(column.id);
-                      }}
-                    >
-                      刪除列表
-                    </Menu.Item>
-                  </Menu.Dropdown>
-                </Menu>
-              </Flex>
-              <TaskCardList column={column} />
-            </Stack>
-          </Box>
-        </Flex>
-      ))}
-      <AddColumn
-        boardId={boardId || ""}
-        currentColDataIndex={currentColDataIndex}
-      />
+    <Flex direction="column" gap="md" p="md">
+      <Flex className={style.container}>
+        {columnsWithTasks.map((column: ColumnResType) => (
+          <Flex key={column.id} style={{ flexShrink: 0 }}>
+            <Box>
+              <Stack className={style.columnContainer}>
+                <Flex className={style.titleContainer}>
+                  <ColumnTitleTextarea
+                    id={column.id}
+                    title={column.title}
+                    onSave={handleEditTitle}
+                  />
+                  <Menu shadow="md" width={200}>
+                    <Menu.Target>
+                      <ActionIcon
+                        className={style.actionIcon}
+                        variant="transparent"
+                        aria-label="Column actions"
+                        color="black"
+                        size="xl"
+                      >
+                        <IconDots size="1.125rem" />
+                      </ActionIcon>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      <Menu.Label>列表動作</Menu.Label>
+                      <Menu.Divider />
+                      <Menu.Item
+                        color="red"
+                        leftSection={<IconTrash />}
+                        onClick={() => {
+                          open();
+                          setCurrentDelId(column.id);
+                        }}
+                      >
+                        刪除列表
+                      </Menu.Item>
+                    </Menu.Dropdown>
+                  </Menu>
+                </Flex>
+                <TaskCardList column={column} />
+              </Stack>
+            </Box>
+          </Flex>
+        ))}
+
+        <AddColumn
+          boardId={boardId || ""}
+          currentColDataIndex={currentColDataIndex}
+        />
+      </Flex>
+
       <Modal
-        centered
         opened={opened}
         onClose={close}
+        title="確認刪除"
+        centered
         radius={10}
-        size="sm"
-        title="您確定要刪除這個列表嗎？"
-        overlayProps={{
-          backgroundOpacity: 0.1,
-          blur: 2,
-        }}
       >
-        <Center>
-          <Button color="red" onClick={handleDelColumn}>
-            確定刪除
+        <Text mb="md">確定要刪除此列表嗎？此操作無法復原。</Text>
+        <Group justify="flex-end">
+          <Button variant="default" onClick={close}>
+            取消
           </Button>
-        </Center>
+          <Button
+            color="red"
+            onClick={handleDeleteColumn}
+            loading={deleteMutation.isPending}
+          >
+            刪除
+          </Button>
+        </Group>
       </Modal>
     </Flex>
   );
