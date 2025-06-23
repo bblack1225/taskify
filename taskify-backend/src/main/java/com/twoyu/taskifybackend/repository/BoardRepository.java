@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -21,4 +22,13 @@ public interface BoardRepository extends JpaRepository<Board, UUID>, JpaSpecific
             ORDER BY b.pinnedAt DESC NULLS LAST, b.createdAt DESC
             """)
     List<Board> findBoardsByUserEmail(@Param("email") String email);
+
+    @Query("""
+            SELECT b FROM Board b
+                      JOIN UserBoard ub ON b.id = ub.id.boardId
+                      JOIN Users u ON ub.id.userId = u.id
+    WHERE u.email = :email
+    and b.id = :boardId
+    """)
+    Optional<Board> findByIdAndUserEmail(String email, UUID boardId);
 }

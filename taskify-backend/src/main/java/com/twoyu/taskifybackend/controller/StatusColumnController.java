@@ -13,6 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -47,5 +49,4 @@ public class StatusColumnController {
         System.out.println(authentication.getName());
         return statusColumnService.queryBaseData(boardId);
     }
-
 }

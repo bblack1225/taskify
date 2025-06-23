@@ -6,6 +6,7 @@ import com.twoyu.taskifybackend.model.entity.*;
 import com.twoyu.taskifybackend.model.vo.request.CreateBoardRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateBoardRequest;
 import com.twoyu.taskifybackend.model.vo.response.CreateBoardResponse;
+import com.twoyu.taskifybackend.model.vo.response.QueryBoardDetailResponse;
 import com.twoyu.taskifybackend.model.vo.response.QueryBoardResponse;
 import com.twoyu.taskifybackend.model.vo.response.UpdateBoardResponse;
 import com.twoyu.taskifybackend.repository.*;
@@ -153,6 +154,29 @@ public class BoardService implements IBoardService {
         log.info("Deleting board: {}", boardId);
         boardRepository.delete(board);
 
+    }
+
+    /**
+     * 查詢看板詳細資訊
+     * @param boardId 看板ID
+     * @return QueryBoardDetailResponse
+     */
+    @Override
+    public QueryBoardDetailResponse queryBoardDetail(UUID boardId) {
+        Users user = getCurrentUser();
+        Board board = boardRepository.findByIdAndUserEmail(user.getEmail(), boardId)
+                .orElseThrow(() -> new ServiceException("Board Not Found"));
+
+        return new QueryBoardDetailResponse(
+                board.getId(),
+                board.getName(),
+                board.getDescription(),
+                board.getIcon(),
+                board.getThemeColor(),
+                DateUtils.dateToDateStr(board.getModifiedAt()),
+                DateUtils.dateToDateStr(board.getCreatedAt()),
+                DateUtils.dateToDateStr(board.getPinnedAt())
+        );
     }
 
     /**

@@ -3,6 +3,7 @@ package com.twoyu.taskifybackend.service;
 import com.twoyu.taskifybackend.model.vo.request.CreateBoardRequest;
 import com.twoyu.taskifybackend.model.vo.request.UpdateBoardRequest;
 import com.twoyu.taskifybackend.model.vo.response.CreateBoardResponse;
+import com.twoyu.taskifybackend.model.vo.response.QueryBoardDetailResponse;
 import com.twoyu.taskifybackend.model.vo.response.QueryBoardResponse;
 import com.twoyu.taskifybackend.model.vo.response.UpdateBoardResponse;
 
@@ -16,4 +17,5 @@ public interface IBoardService {
     UpdateBoardResponse updateBoard(UUID boardId, UpdateBoardRequest request);
     void togglePinBoard(UUID boardId);
     void deleteBoard(UUID boardId);
+    QueryBoardDetailResponse queryBoardDetail(UUID boardId);
 }
