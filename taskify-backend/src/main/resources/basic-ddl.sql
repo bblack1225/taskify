@@ -107,19 +107,6 @@ create table tasks_labels
 alter table tasks_labels
     owner to "user";
 
-create table user_board
-(
-    user_id  uuid        not null
-        references users,
-    board_id uuid        not null
-        references board,
-    role     varchar(50) not null,
-    primary key (user_id, board_id)
-);
-
-alter table user_board
-    owner to "user";
-
 create table users
 (
     id          uuid                                not null
@@ -146,5 +133,18 @@ comment on column users.created_at is '建立日期';
 comment on column users.modified_at is '修改日期';
 
 alter table users
+    owner to "user";
+
+create table user_board
+(
+    user_id  uuid        not null
+        references users,
+    board_id uuid        not null
+        references board,
+    role     varchar(50) not null,
+    primary key (user_id, board_id)
+);
+
+alter table user_board
     owner to "user";
 
