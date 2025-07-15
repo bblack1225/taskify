@@ -7,8 +7,8 @@ import {
   Flex,
   Tabs,
   Badge,
-  Loader,
   Center,
+  Loader,
 } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { CreateBoardModal } from "@/components/board/CreateBoardModal";
@@ -22,9 +22,9 @@ import {
   getBoards,
   togglePinBoard,
 } from "@/api/boards";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BoardData } from "@/types/board";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext, useLocation } from "react-router-dom";
 
 interface Board {
   id: string;
@@ -47,24 +47,36 @@ export default function AllBoard() {
   const open = () => setOpened(true);
   const close = () => setOpened(false);
   const [activeTab, setActiveTab] = useState<string | null>("all"); // 'all' 或 'pinned'
-  const [boards, setBoards] = useState<Board[]>([]);
   const [editingBoard, setEditingBoard] = useState<Board | null>(null);
+  const [boards, setBoards] = useState<Board[]>([]);
+  const [loading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryClient = useQueryClient();
 
   const boardsMutation = useMutation({
     mutationFn: getBoards,
     onSuccess: (resData) => {
-      // console.log("getBoards", resData);
+      setIsLoading(false);
       setBoards(resData as unknown as Board[]);
     },
     onError: (err) => {
       console.log("getBoards", err);
+      setIsLoading(false); // 錯誤時也要關閉 loading
     },
   });
 
+  // 監聽路由變化，清空資料並重新載入
   useEffect(() => {
+    // 立即重置所有狀態
+    setBoards([]);
+    setIsLoading(true); // 設定載入狀態
+    setActiveTab("all");
+    setEditingBoard(null);
+
+    // 立即載入新資料，不延遲
     boardsMutation.mutate();
-  }, []);
+  }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const createBoardMutation = useMutation({
     mutationFn: createBoard,
@@ -153,8 +165,15 @@ export default function AllBoard() {
   };
 
   const handleBoardClick = (boardId: string, boardName: string) => {
-    setIsNavBoardOpen(false);
-    navigate(`/board/${boardId}`, { state: { boardName } });
+    // 清除所有查詢快取
+    queryClient.clear();
+
+    // 使用 requestAnimationFrame 確保在下一幀再進行導航
+    requestAnimationFrame(() => {
+      navigate(`/board/${boardId}`, { state: { boardName } });
+      // 延遲更新狀態，避免與路由切換動畫衝突
+      setTimeout(() => setIsNavBoardOpen(false), 100);
+    });
   };
 
   const handlePinToggle = (boardId: string) => {
@@ -165,7 +184,11 @@ export default function AllBoard() {
     activeTab === "pinned" ? boards.filter((b) => b.pinnedAt) : boards;
 
   return (
-    <div className={style.all_boardDiv} style={{ minHeight: '100vh' }}>
+    <div
+      key={location.key}
+      className={style.all_boardDiv}
+      style={{ minHeight: "100vh" }}
+    >
       <div className={style.contentWrapper}>
         <Flex justify="space-between" align="center" mb="xl">
           <div>
@@ -195,10 +218,9 @@ export default function AllBoard() {
             </Tabs.Tab>
           </Tabs.List>
         </Tabs>
-
-        {boardsMutation.isPending ? (
-          <Center style={{ height: "300px" }}>
-            <Loader color="blue" type="bars" />
+        {loading ? (
+          <Center>
+            <Loader type="bars" color="blue" />
           </Center>
         ) : filteredBoards.length === 0 ? (
           <div
@@ -214,7 +236,7 @@ export default function AllBoard() {
             <Text size="lg" mb="md">
               找不到看板
             </Text>
-            <Text color="dimmed" mb="md">
+            <Text mb="md">
               {activeTab === "pinned"
                 ? "您尚未置頂任何看板。點擊看板上的圖釘圖示可將其置頂。"
                 : "建立您的第一個看板以開始使用"}

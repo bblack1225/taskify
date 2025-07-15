@@ -2,11 +2,8 @@
 
 .container {
   width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
   flex: 1;
   gap: 16px;
-  padding: 0 16px;
 
   .columnContainer {
     width: 320px;

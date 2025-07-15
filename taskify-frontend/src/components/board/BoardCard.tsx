@@ -148,7 +148,7 @@ export function BoardCard({
         </Text>
 
         <Group justify="space-between" mt="auto" gap="xs">
-          <Text size="xs" color="dimmed" style={{ fontSize: "0.75rem" }}>
+          <Text size="xs" style={{ fontSize: "0.75rem" }}>
             {formatDistanceToNow(new Date(createdAt), {
               addSuffix: true,
               locale: zhTW,
