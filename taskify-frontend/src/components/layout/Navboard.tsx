@@ -1,6 +1,5 @@
 import { Box, Button, Flex, Stack } from "@mantine/core";
 import {
-  IconAlignBoxBottomCenter,
   IconCalendarSearch,
   IconChevronLeft,
   IconChevronRight,
@@ -53,6 +52,19 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
           >
             <Stack pt={10}>
               <NavLink
+                to="/allBoards"
+                className={({ isActive }) => (isActive ? style.active : "")}
+                style={{ width: "120px" }}
+              >
+                <Button
+                  color="#d55b3e"
+                  w={"120px"}
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <Box p={10}>所有看板</Box>
+                </Button>
+              </NavLink>
+              {/* <NavLink
                 to="/board"
                 className={({ isActive }) => (isActive ? style.active : "")}
                 style={{ width: "120px" }}
@@ -65,7 +77,7 @@ function NavBoard({ isNavBoardOpen, setIsNavBoardOpen }: Props) {
                   <IconAlignBoxBottomCenter />
                   <Box p={10}>看板</Box>
                 </Button>
-              </NavLink>
+              </NavLink> */}
               <NavLink
                 to="/calendar"
                 className={({ isActive }) => (isActive ? style.active : "")}

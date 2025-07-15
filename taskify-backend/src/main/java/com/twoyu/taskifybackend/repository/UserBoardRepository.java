@@ -10,4 +10,5 @@ import java.util.UUID;
 
 public interface UserBoardRepository extends JpaRepository<UserBoard, UserBoardId>, JpaSpecificationExecutor<UserBoard> {
     List<UserBoard> findByIdUserId(UUID userId);
+    void deleteByIdBoardId(UUID boardId);
 }

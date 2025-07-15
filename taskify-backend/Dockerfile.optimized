@@ -1,0 +1,23 @@
+# 優化版 Dockerfile - 利用 Docker 層快取減少 dependency 重新下載
+FROM maven:3.9.5-eclipse-temurin-17 AS build
+
+WORKDIR /home/app
+
+# 先複製 pom.xml 並下載 dependencies
+# 這樣如果 pom.xml 沒變，Docker 會使用快取，不會重新下載
+COPY pom.xml .
+RUN mvn dependency:resolve dependency:resolve-sources -B
+
+# 再複製原始碼並編譯
+# 如果只有程式碼變動，上面的 dependencies 層會被快取
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# 執行階段
+FROM eclipse-temurin:17
+
+COPY --from=build /home/app/target/*.jar /usr/local/lib/app.jar
+
+EXPOSE 8088
+
+ENTRYPOINT ["java", "-jar", "/usr/local/lib/app.jar"]

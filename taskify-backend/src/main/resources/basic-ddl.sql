@@ -5,11 +5,20 @@ create table board
     name        varchar(100)                        not null,
     description text,
     created_at  timestamp default CURRENT_TIMESTAMP not null,
-    modified_at timestamp
+    modified_at timestamp,
+    icon        varchar(50)                         not null,
+    theme_color varchar(50)                         not null,
+    pinned_at   timestamp
 );
 
+comment on column board.icon is '看板設定得icon';
+
+comment on column board.theme_color is '看板主題色';
+
+comment on column board.pinned_at is '釘選時間';
+
 alter table board
-    owner to root;
+    owner to "user";
 
 create table labels
 (
@@ -35,7 +44,7 @@ create table status_column
             primary key,
     title       varchar(50)                         not null,
     color       varchar(10),
-    data_index  double precision                    not null,
+    data_index  integer                             not null,
     created_at  timestamp default CURRENT_TIMESTAMP not null,
     modified_at timestamp,
     board_id    uuid                                not null
@@ -60,7 +69,7 @@ create table tasks
         constraint tasks_pk
             primary key,
     name        varchar(50)                         not null,
-    data_index  double precision                    not null,
+    data_index  integer                             not null,
     description text      default ''::text          not null,
     status_id   uuid                                not null
         constraint tasks_status_column_id_fk

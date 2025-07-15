@@ -1,36 +1,58 @@
 @import "/src/themes/theme.scss";
 
 .columnContainer {
-  width: 300px;
-  background-color: $primary;
-  padding: 12px 8px;
-  border-radius: 10px;
-  max-height: calc(100% - 20px);
+  width: 320px;
+  background-color: $primary--light;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
   .taskTitle {
     margin: 0 4px;
     textarea {
-      color: $white;
+      color: $gray-dark;
       font-size: 1.1rem;
       font-weight: 600;
       border: none;
       border-radius: 8px;
-      color: $gray-dark;
-      box-shadow: inset 0 0 0 1px $blue;
-      background-color: $gray--light;
+      padding: 8px;
+      transition: all 0.2s ease;
+
+      &:focus {
+        box-shadow: inset 0 0 0 1px $blue;
+        background-color: white;
+      }
     }
   }
+
   .addNewCardButton {
     color: $gray-dark;
-    background-color: $primary--light;
+    background-color: white;
     margin-right: 4px;
-  }
-  .actionIcon {
+    transition: all 0.2s ease;
+
     &:hover {
-      background: $primary--dark;
+      background-color: $primary--light;
+      transform: translateY(-1px);
+    }
+  }
+
+  .actionIcon {
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+      transform: scale(1.1);
     }
   }
 }
 
 .addButtonContainer {
+  margin-top: 12px;
   overflow: visible;
+}
+
+.addButton {
+  width: 100%;
+  height: 40px;
 }

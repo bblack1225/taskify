@@ -241,7 +241,9 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
       width={300}
       opened={isOpened}
       onChange={setIsOpened}
-      onClose={() => setCurrentMode(labelMenuMode.DEFAULT)}
+      onClose={() => {
+        setCurrentMode(labelMenuMode.DEFAULT);
+      }}
     >
       <Menu.Target>
         <Button
@@ -251,7 +253,6 @@ function TaskLabelMenu({ selectedLabels, onLabelChange }: Props) {
           標籤
         </Button>
       </Menu.Target>
-
       <Menu.Dropdown>
         <Menu.Label
           style={{

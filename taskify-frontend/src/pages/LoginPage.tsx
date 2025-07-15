@@ -20,11 +20,12 @@ import {
 function LoginPage() {
   const location = useLocation();
   const navigate = useNavigate();
+
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (resData) => {
       localStorage.setItem("token", resData.token);
-      const redirectTo = location.state ? location.state.from.to : "/board";
+      const redirectTo = location.state ? location.state.from.to : "/allBoards";
       navigate(redirectTo);
     },
     onError: () => {
@@ -55,7 +56,7 @@ function LoginPage() {
   });
   const token = localStorage.getItem("token");
   if (token) {
-    return <Navigate to={"/board"} replace />;
+    return <Navigate to={"/allBoards"} replace />;
   }
 
   return (

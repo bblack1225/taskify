@@ -4,13 +4,15 @@ import {
   Flex,
   Stack,
   ActionIcon,
-  Loader,
   Menu,
   Modal,
-  Center,
+  Text,
+  Group,
+  Skeleton,
 } from "@mantine/core";
 import style from "@/components/TaskColumn.module.scss";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
 import { IconDots, IconMoodCheck, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { delColumn, editColumn } from "@/api/column";
@@ -22,7 +24,7 @@ import { useDisclosure } from "@mantine/hooks";
 import TaskCardList from "./TaskCardList";
 import { calculateDataIndex } from "@/utils";
 import { useTasks } from "@/hooks/useTasks";
-import { useUser } from "@/hooks/useUser";
+import TBstyle from "@/pages/Taskboard.module.scss";
 
 function selectColumnsWithTasks(data: BaseDataRes): ColumnResType[] {
   return data.columns.map((column) => ({
@@ -34,9 +36,18 @@ function selectColumnsWithTasks(data: BaseDataRes): ColumnResType[] {
 function TaskColumn() {
   const [opened, { open, close }] = useDisclosure(false);
   const [currentDelId, setCurrentDelId] = useState("");
-  const userInfo = useUser();
+  const [animationPhase, setAnimationPhase] = useState(0);
+  const { boardId } = useParams<{ boardId: string }>();
 
-  const { isPending, data, error } = useTasks(userInfo.boardId);
+  const { isPending, data, error } = useTasks(boardId || "");
+
+  // 切換動畫階段
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setAnimationPhase((prev) => (prev + 1) % 3);
+    }, 500); // 每0.5秒切換一次
+    return () => clearInterval(timer);
+  }, []);
 
   const columnsWithTasks = useMemo(() => {
     if (!data) {
@@ -102,15 +113,6 @@ function TaskColumn() {
     },
   });
 
-  if (isPending)
-    return (
-      <div style={{ margin: "0 auto" }}>
-        <Loader color="#4592af" type="dots" />
-      </div>
-    );
-
-  if (error) return "An error has occurred: " + error.message;
-
   // find the last column's dataIndex
   const currentColDataIndex = calculateDataIndex(columnsWithTasks);
 
@@ -121,77 +123,151 @@ function TaskColumn() {
     });
   };
 
-  const handleDelColumn = () => {
-    deleteMutation.mutate(currentDelId);
-    setCurrentDelId("");
+  const handleDeleteColumn = () => {
+    if (currentDelId) {
+      deleteMutation.mutate(currentDelId);
+      close();
+    }
   };
 
+  if (error) return <Text>An error has occurred: {error.message}</Text>;
+
   return (
-    <Flex className={style.container}>
-      {columnsWithTasks.map((column: ColumnResType) => (
-        <Flex style={{ flexShrink: 0 }} key={column.id}>
-          <Box>
-            <Stack className={style.columnContainer}>
-              <Flex className={style.titleContainer}>
-                <ColumnTitleTextarea
-                  id={column.id}
-                  title={column.title}
-                  onSave={handleEditTitle}
-                />
-                <Menu shadow="md" width={200}>
-                  <Menu.Target>
-                    <ActionIcon
-                      className={style.actionIcon}
-                      variant="transparent"
-                      aria-label="Settings"
-                      color="black"
-                      size={"xl"}
-                    >
-                      <IconDots size="1.125rem" />
-                    </ActionIcon>
-                  </Menu.Target>
-                  <Menu.Dropdown>
-                    <Menu.Label>列表動作</Menu.Label>
-                    <Menu.Divider />
-                    <Menu.Item
-                      color="red"
-                      leftSection={<IconTrash />}
-                      onClick={() => {
-                        open();
-                        setCurrentDelId(column.id);
-                      }}
-                    >
-                      刪除列表
-                    </Menu.Item>
-                  </Menu.Dropdown>
-                </Menu>
+    <Flex
+      direction="column"
+      gap="md"
+      pt={24}
+      style={{
+        borderTop: "1px solid #CCC",
+        width: "fit-content",
+        paddingRight: "24px",
+      }}
+    >
+      <Flex className={style.container}>
+        {isPending ? (
+          <Stack w={"2000px"} h="100vh" style={{ overflow: "auto hidden" }}>
+            <Flex
+              className={TBstyle.container}
+              justify="space-between"
+              align="center"
+            >
+              <Skeleton height={28} width={200} radius="sm" />
+              <Skeleton height={36} width={120} radius="md" />
+            </Flex>
+            <Flex gap="md" p="md">
+              {[1, 2, 3].map((_, index) => (
+                <div
+                  key={index}
+                  style={{
+                    width: "300px",
+                    height:
+                      index === animationPhase
+                        ? "400px"
+                        : index === animationPhase + 1
+                        ? "300px"
+                        : "200px",
+                    background: "rgba(0, 0, 0, 0.03)",
+                    borderRadius: "8px",
+                    transition: "all 0.5s ease-in-out",
+                    opacity: 0.8,
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                  }}
+                >
+                  <div
+                    style={{
+                      height: "30px",
+                      width: "60%",
+                      background: "rgba(0, 0, 0, 0.05)",
+                      margin: "10px",
+                      borderRadius: "4px",
+                    }}
+                  />
+                </div>
+              ))}
+            </Flex>
+          </Stack>
+        ) : (
+          <>
+            {columnsWithTasks.map((column: ColumnResType) => (
+              <Flex
+                key={column.id}
+                style={{
+                  flexShrink: 0,
+                  height: "600px",
+                }}
+              >
+                <Box>
+                  <Stack className={style.columnContainer}>
+                    <Flex className={style.titleContainer}>
+                      <ColumnTitleTextarea
+                        id={column.id}
+                        title={column.title}
+                        onSave={handleEditTitle}
+                      />
+                      <Menu shadow="md" width={200}>
+                        <Menu.Target>
+                          <ActionIcon
+                            className={style.actionIcon}
+                            variant="transparent"
+                            aria-label="Column actions"
+                            color="black"
+                            size="xl"
+                          >
+                            <IconDots size="1.125rem" />
+                          </ActionIcon>
+                        </Menu.Target>
+                        <Menu.Dropdown>
+                          <Menu.Label>列表動作</Menu.Label>
+                          <Menu.Divider />
+                          <Menu.Item
+                            color="red"
+                            leftSection={<IconTrash />}
+                            onClick={() => {
+                              open();
+                              setCurrentDelId(column.id);
+                            }}
+                          >
+                            刪除列表
+                          </Menu.Item>
+                        </Menu.Dropdown>
+                      </Menu>
+                    </Flex>
+                    <TaskCardList column={column} />
+                  </Stack>
+                </Box>
               </Flex>
-              <TaskCardList column={column} />
-            </Stack>
-          </Box>
-        </Flex>
-      ))}
-      <AddColumn
-        boardId={userInfo.boardId}
-        currentColDataIndex={currentColDataIndex}
-      />
+            ))}
+
+            {data && (
+              <AddColumn
+                boardId={boardId || ""}
+                currentColDataIndex={currentColDataIndex}
+              />
+            )}
+          </>
+        )}
+      </Flex>
+
       <Modal
-        centered
         opened={opened}
         onClose={close}
+        title="確認刪除"
+        centered
         radius={10}
-        size="sm"
-        title="您確定要刪除這個列表嗎？"
-        overlayProps={{
-          backgroundOpacity: 0.1,
-          blur: 2,
-        }}
       >
-        <Center>
-          <Button color="red" onClick={handleDelColumn}>
-            確定刪除
+        <Text mb="md">確定要刪除此列表嗎？此操作無法復原。</Text>
+        <Group justify="flex-end">
+          <Button variant="default" onClick={close}>
+            取消
           </Button>
-        </Center>
+          <Button
+            color="red"
+            onClick={handleDeleteColumn}
+            loading={deleteMutation.isPending}
+          >
+            刪除
+          </Button>
+        </Group>
       </Modal>
     </Flex>
   );

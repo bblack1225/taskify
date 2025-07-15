@@ -28,4 +28,6 @@ public interface TasksRepository extends JpaRepository<Tasks, UUID>, JpaSpecific
             """)
     List<TaskLabelsProjection> getAllTasksWithLabelsId(UUID boardId);
 
+    List<Tasks> findAllByBoardId(UUID boardId);
+
 }

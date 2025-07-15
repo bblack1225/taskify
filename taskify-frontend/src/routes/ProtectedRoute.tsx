@@ -8,13 +8,21 @@ export const ProtectedRoute = () => {
   const token = localStorage.getItem("token");
   const isAuthenticated = token ? true : false;
 
+  const pathSegments = location.pathname.split("/");
+  const boardId =
+    pathSegments[1] === "board" && pathSegments[2] ? pathSegments[2] : null;
+
   return (
     <>
       {isAuthenticated ? (
         <UserProvider>
-          <LabelsProvider >
+          {boardId ? (
+            <LabelsProvider boardId={boardId}>
+              <MainLayout />
+            </LabelsProvider>
+          ) : (
             <MainLayout />
-          </LabelsProvider>
+          )}
         </UserProvider>
       ) : (
         <Navigate replace to={"/login"} state={{ from: location }} />

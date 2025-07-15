@@ -1,15 +1,13 @@
 import useLabels from "@/hooks/useLabels";
 import { LabelsContext } from "./useLabelsData";
-import { useUser } from "@/hooks/useUser";
 
 type Props = {
   children: React.ReactNode;
+  boardId: string;
 };
 
-export const LabelsProvider = ({ children }: Props) => {
-  const userInfo = useUser();
-  
-  const { data: labels = [], isPending } = useLabels(userInfo.boardId);
+export const LabelsProvider = ({ children, boardId }: Props) => {
+  const { data: labels = [], isPending } = useLabels(boardId);
   if (isPending) {
     return null;
   }

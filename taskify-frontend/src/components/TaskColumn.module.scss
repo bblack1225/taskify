@@ -2,28 +2,33 @@
 
 .container {
   width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
   flex: 1;
-  gap: 10px;
+  gap: 16px;
+
   .columnContainer {
-    width: 300px;
-    background-color: $primary;
-    padding: 12px 8px;
-    border-radius: 10px;
+    width: 320px;
+    background-color: $primary--light;
+    padding: 16px;
+    border-radius: 16px;
     max-height: calc(100% - 20px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
+
   .taskTitle {
     margin: 0 4px;
     textarea {
-      color: $white;
+      color: $gray-dark;
       font-size: 1.1rem;
       font-weight: 600;
       border: none;
       border-radius: 8px;
-      color: $gray--light;
-      box-shadow: inset 0 0 0 1px $blue;
-      background-color: $white;
+      padding: 8px;
+      transition: all 0.2s ease;
+
+      &:focus {
+        box-shadow: inset 0 0 0 1px $blue;
+        background-color: white;
+      }
     }
   }
 }
@@ -31,16 +36,31 @@
 .titleContainer {
   overflow: visible;
   justify-content: space-between;
+  margin-bottom: 12px;
 }
 
 .taskContainer {
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 2px 4px;
-  gap: 8px;
+  padding: 4px;
+  gap: 12px;
+  max-height: calc(100vh - 200px);
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+  }
 }
 
 .addButtonContainer {
-  // padding: 0px 4px;
+  margin-top: 12px;
   overflow: visible;
 }
