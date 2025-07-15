@@ -12,20 +12,20 @@ services:
       POSTGRES_USER: user
     networks:
       - taskify-network
-  pgadmin:
-    container_name: my_pgadmin
-    image: 'dpage/pgadmin4'
-    ports:
-      - '5050:80'
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    networks:
-      - taskify-network
+#  pgadmin:
+#    container_name: my_pgadmin
+#    image: 'dpage/pgadmin4'
+#    ports:
+#      - '5050:80'
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+#      PGADMIN_DEFAULT_PASSWORD: admin
+#    volumes:
+#      - pgadmin_data:/var/lib/pgadmin
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+#    networks:
+#      - taskify-network
   app:
     build: .
     environment:
@@ -35,7 +35,7 @@ services:
       - "SPRING_DATASOURCE_URL=jdbc:postgresql://postgres/taskify"
     container_name: taskify_backend
     ports:
-      - "8088:8088"
+      - "8087:8088"
     depends_on:
       - postgres
     networks:
